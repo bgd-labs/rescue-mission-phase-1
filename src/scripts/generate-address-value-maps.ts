@@ -173,13 +173,13 @@ async function main() {
   // await fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet, 'self').then(() =>
   //   console.log('finished'),
   // );
-  await fetchTxns(
-    'AAVE',
-    TOKENS.STKAAVE,
-    ChainId.mainnet,
-    'stkAAVE',
-    validateStkEvents,
-  ).then(() => console.log('finished'));
+  // await fetchTxns(
+  //   'AAVE',
+  //   TOKENS.STKAAVE,
+  //   ChainId.mainnet,
+  //   'stkAAVE',
+  //   validateStkEvents,
+  // ).then(() => console.log('finished'));
 }
 
 main().then(() => console.log('all-finished'));
