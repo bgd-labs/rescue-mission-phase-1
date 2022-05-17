@@ -2,7 +2,6 @@
 .idea
 .vscode
 .env
-.env.local
 
 # Foundry
 out/
