@@ -1,4 +1,4 @@
-import { Contract, Event, EventFilter, providers } from 'ethers';
+import { BigNumber, Contract, Event, EventFilter, providers } from 'ethers';
 import { IERC20__factory } from './typechain/IERC20__factory';
 import fs from 'fs';
 import { ChainId } from '@aave/contract-helpers';
@@ -22,9 +22,9 @@ async function fetchTxns(
   symbol: keyof typeof TOKENS,
   to: string,
   network: keyof typeof JSON_RPC_PROVIDER,
-  name: string,
+  addressValueJson: Record<string, string>,
   validateEvent?: (events: Event[]) => Promise<Event[]>,
-): Promise<void> {
+): Promise<Record<string, string>> {
   const token = TOKENS[symbol];
   const provider = new providers.StaticJsonRpcProvider(
     JSON_RPC_PROVIDER[network],
@@ -83,20 +83,25 @@ async function fetchTxns(
   if (validateEvent) events = await validateEvent(events);
 
   // Write events map of address value to json
-  const addressValueJson: Record<string, string> = {};
   events.forEach((e: Event) => {
     if (e.args) {
-      addressValueJson[e.args.from] = e.args.value.toString();
+      if (addressValueJson[e.args.from]) {
+        const aggregatedValue = BigNumber.from(e.args.value.toString())
+          .add(addressValueJson[e.args.from])
+          .toString();
+        addressValueJson[e.args.from] = aggregatedValue;
+      } else {
+        addressValueJson[e.args.from] = e.args.value.toString();
+      }
     }
   });
 
-  const path = `./maps/${symbol}-${name}.json`;
-  fs.writeFileSync(path, JSON.stringify(addressValueJson));
+  return addressValueJson;
 }
 
 async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
   const { results, errors } = await PromisePool.for(events)
-    .withConcurrency(20)
+    .withConcurrency(50)
     .process(async (event) => {
       try {
         const receipt = await event.getTransactionReceipt();
@@ -124,7 +129,7 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
 async function validateStkEvents(events: Event[]): Promise<Event[]> {
   console.log(events.length);
   const { results, errors } = await PromisePool.for(events)
-    .withConcurrency(20)
+    .withConcurrency(50)
     .process(async (event) => {
       try {
         const receipt = await event.getTransactionReceipt();
@@ -150,36 +155,60 @@ async function validateStkEvents(events: Event[]): Promise<Event[]> {
 }
 
 async function main() {
-  // await fetchTxns('AAVE', migrator, ChainId.mainnet, 'migrator').then(() => console.log('finished'))
-  // await fetchTxns(
-  //   'LEND',
+  let addressValueJson: Record<string, string> = {};
+  // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
+  // addressValueJson = await fetchTxns(
+  //   'AAVE',
   //   migrator,
   //   ChainId.mainnet,
-  //   'migrator',
-  //   validateMigrationEvents
-  // ).then(() => console.log('finished'));
-  // await fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet, 'self').then(() =>
-  //   console.log('finished'),
+  //   addressValueJson,
   // );
-  // await fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet, 'lend').then(() =>
-  //   console.log('finished'),
-  // );
-  // await fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet, 'aave').then(() =>
-  //   console.log('finished'),
-  // );
-  // await fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet, 'self').then(() =>
-  //   console.log('finished'),
-  // );
-  // await fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet, 'self').then(() =>
-  //   console.log('finished'),
-  // );
-  // await fetchTxns(
-  //   'AAVE',
-  //   TOKENS.STKAAVE,
-  //   ChainId.mainnet,
-  //   'stkAAVE',
-  //   validateStkEvents,
-  // ).then(() => console.log('finished'));
+  addressValueJson = await fetchTxns(
+    'LEND',
+    migrator,
+    ChainId.mainnet,
+    addressValueJson,
+    validateMigrationEvents,
+  );
+  addressValueJson = await fetchTxns(
+    'AAVE',
+    TOKENS.AAVE,
+    ChainId.mainnet,
+    addressValueJson,
+  );
+  addressValueJson = await fetchTxns(
+    'AAVE',
+    TOKENS.LEND,
+    ChainId.mainnet,
+    addressValueJson,
+  );
+  addressValueJson = await fetchTxns(
+    'LEND',
+    TOKENS.AAVE,
+    ChainId.mainnet,
+    addressValueJson,
+  );
+  addressValueJson = await fetchTxns(
+    'LEND',
+    TOKENS.LEND,
+    ChainId.mainnet,
+    addressValueJson,
+  );
+  addressValueJson = await fetchTxns(
+    'STKAAVE',
+    TOKENS.STKAAVE,
+    ChainId.mainnet,
+    addressValueJson,
+  );
+  addressValueJson = await fetchTxns(
+    'AAVE',
+    TOKENS.STKAAVE,
+    ChainId.mainnet,
+    addressValueJson,
+    validateStkEvents,
+  );
+  const path = `./maps/aaveRescueMap.json`;
+  fs.writeFileSync(path, JSON.stringify(addressValueJson));
 }
 
 main().then(() => console.log('all-finished'));
