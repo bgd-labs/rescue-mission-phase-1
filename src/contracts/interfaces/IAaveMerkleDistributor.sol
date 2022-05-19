@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IAaveMerkleDistributor {
+    function REVISION() external view returns (uint256);
     // Returns the address of the token distributed by this contract.
     function token() external view returns (address);
     // Returns the merkle root of the merkle tree containing account balances available to claim.
@@ -13,5 +14,5 @@ interface IAaveMerkleDistributor {
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external;
 
     // This event is triggered whenever a call to #claim succeeds.
-    event Claimed(uint256 index, address account, uint256 amount);
+    event Claimed(uint256 index, address indexed account, uint256 amount);
 }

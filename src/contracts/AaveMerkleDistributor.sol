@@ -9,12 +9,13 @@ import {IAaveMerkleDistributor} from './interfaces/IAaveMerkleDistributor.sol';
 contract AaveMerkleDistributor is VersionedInitializable, IAaveMerkleDistributor {
   address public token;
   bytes32 public merkleRoot;
+  uint256 public constant REVISION = 0x1;
 
   // This is a packed array of booleans.
-  mapping(uint256 => uint256) private claimedBitMap;
+  // TODO: this is public as i did not find a way to modify storage
+  // while private on the foundry tests
+  mapping(uint256 => uint256) public claimedBitMap;
 
-  uint256 public constant REVISION = 0x1;
-  
   /// @inheritdoc VersionedInitializable
   function getRevision() internal pure virtual override returns (uint256) {
     return REVISION;
