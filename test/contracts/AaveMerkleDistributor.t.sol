@@ -15,28 +15,28 @@ contract AaveMerkleDistributorTest is Test {
     IERC20 constant AAVE_TOKEN =
         IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
     bytes32 constant MERKLE_ROOT =
-        0x945bde6d8f033d404d8be79d38012422a868723ffc5cc5cfd91951c51c791714;
+        0x4c4d23a859f2a8f1e669f0f04e1af56fc87a27f86a85b66656b93993c985df21;
     address AAVE_MERKLE_DISTRIBUTOR_IMPL;
 
     // test claimer constants
     address constant claimer = 0x00Af54516A94D1aC9eed55721215C8DE9970CdeE;
     uint8 constant claimerIndex = 0;
-    uint256 constant claimerAmount = 0x3415740000000000000000;
+    uint256 constant claimerAmount = 3415740000000000000000;
     bytes32[] claimerMerkleProof = [
-        bytes32(0x2efc7d4a0795618ec623b77ce2cf05bfa58005bdd3d057fc329e26f7b5967eb4),
-        0x7b9098b576c1a875cf4773cade3d06e9d91a70e70b4e74bd67bd0d0104fd29e2,
-        0xfe07447a29780b58d4d488b9637e5ef91a251d73e1e0588dc7d7af109e7e59c1,
-        0x20d27e26b3d18d0ef4a9fbbe7cc42ab5ebb448edc17ba2dd7e9237b3c1d887aa,
-        0xf2924fcc143b8345c309b2e51b154ad63f5d8bb57e0a2dbbc7078dd143ff562c,
-        0x0d5c8fabd731b14ff5008bb93f0e24bdf3be7070b4e0a43a1e7fb4e158bec097,
-        0x13b94bcc2521e71b73e178df38a735405e8d60a34ffa0bcda5a46a565fab8e9e,
-        0x11f5d8d915f079cda2eee136172f7f5c8290d65c13074a305bc8dea4c59d44bf
+        bytes32(0x0436c315e2de71307442570329b4d84d6275cf715d4dbd93feda7af83bc88a95),
+        0x4c2cbf891dc53a2a70d8b2d1fff15503992f36e6816c7e7feefedda8f58141a5,
+        0xfd058858a5bed8c6839072b4a3524a1b077ee414ab2d2cf475f0522c2a8a1ade,
+        0xf2e5bc34b74f557165050040138c0312545692de30c5929fc0c9a01df3b71e69,
+        0x8f7063f3719ab23718b2f3457629da8b9934ce610704c075e969b1100449e3d5,
+        0xf03f8fa824ee510b5ef95ba24d8796e47a295c9b0b6ee4044c1a43f6ba23967a,
+        0xea4cb50e56dc0457ac9aa09b089b8ccc1d74f934442885784cffda11903349b0,
+        0xf492ddfa6d0e5a3133dfcd189b69db46f4fc13afadc6d102ac2035898c7214c1
     ];
 
     AaveMerkleDistributor aaveMerkleDistributor;
 
     // This event is triggered whenever a call to #claim succeeds.
-    event Claimed(uint256 index, address account, uint256 amount);
+    event Claimed(uint256 index, address indexed account, uint256 amount);
 
     function setUp() public {
         AAVE_MERKLE_DISTRIBUTOR_IMPL = address(new AaveMerkleDistributor());
@@ -63,7 +63,7 @@ contract AaveMerkleDistributorTest is Test {
 
         // add funds to distributor contract
         deal(address(AAVE_TOKEN), address(distributorProxy), 10000000 ether);
-        assertEq(AAVE_TOKEN.balanceOf(address(aaveMerkleDistributor)), 10000e18);
+        assertEq(AAVE_TOKEN.balanceOf(address(aaveMerkleDistributor)), 10000000e18);
     }
 
     function testRevision() public {
@@ -97,8 +97,6 @@ contract AaveMerkleDistributorTest is Test {
         vm.expectEmit(false, true, false, true);
         // The event we expect
         emit Claimed(claimerIndex, claimer, claimerAmount);
-
-        console.log('amount::: ', claimerAmount);
 
         // The event we get
         aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof);

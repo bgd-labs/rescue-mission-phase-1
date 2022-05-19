@@ -34,7 +34,7 @@ export function parseBalanceMap(
     : Object.keys(balances).map(
         (account): NewFormat => ({
           address: account,
-          earnings: `0x${balances[account].toString(16)}`,
+          earnings: balances[account].toString(), //`0x${balances[account].toString(16)}`,
           reasons: '',
         }),
       );
@@ -86,7 +86,7 @@ export function parseBalanceMap(
     const { amount, flags } = dataByAddress[address];
     memo[address] = {
       index,
-      amount: amount.toHexString(),
+      amount: amount.toString(),
       proof: tree.getProof(index, address, amount),
       ...(flags ? { flags } : {}),
     };
@@ -100,7 +100,7 @@ export function parseBalanceMap(
 
   return {
     merkleRoot: tree.getHexRoot(),
-    tokenTotal: tokenTotal.toHexString(),
+    tokenTotal: tokenTotal.toString(),
     claims,
   };
 }
