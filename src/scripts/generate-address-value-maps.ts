@@ -65,7 +65,7 @@ async function fetchTxns(
           Number(newFromBlock),
           Number(newToBlock),
         );
-        const arr2 = await getPastLogs(Number(newToBlock), toBlock);
+        const arr2 = await getPastLogs(Number(newToBlock) + 1, toBlock);
         return [...arr1, ...arr2];
 
         // solution that will work with generic rpcs
@@ -86,7 +86,14 @@ async function fetchTxns(
   events.forEach((e: Event) => {
     if (e.args) {
       if (addressValueJson[e.args.from]) {
-        const aggregatedValue = BigNumber.from(e.args.value.toString())
+        let value = BigNumber.from(e.args.value.toString());
+        // if we are looking at LEND token rescue
+        // we need to divide by 100 as users will get the rescue amount
+        // in AAVE tokens
+        if (symbol === 'LEND') {
+          value = BigNumber.from(e.args.value.toString()).div(100);
+        }
+        const aggregatedValue = value
           .add(addressValueJson[e.args.from])
           .toString();
         addressValueJson[e.args.from] = aggregatedValue;
