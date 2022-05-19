@@ -101,4 +101,11 @@ contract AaveMerkleDistributorTest is Test {
         // The event we get
         aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof);
     }
+
+    function testFailWhenAlreadyClaimed() public {
+    }
+
+    function testFailWhenInvalidProof() public {}
+
+    function testFailWhenNotEnoughFunds() public {}
 }
