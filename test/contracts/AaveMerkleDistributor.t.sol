@@ -102,10 +102,47 @@ contract AaveMerkleDistributorTest is Test {
         aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof);
     }
 
-    function testFailWhenAlreadyClaimed() public {
+    function testWhenAlreadyClaimed() public {
+        // prepared the claim index to overwrite
+        uint256 claimedWordIndex = 0 / 256;
+        uint256 claimedBitIndex = 0 % 256;
+
+        // set up storage so address x already claimed
+        stdstore
+            .target(address(aaveMerkleDistributor))
+            .sig(aaveMerkleDistributor.claimedBitMap.selector)
+            .with_key(claimedWordIndex)
+            .checked_write(1 << claimedBitIndex);
+        
+        // vm.expectRevert(aaveMerkleDistributor.DropAlreadyClaimed.selector);
+        vm.expectRevert(bytes('MerkleDistributor: Drop already claimed.'));
+
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof);
     }
 
-    function testFailWhenInvalidProof() public {}
+    function testWhenInvalidProof() public {
+        vm.expectRevert(bytes('MerkleDistributor: Invalid proof.'));
 
-    function testFailWhenNotEnoughFunds() public {}
+        aaveMerkleDistributor.claim(claimerIndex, address(2), claimerAmount, claimerMerkleProof);
+    }
+
+    function testWhenNotEnoughFunds() public {
+
+        // lower the funds of the distributor
+        stdstore
+            .target(address(AAVE_TOKEN))
+            .sig(AAVE_TOKEN.balanceOf.selector)
+            .with_key(address(aaveMerkleDistributor))
+            .checked_write(1);
+        
+
+        // TODO: why is it not returning the error of the distributor contract, but 
+        // instead returning the one from inside transfer
+        // vm.expectRevert(bytes('MerkleDistributor: Transfer failed.'));
+        vm.expectRevert(bytes('SafeMath: subtraction overflow'));
+
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof);
+    }
+
+    // TODO: are we missing test cases??
 }
