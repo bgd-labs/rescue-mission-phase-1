@@ -8,8 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "generate-json": "env-cmd ts-node ./src/scripts/generate-address-value-maps.ts",
-    "generate-tree": "ts-node ./src/scripts/generate-merkle-root.ts"
+    "generate-json": "env-cmd ts-node ./scripts/generate-address-value-maps.ts",
+    "generate-tree": "ts-node ./scripts/generate-merkle-root.ts"
   },
   "repository": {
     "type": "git",

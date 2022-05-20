@@ -8,62 +8,53 @@ import {IAaveMerkleDistributor} from './interfaces/IAaveMerkleDistributor.sol';
 
 contract AaveMerkleDistributor is VersionedInitializable, IAaveMerkleDistributor {
     // key is the distribution round of a determined token and merkleRoot
-    mapping(uint256 => address) public override tokenByRoundMap;
-    mapping(uint256 => bytes32) public override merkleRootByRoundMap;
+    mapping(uint256 => address) public override token;
+    mapping(uint256 => bytes32) public override merkleRoot;
     
     // This is a packed array of booleans.
     // TODO: this is public as i did not find a way to modify storage
     // while private on the foundry tests
-    mapping(uint256 => mapping(uint256 => uint256)) public distributionClaimedBitMap;
+    mapping(uint256 => mapping(uint256 => uint256)) ClaimedBitMap;
 
     // address public token;
     // bytes32 public merkleRoot;
     uint256 public constant REVISION = 0x1;
-
-    // This is a packed array of booleans.
-    // TODO: this is public as i did not find a way to modify storage
-    // while private on the foundry tests
-    mapping(uint256 => uint256) public claimedBitMap;
-
-    // TODO: find a way to use custom errors with tests
-    // error definitions
-    // error DropAlreadyClaimed();
 
     /// @inheritdoc VersionedInitializable
     function getRevision() internal pure virtual override returns (uint256) {
             return REVISION;
     }
 
-    function initialize(address token_, bytes32 merkleRoot_) public initializer {
-        token = token_;
-        merkleRoot = merkleRoot_;
+    function initialize(address token_, bytes32 merkleRoot_, uint256 round) public initializer {
+        token[round] = token_;
+        merkleRoot[round] = merkleRoot_;
     }
 
-    function isClaimed(uint256 index) public view override returns (bool) {
+    function isClaimed(uint256 index, uint256 round) public view override returns (bool) {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        uint256 claimedWord = claimedBitMap[claimedWordIndex];
+        uint256 claimedWord = claimedBitMap[round][claimedWordIndex];
         uint256 mask = (1 << claimedBitIndex);
         return claimedWord & mask == mask;
     }
 
-    function _setClaimed(uint256 index) private {
+    function _setClaimed(uint256 index, uint256 round) private {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        claimedBitMap[claimedWordIndex] = claimedBitMap[claimedWordIndex] | (1 << claimedBitIndex);
+        claimedBitMap[round][claimedWordIndex] = claimedBitMap[round][claimedWordIndex] | (1 << claimedBitIndex);
     }
 
-    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external override {
-        require(!isClaimed(index), 'MerkleDistributor: Drop already claimed.');
+    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 round) external override {
+        require(!isClaimed(index, round), 'MerkleDistributor: Drop already claimed.');
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
         require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
 
         // Mark it claimed and send the token.
-        _setClaimed(index);
-        require(IERC20(token).transfer(account, amount), 'MerkleDistributor: Transfer failed.');
+        _setClaimed(index, round);
+        require(IERC20(token).safeTransfer(account, amount), 'MerkleDistributor: Transfer failed.');
 
-        emit Claimed(index, account, amount);
+        emit Claimed(index, account, amount, round);
     }
 }

@@ -82,28 +82,28 @@ async function fetchTxns(
   if (validateEvent) events = await validateEvent(events);
 
   // Write events map of address value to json
-  const addressValueJson: Record<string, string> = {};
+  const addressValueMap: Record<string, string> = {};
   events.forEach((e: Event) => {
     if (e.args) {
-      if (addressValueJson[e.args.from]) {
-        let value = BigNumber.from(e.args.value.toString());
-        // if we are looking at LEND token rescue
-        // we need to divide by 100 as users will get the rescue amount
-        // in AAVE tokens
-        if (symbol === 'LEND') {
-          value = BigNumber.from(e.args.value.toString()).div(100);
-        }
+      let value = BigNumber.from(e.args.value.toString());
+      // if we are looking at LEND token rescue
+      // we need to divide by 100 as users will get the rescue amount
+      // in AAVE tokens
+      if (symbol === 'LEND') {
+        value = BigNumber.from(e.args.value.toString()).div(100);
+      }
+      if (addressValueMap[e.args.from]) {
         const aggregatedValue = value
-          .add(addressValueJson[e.args.from])
+          .add(addressValueMap[e.args.from])
           .toString();
-        addressValueJson[e.args.from] = aggregatedValue;
+        addressValueMap[e.args.from] = aggregatedValue;
       } else {
-        addressValueJson[e.args.from] = e.args.value.toString();
+        addressValueMap[e.args.from] = value.toString();
       }
     }
   });
 
-  return addressValueJson;
+  return addressValueMap;
 }
 
 async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
@@ -160,12 +160,7 @@ async function validateStkEvents(events: Event[]): Promise<Event[]> {
 
 async function main() {
   // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
-  // addressValueJson = await fetchTxns(
-  //   'AAVE',
-  //   migrator,
-  //   ChainId.mainnet,
-  //   addressValueJson,
-  // );
+  // await fetchTxns('AAVE', migrator, ChainId.mainnet);
   const mapedContracts = await Promise.all([
     fetchTxns('LEND', migrator, ChainId.mainnet, validateMigrationEvents),
     fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet),
@@ -192,7 +187,7 @@ async function main() {
     });
   });
 
-  const path = `./maps/aaveRescueMap.json`;
+  const path = `./scripts/maps/aaveRescueMap.json`;
   fs.writeFileSync(path, JSON.stringify(aggregatedMapping));
 }
 
