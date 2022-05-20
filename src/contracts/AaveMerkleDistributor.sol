@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.13;
 
 import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
@@ -10,7 +10,7 @@ import {IAaveMerkleDistributor} from './interfaces/IAaveMerkleDistributor.sol';
 contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     using SafeERC20 for IERC20;
 
-    // key is the distribution round of a determined token and merkleRoot
+    /// @dev key is the distribution round of a determined token and merkleRoot
     mapping(uint256 => address) public override token;
     mapping(uint256 => bytes32) public override merkleRoot;
     
@@ -22,7 +22,8 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
 
     function contructor() public {}
 
-    function addDistributions(address[] memory tokens, bytes32[] memory merkleRoots) onlyOwner public {
+    /// @inheritdoc IAaveMerkleDistributor
+    function addDistributions(address[] memory tokens, bytes32[] memory merkleRoots) public onlyOwner override {
         require(tokens.length == merkleRoots.length, 'MerkleDistributor: tokens not the same length as merkleRoots'); 
         for(uint i = 0; i < tokens.length; i=i+1) {
             if (lastDistributionId != 0 && i != 0) {
@@ -36,6 +37,7 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
         }
     }
 
+    /// @inheritdoc IAaveMerkleDistributor
     function isClaimed(uint256 index, uint256 distributionId) public view override returns (bool) {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
@@ -44,12 +46,7 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
         return claimedWord & mask == mask;
     }
 
-    function _setClaimed(uint256 index, uint256 distributionId) private {
-        uint256 claimedWordIndex = index / 256;
-        uint256 claimedBitIndex = index % 256;
-        claimedBitMap[distributionId][claimedWordIndex] = claimedBitMap[distributionId][claimedWordIndex] | (1 << claimedBitIndex);
-    }
-
+    /// @inheritdoc IAaveMerkleDistributor
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 distributionId) external override {
         require(!isClaimed(index, distributionId), 'MerkleDistributor: Drop already claimed.');
 
@@ -64,31 +61,31 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
         emit Claimed(index, account, amount, distributionId);
     }
 
-    /**
-    * @dev transfer ERC20 from the utility contract, for ERC20 recovery in case of stuck tokens due
-    * direct transfers to the contract address.
-    * @param erc20Token erc20 token to transfer
-    * @param to recipient of the transfer
-    * @param amount amount to send
-    */
+    /// @inheritdoc IAaveMerkleDistributor
     function emergencyTokenTransfer(
         address erc20Token,
         address to,
         uint256 amount
-    ) external onlyOwner {
+    ) external override onlyOwner {
         IERC20(erc20Token).safeTransfer(to, amount);
     }
 
-    /**
-    * @dev transfer native Ether from the utility contract, for native Ether recovery in case of stuck Ether
-    * due selfdestructs or transfer ether to pre-computated contract address before deployment.
-    * @param to recipient of the transfer
-    * @param amount amount to send
-    */
-    function emergencyEtherTransfer(address to, uint256 amount) external onlyOwner {
+    /// @inheritdoc IAaveMerkleDistributor
+    function emergencyEtherTransfer(address to, uint256 amount) external override onlyOwner {
         _safeTransferETH(to, amount);
     }
-      
+    
+    /**
+    * @dev set claimed as true for index on distributionId
+    * @param index indicating which node of the tree needs to be set as true
+    * @param distributionId id of the distribution we want to set claimed to true
+    */
+    function _setClaimed(uint256 index, uint256 distributionId) private {
+        uint256 claimedWordIndex = index / 256;
+        uint256 claimedBitIndex = index % 256;
+        claimedBitMap[distributionId][claimedWordIndex] = claimedBitMap[distributionId][claimedWordIndex] | (1 << claimedBitIndex);
+    }
+
     /**
     * @dev transfer ETH to an address, revert if it fails.
     * @param to recipient of the transfer

@@ -1,22 +1,61 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.13;
 
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IAaveMerkleDistributor {
-    // Returns the address of the token distributed by this contract.
+    /** Returns the address of the token distributed in the distributionId.
+    * @dev
+    * @param distributionId id of the distribution you want the token of
+    */
     function token(uint256 distributionId) external view returns (address);
-    // Returns the merkle root of the merkle tree containing account balances available to claim.
+    
+    /**
+    * @dev Returns the merkle root of the merkle tree containing account balances available to claim.
+    * @param distributionId id of the distribution you want the merkleRoot of
+    */
     function merkleRoot(uint256 distributionId) external view returns (bytes32);
-    // Returns true if the index has been marked claimed.
+      
+    /**
+    * @dev Returns true if the index has been marked claimed. 
+    * @param index of the address and proof of the claimer
+    * @param distributionId id of the distribution you want to check if index has been claimed
+    */
     function isClaimed(uint256 index, uint256 distributionId) external view returns (bool);
-    // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
+    
+    /**
+    * @dev Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
+    * @param index index of the account that wants to claim
+    * @param account address that wants to claim, and where the amount of tokens will be sent to
+    * @param amount the amount that will be claimed
+    * @param merkleProof proof that the account with index and amount is on the merkleTree, and can claim
+    * @param distributionId id of the token distribution
+    */
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 distributionId) external;
-    // Add distributions. Only callable by owner
-    function addDistributions(address[] memory tokens, bytes32[], memory merkleRoots) external;
-    // Emergency transfers of ERC20. Only callable by owner
-    function emergencyTokenTransfer(address erc20TOken, address to, uint256 amount) external;
-    // Emergency transfers of ETH. Only callable by owner
-    emergencyEtherTransfer(address to, uint256 amount) external;
+    
+    /**
+    * @dev adds the pair of token and merkleRoot as new distributions
+    * @param tokens that needs to be distributed
+    * @param merkleRoots containing the information of index, address, value of the users that can claim
+    * the token
+    */
+    function addDistributions(address[] memory tokens, bytes32[] memory merkleRoots) external;
+    
+    /**
+    * @dev transfer ERC20 from the utility contract, for ERC20 recovery in case of stuck tokens due
+    * direct transfers to the contract address.
+    * @param erc20Token erc20 token to transfer
+    * @param to recipient of the transfer
+    * @param amount amount to send
+    */
+    function emergencyTokenTransfer(address erc20Token, address to, uint256 amount) external;
+
+    /**
+    * @dev transfer native Ether from the utility contract, for native Ether recovery in case of stuck Ether
+    * due selfdestructs or transfer ether to pre-computated contract address before deployment.
+    * @param to recipient of the transfer
+    * @param amount amount to send
+    */
+    function emergencyEtherTransfer(address to, uint256 amount) external;
 
     // This event is triggered whenever a call to #claim succeeds.
     event Claimed(uint256 index, address indexed account, uint256 amount, uint256 indexed distributionId);
