@@ -20,7 +20,8 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
 
     uint256 public lastDistributionId = 0;
 
-    // add emergency withdraw
+    function contructor() public {}
+
     function addDistributions(address[] memory tokens, bytes32[] memory merkleRoots) onlyOwner public {
         require(tokens.length == merkleRoots.length, 'MerkleDistributor: tokens not the same length as merkleRoots'); 
         for(uint i = 0; i < tokens.length; i=i+1) {

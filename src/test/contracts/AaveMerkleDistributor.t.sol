@@ -3,7 +3,7 @@
 
 // import 'forge-std/Test.sol';
 
-// import {AaveMerkleDistributor} from '../../contracts/AaveMerkleDistributor.sol';
+// // import {AaveMerkleDistributor} from '../../contracts/AaveMerkleDistributor.sol';
 // import {InitializableAdminUpgradeabilityProxy} from '../../src/contracts/dependencies/upgradeability/InitializableAdminUpgradeabilityProxy.sol';
 // import {IERC20} from '../../src/contracts/dependencies/contracts/IERC20.sol';
 // import {IAaveMerkleDistributor} from '../../src/contracts/interfaces/IAaveMerkleDistributor.sol';
@@ -16,7 +16,6 @@
 //         IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
 //     bytes32 constant MERKLE_ROOT =
 //         0x4c4d23a859f2a8f1e669f0f04e1af56fc87a27f86a85b66656b93993c985df21;
-//     address AAVE_MERKLE_DISTRIBUTOR_IMPL;
 
 //     // test claimer constants
 //     address constant claimer = 0x00Af54516A94D1aC9eed55721215C8DE9970CdeE;
@@ -33,30 +32,14 @@
 //         0xf492ddfa6d0e5a3133dfcd189b69db46f4fc13afadc6d102ac2035898c7214c1
 //     ];
 
-//     AaveMerkleDistributor aaveMerkleDistributor;
+//     IAaveMerkleDistributor aaveMerkleDistributor;
 
 //     // This event is triggered whenever a call to #claim succeeds.
 //     event Claimed(uint256 index, address indexed account, uint256 amount);
 
 //     function setUp() public {
-//         AAVE_MERKLE_DISTRIBUTOR_IMPL = address(new AaveMerkleDistributor());
+//         aaveMerkleDistributor = address(new AaveMerkleDistributor());
 
-//         // deploy proxy
-//         InitializableAdminUpgradeabilityProxy distributorProxy = new InitializableAdminUpgradeabilityProxy();
-//         // initialize
-//         distributorProxy.initialize(
-//             AAVE_MERKLE_DISTRIBUTOR_IMPL,
-//             address(1),
-//             abi.encodeWithSignature(
-//                 'initialize(address,bytes32)',
-//                 address(AAVE_TOKEN),
-//                 MERKLE_ROOT
-//             )
-//         );
-
-//         aaveMerkleDistributor = AaveMerkleDistributor(
-//             address(distributorProxy)
-//         );
 
 //         assertEq(aaveMerkleDistributor.token(), address(AAVE_TOKEN));
 //         assertEq(aaveMerkleDistributor.merkleRoot(), MERKLE_ROOT);
@@ -66,9 +49,7 @@
 //         assertEq(AAVE_TOKEN.balanceOf(address(aaveMerkleDistributor)), 10000000e18);
 //     }
 
-//     function testRevision() public {
-//         assertEq(aaveMerkleDistributor.REVISION(), 0x1);
-//     }
+//     function 
 
 //     // TODO: this test makes it so we need to use contract instead of interface
 //     // to have access to claimedBitMap. It also makes it so it needs to be public
