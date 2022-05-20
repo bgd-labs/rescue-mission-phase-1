@@ -22,7 +22,6 @@ async function fetchTxns(
   symbol: keyof typeof TOKENS,
   to: string,
   network: keyof typeof JSON_RPC_PROVIDER,
-  addressValueJson: Record<string, string>,
   validateEvent?: (events: Event[]) => Promise<Event[]>,
 ): Promise<Record<string, string>> {
   const token = TOKENS[symbol];
@@ -83,6 +82,7 @@ async function fetchTxns(
   if (validateEvent) events = await validateEvent(events);
 
   // Write events map of address value to json
+  const addressValueJson: Record<string, string> = {};
   events.forEach((e: Event) => {
     if (e.args) {
       if (addressValueJson[e.args.from]) {
@@ -107,8 +107,9 @@ async function fetchTxns(
 }
 
 async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
+  console.log('validate migration events: ', events.length);
   const { results, errors } = await PromisePool.for(events)
-    .withConcurrency(50)
+    .withConcurrency(20)
     .process(async (event) => {
       try {
         const receipt = await event.getTransactionReceipt();
@@ -126,17 +127,15 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
       }
     });
 
-  const invalidTxns: Event[] = results.filter(
-    (r) => r !== undefined,
-  ) as Event[];
-  console.log(invalidTxns.length);
-  return invalidTxns;
+  const validTxns: Event[] = results.filter((r) => r !== undefined) as Event[];
+  console.log('valid migration tx: ', validTxns.length);
+  return validTxns;
 }
 
 async function validateStkEvents(events: Event[]): Promise<Event[]> {
-  console.log(events.length);
+  console.log('validate stk events: ', events.length);
   const { results, errors } = await PromisePool.for(events)
-    .withConcurrency(50)
+    .withConcurrency(20)
     .process(async (event) => {
       try {
         const receipt = await event.getTransactionReceipt();
@@ -154,15 +153,12 @@ async function validateStkEvents(events: Event[]): Promise<Event[]> {
       }
     });
 
-  const invalidTxns: Event[] = results.filter(
-    (r) => r !== undefined,
-  ) as Event[];
-  console.log(invalidTxns.length);
-  return invalidTxns;
+  const validTxns: Event[] = results.filter((r) => r !== undefined) as Event[];
+  console.log('valid stk tx: ', validTxns.length);
+  return validTxns;
 }
 
 async function main() {
-  let addressValueJson: Record<string, string> = {};
   // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
   // addressValueJson = await fetchTxns(
   //   'AAVE',
@@ -170,52 +166,34 @@ async function main() {
   //   ChainId.mainnet,
   //   addressValueJson,
   // );
-  addressValueJson = await fetchTxns(
-    'LEND',
-    migrator,
-    ChainId.mainnet,
-    addressValueJson,
-    validateMigrationEvents,
-  );
-  addressValueJson = await fetchTxns(
-    'AAVE',
-    TOKENS.AAVE,
-    ChainId.mainnet,
-    addressValueJson,
-  );
-  addressValueJson = await fetchTxns(
-    'AAVE',
-    TOKENS.LEND,
-    ChainId.mainnet,
-    addressValueJson,
-  );
-  addressValueJson = await fetchTxns(
-    'LEND',
-    TOKENS.AAVE,
-    ChainId.mainnet,
-    addressValueJson,
-  );
-  addressValueJson = await fetchTxns(
-    'LEND',
-    TOKENS.LEND,
-    ChainId.mainnet,
-    addressValueJson,
-  );
-  addressValueJson = await fetchTxns(
-    'STKAAVE',
-    TOKENS.STKAAVE,
-    ChainId.mainnet,
-    addressValueJson,
-  );
-  addressValueJson = await fetchTxns(
-    'AAVE',
-    TOKENS.STKAAVE,
-    ChainId.mainnet,
-    addressValueJson,
-    validateStkEvents,
-  );
+  const mapedContracts = await Promise.all([
+    fetchTxns('LEND', migrator, ChainId.mainnet, validateMigrationEvents),
+    fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet),
+    fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet),
+    fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet),
+    fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet),
+    fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet),
+    fetchTxns('AAVE', TOKENS.STKAAVE, ChainId.mainnet, validateStkEvents),
+  ]);
+
+  const aggregatedMapping: Record<string, string> = {};
+  mapedContracts.forEach((mapedContract: Record<string, string>) => {
+    Object.keys(mapedContract).forEach((address: string) => {
+      if (aggregatedMapping[address]) {
+        const aggregatedValue = BigNumber.from(
+          mapedContract[address].toString(),
+        )
+          .add(aggregatedMapping[address])
+          .toString();
+        aggregatedMapping[address] = aggregatedValue;
+      } else {
+        aggregatedMapping[address] = mapedContract[address].toString();
+      }
+    });
+  });
+
   const path = `./maps/aaveRescueMap.json`;
-  fs.writeFileSync(path, JSON.stringify(addressValueJson));
+  fs.writeFileSync(path, JSON.stringify(aggregatedMapping));
 }
 
 main().then(() => console.log('all-finished'));

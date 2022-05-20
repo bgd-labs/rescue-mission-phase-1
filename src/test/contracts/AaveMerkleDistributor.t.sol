@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import 'forge-std/Test.sol';
 
-import {AaveMerkleDistributor} from '../../src/contracts/AaveMerkleDistributor.sol';
+import {AaveMerkleDistributor} from '../../contracts/AaveMerkleDistributor.sol';
 import {InitializableAdminUpgradeabilityProxy} from '../../src/contracts/dependencies/upgradeability/InitializableAdminUpgradeabilityProxy.sol';
 import {IERC20} from '../../src/contracts/dependencies/contracts/IERC20.sol';
 import {IAaveMerkleDistributor} from '../../src/contracts/interfaces/IAaveMerkleDistributor.sol';
