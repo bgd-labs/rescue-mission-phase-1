@@ -6,10 +6,10 @@ import fs from 'fs';
 
 // phase 1
 const aavePath = `./scripts/maps/aaveRescueMerkleTree.json`;
-// fs.writeFileSync(aavePath, JSON.stringify(parseBalanceMap(aaveRescueMap)));
+fs.writeFileSync(aavePath, JSON.stringify(parseBalanceMap(aaveRescueMap)));
 
 const uniPath = `./scripts/maps/uniRescueMerkleTree.json`;
-// fs.writeFileSync(uniPath, JSON.stringify(parseBalanceMap(uniRescueMap)));
+fs.writeFileSync(uniPath, JSON.stringify(parseBalanceMap(uniRescueMap)));
 
 const usdtPath = `./scripts/maps/usdtRescueMerkleTree.json`;
 fs.writeFileSync(usdtPath, JSON.stringify(parseBalanceMap(usdtRescueMap)));

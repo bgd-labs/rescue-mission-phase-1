@@ -140,7 +140,7 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
   return validTxns;
 }
 
-async function validateStkEvents(events: Event[]): Promise<Event[]> {
+async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
   console.log('validate stk events: ', events.length);
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(20)
@@ -200,7 +200,7 @@ async function generateAaveMap() {
     fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet),
     fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet),
     fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet),
-    fetchTxns('AAVE', TOKENS.STKAAVE, ChainId.mainnet, validateStkEvents),
+    fetchTxns('AAVE', TOKENS.STKAAVE, ChainId.mainnet, validateStkAaveEvents),
   ]);
 
   generateAndSaveMap(mapedContracts, 'aave');
@@ -227,6 +227,6 @@ async function generateUsdtMap() {
 }
 
 // Phase 1
-// generateAaveMap().then(() => console.log('all-finished'));
-// generateUniMap().then(() => console.log('all-finished'));
+generateAaveMap().then(() => console.log('all-finished'));
+generateUniMap().then(() => console.log('all-finished'));
 generateUsdtMap().then(() => console.log('all-finished'));

@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IAaveMerkleDistributor {
     /** 
-    * @dev Returns the last distribution id.
+    * @dev Returns the id of the last initialized distribution.
     */
     function lastDistributionId() external view returns (uint256);
     
