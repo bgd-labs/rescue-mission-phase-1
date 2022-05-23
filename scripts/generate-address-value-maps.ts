@@ -165,21 +165,21 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
 }
 
 function generateAndSaveMap(
-  mapedContracts: Record<string, string>[],
+  mappedContracts: Record<string, string>[],
   name: string,
 ): void {
   const aggregatedMapping: Record<string, string> = {};
-  mapedContracts.forEach((mapedContract) => {
-    Object.keys(mapedContract).forEach((address: string) => {
+  mappedContracts.forEach((mappedContract) => {
+    Object.keys(mappedContract).forEach((address: string) => {
       if (aggregatedMapping[address]) {
         const aggregatedValue = BigNumber.from(
-          mapedContract[address].toString(),
+          mappedContract[address].toString(),
         )
           .add(aggregatedMapping[address])
           .toString();
         aggregatedMapping[address] = aggregatedValue;
       } else {
-        aggregatedMapping[address] = mapedContract[address].toString();
+        aggregatedMapping[address] = mappedContract[address].toString();
       }
     });
   });
@@ -191,7 +191,7 @@ function generateAndSaveMap(
 async function generateAaveMap() {
   // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
   // await fetchTxns('AAVE', migrator, ChainId.mainnet);
-  const mapedContracts: Record<string, string>[] = await Promise.all([
+  const mappedContracts: Record<string, string>[] = await Promise.all([
     fetchTxns('LEND', migrator, ChainId.mainnet, validateMigrationEvents),
     fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet),
     fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet),
@@ -201,7 +201,7 @@ async function generateAaveMap() {
     fetchTxns('AAVE', TOKENS.STKAAVE, ChainId.mainnet, validateStkAaveEvents),
   ]);
 
-  generateAndSaveMap(mapedContracts, 'aave');
+  generateAndSaveMap(mappedContracts, 'aave');
 }
 
 async function generateUniMap() {

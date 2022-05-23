@@ -50,7 +50,8 @@ contract AaveMerkleDistributorTest is Test {
 
         bytes32[] memory merkleRoots = new bytes32[](1);
         merkleRoots[0] = MERKLE_ROOT;
-
+        
+        vm.expectEmit(true, true, true, true);
         emit Distribution(tokens[0], merkleRoots[0], 0);
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
@@ -70,7 +71,10 @@ contract AaveMerkleDistributorTest is Test {
         merkleRoots[1] = MERKLE_ROOT;
 
 
+        vm.expectEmit(true, true, true, true);
         emit Distribution(tokens[0], merkleRoots[0], 0);
+
+        vm.expectEmit(true, true, true, true);
         emit Distribution(tokens[1], merkleRoots[1], 1);
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
@@ -119,18 +123,23 @@ contract AaveMerkleDistributorTest is Test {
         merkleRoots[0] = MERKLE_ROOT;
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
-           
+
         assertEq(aaveMerkleDistributor.isClaimed(0, 0), false);
     }
 
     // function testClaim() public {
+    //     address[] memory tokens = new address[](1);
+    //     tokens[0] = address(AAVE_TOKEN);
+
+    //     bytes32[] memory merkleRoots = new bytes32[](1);
+    //     merkleRoots[0] = MERKLE_ROOT;
+
     //     // Check that topic 1, topic 2, and data are the same as the following emitted event.
-    //     vm.expectEmit(false, true, false, true);
-    //     // The event we expect
-    //     emit Claimed(claimerIndex, claimer, claimerAmount);
+    //     vm.expectEmit(false, true, false, true, true);
+    //     emit Claimed(claimerIndex, claimer, claimerAmount, 0);
 
     //     // The event we get
-    //     aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof);
+    //     aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
     // }
 
     // function testWhenClaimDistributionDoesntExist() public {}
