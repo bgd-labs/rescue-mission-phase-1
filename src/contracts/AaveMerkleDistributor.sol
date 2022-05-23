@@ -22,8 +22,6 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
 
     function contructor() public {}
 
-    // TODO: should there b stop method to stop / reenable a distribution?
-
     /// @inheritdoc IAaveMerkleDistributor
     function addDistributions(address[] memory tokens, bytes32[] memory merkleRoots) public onlyOwner override {
         require(tokens.length == merkleRoots.length, 'MerkleDistributor: tokens not the same length as merkleRoots'); 
