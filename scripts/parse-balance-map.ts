@@ -1,5 +1,6 @@
 import { BigNumber, utils } from 'ethers';
 import BalanceTree from './merkle-trees/balance-tree';
+import { normalize } from './utils';
 
 const { isAddress, getAddress } = utils;
 
@@ -10,10 +11,12 @@ const { isAddress, getAddress } = utils;
 interface MerkleDistributorInfo {
   merkleRoot: string;
   tokenTotal: string;
+  tokenTotalInWei: string;
   claims: {
     [account: string]: {
       index: number;
       amount: string;
+      amountInWei: string;
       proof: string[];
       flags?: {
         [flag: string]: boolean;
@@ -27,6 +30,8 @@ type NewFormat = { address: string; earnings: string; reasons: string };
 
 export function parseBalanceMap(
   balances: OldFormat | NewFormat[],
+  decimals: number,
+  name: string,
 ): MerkleDistributorInfo {
   // if balances are in an old format, process them
   const balancesInNewFormat: NewFormat[] = Array.isArray(balances)
@@ -78,6 +83,7 @@ export function parseBalanceMap(
   const claims = sortedAddresses.reduce<{
     [address: string]: {
       amount: string;
+      amountInWei: string;
       index: number;
       proof: string[];
       flags?: { [flag: string]: boolean };
@@ -86,7 +92,8 @@ export function parseBalanceMap(
     const { amount, flags } = dataByAddress[address];
     memo[address] = {
       index,
-      amount: amount.toString(),
+      amountInWei: amount.toString(),
+      amount: `${normalize(amount.toString(), decimals)} ${name}`,
       proof: tree.getProof(index, address, amount),
       ...(flags ? { flags } : {}),
     };
@@ -100,7 +107,8 @@ export function parseBalanceMap(
 
   return {
     merkleRoot: tree.getHexRoot(),
-    tokenTotal: tokenTotal.toString(),
+    tokenTotal: `${normalize(tokenTotal.toString(), decimals)} ${name}`,
+    tokenTotalInWei: tokenTotal.toString(),
     claims,
   };
 }
