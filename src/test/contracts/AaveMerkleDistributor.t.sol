@@ -12,8 +12,7 @@ contract AaveMerkleDistributorTest is Test {
 
     IERC20 constant AAVE_TOKEN =
         IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
-    bytes32 constant MERKLE_ROOT =
-        0x4c4d23a859f2a8f1e669f0f04e1af56fc87a27f86a85b66656b93993c985df21;
+    bytes32 constant MERKLE_ROOT = 0xf74baa72f09a47203396b068236f1ee54b083ba040a239d1f919ba65320ff051;
 
     // test claimer constants
     address constant claimer = 0x00Af54516A94D1aC9eed55721215C8DE9970CdeE;
@@ -64,17 +63,21 @@ contract AaveMerkleDistributorTest is Test {
     function testAddMultipleDistributions () public {
         address[] memory tokens = new address[](2);
         tokens[0] = address(AAVE_TOKEN);
-        tokens[1] = address(AAVE_TOKEN);
+        tokens[1] = address(1);
 
         bytes32[] memory merkleRoots = new bytes32[](2);
         merkleRoots[0] = MERKLE_ROOT;
         merkleRoots[1] = MERKLE_ROOT;
 
+
+        emit Distribution(tokens[0], merkleRoots[0], 0);
+        emit Distribution(tokens[1], merkleRoots[1], 1);
+
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
         assertEq(aaveMerkleDistributor.lastDistributionId(), 1);
         assertEq(aaveMerkleDistributor.token(0), address(AAVE_TOKEN));
         assertEq(aaveMerkleDistributor.merkleRoot(0), MERKLE_ROOT);
-        assertEq(aaveMerkleDistributor.token(1), address(AAVE_TOKEN));
+        assertEq(aaveMerkleDistributor.token(1), address(1));
         assertEq(aaveMerkleDistributor.merkleRoot(1), MERKLE_ROOT);
     }
 
@@ -94,15 +97,31 @@ contract AaveMerkleDistributorTest is Test {
     // function testFailAddDistributionsWhenNotOnwer() {}
 
 
-    // function testIsClaimedTrue() public {
-    //     // TODO: create claim flow and then repeat claim
-    //     vm.prank();
-    //     assertEq(aaveMerkleDistributor.isClaimed(0), true);
-    // }
+    function testIsClaimedTrue() public {
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
 
-    // function testIsClaimedFalse() public {        
-    //     assertEq(aaveMerkleDistributor.isClaimed(0), false);
-    // }
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
+
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
+
+        assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
+    }
+
+    function testIsClaimedFalse() public {     
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
+
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
+
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+           
+        assertEq(aaveMerkleDistributor.isClaimed(0, 0), false);
+    }
 
     // function testClaim() public {
     //     // Check that topic 1, topic 2, and data are the same as the following emitted event.
