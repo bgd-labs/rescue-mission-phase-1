@@ -9,6 +9,7 @@
   },
   "scripts": {
     "generate-json": "env-cmd ts-node ./scripts/generate-address-value-maps.ts",
+    "generate-json-formatted": "env-cmd ts-node ./scripts/format.ts",
     "generate-tree": "ts-node ./scripts/generate-merkle-root.ts"
   },
   "repository": {
