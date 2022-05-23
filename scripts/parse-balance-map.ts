@@ -1,6 +1,6 @@
 import { BigNumber, utils } from 'ethers';
 import BalanceTree from './merkle-trees/balance-tree';
-import { normalize } from './utils';
+import { normalize } from '@aave/math-utils';
 
 const { isAddress, getAddress } = utils;
 
