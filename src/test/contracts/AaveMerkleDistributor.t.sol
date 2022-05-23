@@ -12,6 +12,7 @@ contract AaveMerkleDistributorTest is Test {
 
     IERC20 constant AAVE_TOKEN =
         IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
+    IERC20 constant USDT_TOKEN = IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
     bytes32 constant MERKLE_ROOT = 0xf74baa72f09a47203396b068236f1ee54b083ba040a239d1f919ba65320ff051;
 
     // test claimer constants
@@ -154,6 +155,31 @@ contract AaveMerkleDistributorTest is Test {
 
         // The event we get
         aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
+
+        assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
+    }
+
+    function testClaimWhenRootIsASingleNodeTree() public {
+        deal(address(USDT_TOKEN), address(aaveMerkleDistributor), 10000000 ether);
+
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(USDT_TOKEN);
+
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = 0xc7ee13da36bc0398f570e2c50daea6d04645f112371489486655d566c141c156;
+
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+
+        address usdtClaimer = 0x0eA6c16f26f6FBA884A11e3F1E1348F6bb77eEb8;
+        uint256 usdtIndex = 0;
+        uint256 usdtAmount = 15631946764;
+        bytes32[] memory usdtProof = new bytes32[](0);
+        // Check that topic 1, topic 2, and data are the same as the following emitted event.
+        vm.expectEmit(true, true, false, true);
+        emit Claimed(usdtIndex, usdtClaimer, usdtAmount, 0);
+
+        // The event we get
+        aaveMerkleDistributor.claim(usdtIndex, usdtClaimer, usdtAmount, usdtProof, 0);
 
         assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
     }
