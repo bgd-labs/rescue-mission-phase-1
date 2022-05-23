@@ -14,6 +14,8 @@ const TOKENS = {
   AAVE: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
   LEND: '0x80fB784B7eD66730e8b1DBd9820aFD29931aab03',
   STKAAVE: '0x4da27a545c0c5b758a6ba100e3a049001de870f5',
+  UNI: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
+  USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
 };
 
 const migrator = '0x317625234562b1526ea2fac4030ea499c5291de4';
@@ -41,37 +43,41 @@ async function fetchTxns(
         const events = await contract.queryFilter(event, fromBlock, toBlock);
         return events;
       } catch (error) {
-        // alchemy specific solution, that optimizes, taking into account
-        // alchemy error information
         // @ts-expect-error
-        const { 0: newFromBlock, 1: newToBlock } = error.error.message
-          .split('[')[1]
-          .split(']')[0]
-          .split(', ');
-
-        console.log(
-          contract.address,
-          ' Error code: ',
+        if (error.error.message.indexOf('[') > -1) {
+          // alchemy specific solution, that optimizes, taking into account
+          // alchemy error information
           // @ts-expect-error
-          error.error?.code,
-          ' fromBloc: ',
-          Number(newFromBlock),
-          ' toBlock: ',
-          Number(newToBlock),
-        );
+          const { 0: newFromBlock, 1: newToBlock } = error.error.message
+            .split('[')[1]
+            .split(']')[0]
+            .split(', ');
 
-        const arr1 = await getPastLogs(
-          Number(newFromBlock),
-          Number(newToBlock),
-        );
-        const arr2 = await getPastLogs(Number(newToBlock) + 1, toBlock);
-        return [...arr1, ...arr2];
+          console.log(
+            contract.address,
+            ' Error code: ',
+            // @ts-expect-error
+            error.error?.code,
+            ' fromBloc: ',
+            Number(newFromBlock),
+            ' toBlock: ',
+            Number(newToBlock),
+          );
 
-        // solution that will work with generic rpcs
-        // const midBlock = (fromBlock + toBlock) >> 1;
-        // const arr1 = await getPastLogs(fromBlock, midBlock);
-        // const arr2 = await getPastLogs(midBlock + 1, toBlock);
-        // return [...arr1, ...arr2];
+          const arr1 = await getPastLogs(
+            Number(newFromBlock),
+            Number(newToBlock),
+          );
+          const arr2 = await getPastLogs(Number(newToBlock) + 1, toBlock);
+          return [...arr1, ...arr2];
+        } else {
+          // solution that will work with generic rpcs or
+          // if alchemy fails with different error
+          const midBlock = (fromBlock + toBlock) >> 1;
+          const arr1 = await getPastLogs(fromBlock, midBlock);
+          const arr2 = await getPastLogs(midBlock + 1, toBlock);
+          return [...arr1, ...arr2];
+        }
       }
     }
     return [];
@@ -86,19 +92,21 @@ async function fetchTxns(
   events.forEach((e: Event) => {
     if (e.args) {
       let value = BigNumber.from(e.args.value.toString());
-      // if we are looking at LEND token rescue
-      // we need to divide by 100 as users will get the rescue amount
-      // in AAVE tokens
-      if (symbol === 'LEND') {
-        value = BigNumber.from(e.args.value.toString()).div(100);
-      }
-      if (addressValueMap[e.args.from]) {
-        const aggregatedValue = value
-          .add(addressValueMap[e.args.from])
-          .toString();
-        addressValueMap[e.args.from] = aggregatedValue;
-      } else {
-        addressValueMap[e.args.from] = value.toString();
+      if (value.toNumber() > 0) {
+        // if we are looking at LEND token rescue
+        // we need to divide by 100 as users will get the rescue amount
+        // in AAVE tokens
+        if (symbol === 'LEND') {
+          value = BigNumber.from(e.args.value.toString()).div(100);
+        }
+        if (addressValueMap[e.args.from]) {
+          const aggregatedValue = value
+            .add(addressValueMap[e.args.from])
+            .toString();
+          addressValueMap[e.args.from] = aggregatedValue;
+        } else {
+          addressValueMap[e.args.from] = value.toString();
+        }
       }
     }
   });
@@ -158,19 +166,10 @@ async function validateStkEvents(events: Event[]): Promise<Event[]> {
   return validTxns;
 }
 
-async function main() {
-  // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
-  // await fetchTxns('AAVE', migrator, ChainId.mainnet);
-  const mapedContracts = await Promise.all([
-    fetchTxns('LEND', migrator, ChainId.mainnet, validateMigrationEvents),
-    fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet),
-    fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet),
-    fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet),
-    fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet),
-    fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet),
-    fetchTxns('AAVE', TOKENS.STKAAVE, ChainId.mainnet, validateStkEvents),
-  ]);
-
+function generateAndSaveMap(
+  mapedContracts: Record<string, string>[],
+  name: string,
+): void {
   const aggregatedMapping: Record<string, string> = {};
   mapedContracts.forEach((mapedContract: Record<string, string>) => {
     Object.keys(mapedContract).forEach((address: string) => {
@@ -187,8 +186,47 @@ async function main() {
     });
   });
 
-  const path = `./scripts/maps/aaveRescueMap.json`;
+  const path = `./scripts/maps/${name}RescueMap.json`;
   fs.writeFileSync(path, JSON.stringify(aggregatedMapping));
 }
 
-main().then(() => console.log('all-finished'));
+async function generateAaveMap() {
+  // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
+  // await fetchTxns('AAVE', migrator, ChainId.mainnet);
+  const mapedContracts: Record<string, string>[] = await Promise.all([
+    fetchTxns('LEND', migrator, ChainId.mainnet, validateMigrationEvents),
+    fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet),
+    fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet),
+    fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet),
+    fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet),
+    fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet),
+    fetchTxns('AAVE', TOKENS.STKAAVE, ChainId.mainnet, validateStkEvents),
+  ]);
+
+  generateAndSaveMap(mapedContracts, 'aave');
+}
+
+async function generateUniMap() {
+  // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
+  // await fetchTxns('AAVE', migrator, ChainId.mainnet);
+  const mapedContracts: Record<string, string>[] = await Promise.all([
+    fetchTxns('UNI', TOKENS.AAVE, ChainId.mainnet),
+  ]);
+
+  generateAndSaveMap(mapedContracts, 'uni');
+}
+
+async function generateUsdtMap() {
+  // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
+  // await fetchTxns('AAVE', migrator, ChainId.mainnet);
+  const mapedContracts: Record<string, string>[] = await Promise.all([
+    fetchTxns('USDT', TOKENS.AAVE, ChainId.mainnet),
+  ]);
+
+  generateAndSaveMap(mapedContracts, 'usdt');
+}
+
+// Phase 1
+// generateAaveMap().then(() => console.log('all-finished'));
+// generateUniMap().then(() => console.log('all-finished'));
+generateUsdtMap().then(() => console.log('all-finished'));
