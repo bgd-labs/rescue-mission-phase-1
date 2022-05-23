@@ -1,11 +1,9 @@
-import { BigNumber, Contract, Event, EventFilter, providers } from 'ethers';
+import { BigNumber, Event, providers } from 'ethers';
 import { IERC20__factory } from './typechain/IERC20__factory';
 import fs from 'fs';
 import { ChainId } from '@aave/contract-helpers';
-import fetch from 'isomorphic-unfetch';
 import { PromisePool } from '@supercharge/promise-pool';
 
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY ?? '';
 const JSON_RPC_PROVIDER = {
   [ChainId.mainnet]: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
 };
