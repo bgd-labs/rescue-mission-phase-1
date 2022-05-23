@@ -50,8 +50,7 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
 
     /// @inheritdoc IAaveMerkleDistributor
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 distributionId) external override {
-        // TODO: check that distribution is correct
-        
+        require(distributionId <= lastDistributionId, 'MerkleDistributor: Distribution dont exist');
         require(!isClaimed(index, distributionId), 'MerkleDistributor: Drop already claimed.');
 
         // Verify the merkle proof.
