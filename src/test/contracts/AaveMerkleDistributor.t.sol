@@ -98,7 +98,19 @@ contract AaveMerkleDistributorTest is Test {
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
     }
 
-    // function testFailAddDistributionsWhenNotOnwer() {}
+    function testAddDistributionsWhenNotOnwer() public {
+        vm.prank(address(1));
+
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
+
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
+
+        vm.expectRevert(bytes('Ownable: caller is not the owner'));
+
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+    }
 
 
     function testIsClaimedTrue() public {
@@ -145,8 +157,21 @@ contract AaveMerkleDistributorTest is Test {
 
         assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
     }
-
+    
     function testWhenClaimDistributionDoesntExist() public {
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
+
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
+
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+
+        vm.expectRevert(bytes('MerkleDistributor: Distribution dont exist'));
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 1);
+    }
+
+    function testWhenClaimingWithoutInitializing() public {
         vm.expectRevert(bytes('MerkleDistributor: Invalid proof.'));
 
         aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
@@ -209,21 +234,42 @@ contract AaveMerkleDistributorTest is Test {
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
 
-        // TODO: why is it not returning the error of the distributor contract, but 
-        // instead returning the one from inside transfer
-        // vm.expectRevert(bytes('MerkleDistributor: Transfer failed.'));
         vm.expectRevert(bytes('SafeMath: subtraction overflow'));
 
         aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
     }
 
-    // function testEmergencyTokenTransfer() {}
+    function testEmergencyTokenTransfer() public {
+        uint256 prevBalance = AAVE_TOKEN.balanceOf(address(aaveMerkleDistributor));
+        aaveMerkleDistributor.emergencyTokenTransfer(address(AAVE_TOKEN), address(3), 50 ether);
 
-    // function testFailEmegencyTokenTransferWhenNotOwner() {}
+        assertEq(AAVE_TOKEN.balanceOf(address(3)), 50 ether);
+        assertEq(AAVE_TOKEN.balanceOf(address(aaveMerkleDistributor)), prevBalance - 50 ether);
+    }
 
-    // function testEmergencyEthTransfer() {}
+    function testEmegencyTokenTransferWhenNotOwner() public {
+        vm.prank(address(1));
 
-    // function testFailEmergencyEthTransferWhenNotOwner() {}
+        vm.expectRevert(bytes('Ownable: caller is not the owner'));
+        aaveMerkleDistributor.emergencyTokenTransfer(address(AAVE_TOKEN), address(3), 50 ether);
+    }
 
-    // TODO: are we missing test cases??
+    function testEmergencyEthTransfer() public {
+        uint256 ethAmount = 50 ether;
+        uint256 prevBalance = address(3).balance;
+        deal(address(aaveMerkleDistributor), ethAmount);
+        
+        aaveMerkleDistributor.emergencyEtherTransfer(address(3), ethAmount);
+
+        assertEq(address(3).balance, prevBalance + ethAmount);
+        assertEq(address(aaveMerkleDistributor).balance, 0 ether);
+    }
+
+    function testEmergencyEthTransferWhenNotOwner() public {
+        deal(address(aaveMerkleDistributor), 50 ether);
+        vm.prank(address(1));
+
+        vm.expectRevert(bytes('Ownable: caller is not the owner'));
+        aaveMerkleDistributor.emergencyEtherTransfer(address(3), 50 ether);
+    }
 }
