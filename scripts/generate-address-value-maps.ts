@@ -90,7 +90,7 @@ async function fetchTxns(
   events.forEach((e: Event) => {
     if (e.args) {
       let value = BigNumber.from(e.args.value.toString());
-      if (value.toNumber() > 0) {
+      if (value.gt(0)) {
         // if we are looking at LEND token rescue
         // we need to divide by 100 as users will get the rescue amount
         // in AAVE tokens
@@ -115,7 +115,7 @@ async function fetchTxns(
 async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
   console.log('validate migration events: ', events.length);
   const { results, errors } = await PromisePool.for(events)
-    .withConcurrency(20)
+    .withConcurrency(10)
     .process(async (event) => {
       try {
         const receipt = await event.getTransactionReceipt();
@@ -141,7 +141,7 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
 async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
   console.log('validate stk events: ', events.length);
   const { results, errors } = await PromisePool.for(events)
-    .withConcurrency(20)
+    .withConcurrency(10)
     .process(async (event) => {
       try {
         const receipt = await event.getTransactionReceipt();
@@ -197,11 +197,18 @@ async function generateAaveMap() {
     fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet),
     fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet),
     fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet),
-    fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet),
     fetchTxns('AAVE', TOKENS.STKAAVE, ChainId.mainnet, validateStkAaveEvents),
   ]);
 
   generateAndSaveMap(mappedContracts, 'aave');
+}
+
+async function generateStkAaveMap() {
+  const mappedContracts: Record<string, string>[] = await Promise.all([
+    fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet),
+  ]);
+
+  generateAndSaveMap(mappedContracts, 'stkAave');
 }
 
 async function generateUniMap() {
@@ -226,5 +233,6 @@ async function generateUsdtMap() {
 
 // Phase 1
 generateAaveMap().then(() => console.log('all-finished'));
+generateStkAaveMap().then(() => console.log('all-finished'));
 generateUniMap().then(() => console.log('all-finished'));
 generateUsdtMap().then(() => console.log('all-finished'));
