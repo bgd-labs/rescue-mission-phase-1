@@ -32,7 +32,7 @@ contract AaveMerkleDistributorTest is Test {
     IAaveMerkleDistributor aaveMerkleDistributor;
 
     // This event is triggered whenever a call to #claim succeeds.
-    event Claimed(uint256 index, address indexed account, uint256 amount);
+    event Claimed(uint256 index, address indexed account, uint256 amount, uint256 indexed distributionId);
     // this event is triggered when adding a new distribution
     event Distribution(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
 
@@ -127,64 +127,95 @@ contract AaveMerkleDistributorTest is Test {
         assertEq(aaveMerkleDistributor.isClaimed(0, 0), false);
     }
 
-    // function testClaim() public {
-    //     address[] memory tokens = new address[](1);
-    //     tokens[0] = address(AAVE_TOKEN);
+    function testClaim() public {
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
 
-    //     bytes32[] memory merkleRoots = new bytes32[](1);
-    //     merkleRoots[0] = MERKLE_ROOT;
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
 
-    //     // Check that topic 1, topic 2, and data are the same as the following emitted event.
-    //     vm.expectEmit(false, true, false, true, true);
-    //     emit Claimed(claimerIndex, claimer, claimerAmount, 0);
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
 
-    //     // The event we get
-    //     aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
-    // }
+        // Check that topic 1, topic 2, and data are the same as the following emitted event.
+        vm.expectEmit(true, true, false, true);
+        emit Claimed(claimerIndex, claimer, claimerAmount, 0);
 
-    // function testWhenClaimDistributionDoesntExist() public {}
+        // The event we get
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
 
-    // function testWhenAlreadyClaimed() public {
-    //     // prepared the claim index to overwrite
-    //     uint256 claimedWordIndex = 0 / 256;
-    //     uint256 claimedBitIndex = 0 % 256;
+        assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
+    }
 
-    //     // set up storage so address x already claimed
-    //     stdstore
-    //         .target(address(aaveMerkleDistributor))
-    //         .sig(aaveMerkleDistributor.claimedBitMap.selector)
-    //         .with_key(claimedWordIndex)
-    //         .checked_write(1 << claimedBitIndex);
+    function testWhenClaimDistributionDoesntExist() public {
+        vm.expectRevert(bytes('MerkleDistributor: Invalid proof.'));
+
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
+    }
+
+    function testWhenAlreadyClaimed() public {
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
+
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
+
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+
+        // Check that topic 1, topic 2, and data are the same as the following emitted event.
+        vm.expectEmit(true, true, false, true);
+        emit Claimed(claimerIndex, claimer, claimerAmount, 0);
+
+        // The event we get
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
+
+        assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
         
-    //     // vm.expectRevert(aaveMerkleDistributor.DropAlreadyClaimed.selector);
-    //     vm.expectRevert(bytes('MerkleDistributor: Drop already claimed.'));
+        // vm.expectRevert(aaveMerkleDistributor.DropAlreadyClaimed.selector);
+        vm.expectRevert(bytes('MerkleDistributor: Drop already claimed.'));
 
-    //     aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof);
-    // }
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
+    }
 
-    // function testWhenInvalidProof() public {
-    //     vm.expectRevert(bytes('MerkleDistributor: Invalid proof.'));
+    function testWhenInvalidProof() public {
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
 
-    //     aaveMerkleDistributor.claim(claimerIndex, address(2), claimerAmount, claimerMerkleProof);
-    // }
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
 
-    // function testWhenNotEnoughFunds() public {
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
 
-    //     // lower the funds of the distributor
-    //     stdstore
-    //         .target(address(AAVE_TOKEN))
-    //         .sig(AAVE_TOKEN.balanceOf.selector)
-    //         .with_key(address(aaveMerkleDistributor))
-    //         .checked_write(1);
+        vm.expectRevert(bytes('MerkleDistributor: Invalid proof.'));
+
+        bytes32[] memory wrongProof = new bytes32[](1);
+        wrongProof[0] = 0x5cab84e781cb21e9e612670a3209ee46b46eeedd05c8f3827a02706640c00d0e;
+
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, wrongProof, 0);
+    }
+
+    function testWhenNotEnoughFunds() public {
+        // lower the funds of the distributor
+        stdstore
+            .target(address(AAVE_TOKEN))
+            .sig(AAVE_TOKEN.balanceOf.selector)
+            .with_key(address(aaveMerkleDistributor))
+            .checked_write(1);
         
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
 
-    //     // TODO: why is it not returning the error of the distributor contract, but 
-    //     // instead returning the one from inside transfer
-    //     // vm.expectRevert(bytes('MerkleDistributor: Transfer failed.'));
-    //     vm.expectRevert(bytes('SafeMath: subtraction overflow'));
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
 
-    //     aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof);
-    // }
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+
+        // TODO: why is it not returning the error of the distributor contract, but 
+        // instead returning the one from inside transfer
+        // vm.expectRevert(bytes('MerkleDistributor: Transfer failed.'));
+        vm.expectRevert(bytes('SafeMath: subtraction overflow'));
+
+        aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
+    }
 
     // function testEmergencyTokenTransfer() {}
 
