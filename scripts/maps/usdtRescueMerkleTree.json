@@ -1,1 +1,13 @@
-{"merkleRoot":"0xc7ee13da36bc0398f570e2c50daea6d04645f112371489486655d566c141c156","tokenTotal":"15631.946764 USDT","tokenTotalInWei":"15631946764","claims":{"0x0eA6c16f26f6FBA884A11e3F1E1348F6bb77eEb8":{"index":0,"amountInWei":"15631946764","amount":"15631.946764 USDT","proof":[]}}}
+{
+  "merkleRoot": "0xc7ee13da36bc0398f570e2c50daea6d04645f112371489486655d566c141c156",
+  "tokenTotal": "15631.946764 USDT",
+  "tokenTotalInWei": "15631946764",
+  "claims": {
+    "0x0eA6c16f26f6FBA884A11e3F1E1348F6bb77eEb8": {
+      "index": 0,
+      "amountInWei": "15631946764",
+      "amount": "15631.946764 USDT",
+      "proof": []
+    }
+  }
+}
