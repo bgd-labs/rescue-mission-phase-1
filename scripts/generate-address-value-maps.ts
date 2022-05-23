@@ -171,7 +171,7 @@ function generateAndSaveMap(
   name: string,
 ): void {
   const aggregatedMapping: Record<string, string> = {};
-  mapedContracts.forEach((mapedContract: Record<string, string>) => {
+  mapedContracts.forEach((mapedContract) => {
     Object.keys(mapedContract).forEach((address: string) => {
       if (aggregatedMapping[address]) {
         const aggregatedValue = BigNumber.from(
