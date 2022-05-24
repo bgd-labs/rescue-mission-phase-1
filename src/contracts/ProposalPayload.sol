@@ -26,9 +26,6 @@ contract ProposalPayload {
     address public constant UNI_TOKEN = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
     bytes32 public constant UNI_MERKLE_ROOT = 0x0d02ecdaab34b26ed6ffa029ffa15bc377852ba0dc0e2ce18927d554ea3d939e;
 
-    // short executor
-    address public constant SHORT_EXECUTOR = 0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
-
     function execute() external {
         // deploy distributor
         AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
@@ -49,6 +46,6 @@ contract ProposalPayload {
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
         
         // give ownership of distributor to short executor
-        aaveMerkleDistributor.transferOwnership(SHORT_EXECUTOR);
+        aaveMerkleDistributor.transferOwnership(msg.sender);
     }
 }
