@@ -35,7 +35,7 @@ contract AaveMerkleDistributorTest is Test {
     // This event is triggered whenever a call to #claim succeeds.
     event Claimed(uint256 index, address indexed account, uint256 amount, uint256 indexed distributionId);
     // this event is triggered when adding a new distribution
-    event Distribution(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
+    event DistributionAdded(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
 
     function setUp() public {
         aaveMerkleDistributor = new AaveMerkleDistributor();
@@ -53,13 +53,15 @@ contract AaveMerkleDistributorTest is Test {
         merkleRoots[0] = MERKLE_ROOT;
         
         vm.expectEmit(true, true, true, true);
-        emit Distribution(tokens[0], merkleRoots[0], 0);
+        emit DistributionAdded(tokens[0], merkleRoots[0], 0);
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
 
-        assertEq(aaveMerkleDistributor.lastDistributionId(), 0);
-        assertEq(aaveMerkleDistributor.getRoundToken(0), address(AAVE_TOKEN));
-        assertEq(aaveMerkleDistributor.getRoundMerkleRoot(0), MERKLE_ROOT);
+        assertEq(aaveMerkleDistributor._nextDistributionId(), 1);
+
+        IAaveMerkleDistributor.DistributionWithoutClaimed memory distribution = aaveMerkleDistributor.getDistribution(0);
+        assertEq(distribution.token, address(AAVE_TOKEN));
+        assertEq(distribution.merkleRoot, MERKLE_ROOT);
     }
 
     function testAddMultipleDistributions () public {
@@ -73,17 +75,23 @@ contract AaveMerkleDistributorTest is Test {
 
 
         vm.expectEmit(true, true, true, true);
-        emit Distribution(tokens[0], merkleRoots[0], 0);
+        emit DistributionAdded(tokens[0], merkleRoots[0], 0);
 
         vm.expectEmit(true, true, true, true);
-        emit Distribution(tokens[1], merkleRoots[1], 1);
+        emit DistributionAdded(tokens[1], merkleRoots[1], 1);
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
-        assertEq(aaveMerkleDistributor.lastDistributionId(), 1);
-        assertEq(aaveMerkleDistributor.getRoundToken(0), address(AAVE_TOKEN));
-        assertEq(aaveMerkleDistributor.getRoundMerkleRoot(0), MERKLE_ROOT);
-        assertEq(aaveMerkleDistributor.getRoundToken(1), address(1));
-        assertEq(aaveMerkleDistributor.getRoundMerkleRoot(1), MERKLE_ROOT);
+
+        assertEq(aaveMerkleDistributor._nextDistributionId(), 2);
+
+
+        IAaveMerkleDistributor.DistributionWithoutClaimed memory distribution = aaveMerkleDistributor.getDistribution(0);
+        assertEq(distribution.token, address(AAVE_TOKEN));
+        assertEq(distribution.merkleRoot, MERKLE_ROOT);
+
+        IAaveMerkleDistributor.DistributionWithoutClaimed memory distribution1 = aaveMerkleDistributor.getDistribution(1);
+        assertEq(distribution1.token, address(1));
+        assertEq(distribution1.merkleRoot, MERKLE_ROOT);
     }
 
     function testAddIncompleteDistributions() public {
@@ -138,7 +146,7 @@ contract AaveMerkleDistributorTest is Test {
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
 
         vm.expectRevert(bytes('MerkleDistributor: Distribution dont exist'));
-        
+
         assertEq(aaveMerkleDistributor.isClaimed(0, 1), false);
     }
 
@@ -212,7 +220,7 @@ contract AaveMerkleDistributorTest is Test {
     }
 
     function testWhenClaimingWithoutInitializing() public {
-        vm.expectRevert(bytes('MerkleDistributor: Invalid proof.'));
+        vm.expectRevert(bytes('MerkleDistributor: Distribution dont exist'));
 
         aaveMerkleDistributor.claim(claimerIndex, claimer, claimerAmount, claimerMerkleProof, 0);
     }

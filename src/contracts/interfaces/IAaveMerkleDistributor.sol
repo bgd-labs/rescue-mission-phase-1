@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IAaveMerkleDistributor {
     /// @dev struct that contains the information for a distributionId id
-    struct DistributionInformation {
+    struct Distribution {
         /// @dev Returns the address of the token distributed in the distributionId.
         address token;
         /// @dev Returns the merkle root of the merkle tree containing account balances available to claim.
@@ -15,22 +15,22 @@ interface IAaveMerkleDistributor {
         mapping(uint256 => uint256) claimedBitMap;
     }
 
-    /** 
-    * @dev Returns the token of a distribution.
-    * @param distributionId id of the distribution round
+    /// @dev distribution information structure without the claim bitmap for usage as return object
+    struct DistributionWithoutClaimed {
+        address token;
+        bytes32 merkleRoot;
+    }
+
+    /**
+    * @dev returns the token and merkleRoot of a distirbution id
+    * @param distributionId id of the distribution we want the information of
     */
-    function getRoundToken(uint256 distributionId) external view returns (address);
+    function getDistribution(uint256 distributionId) external view returns (DistributionWithoutClaimed memory);
 
     /** 
-    * @dev Returns the merkleRoot of a distribution.
-    * @param distributionId id of the distribution round
+    * @dev Returns the id of the next distribution.
     */
-    function getRoundMerkleRoot(uint256 distributionId) external view returns (bytes32);
-
-    /** 
-    * @dev Returns the id of the last initialized distribution.
-    */
-    function lastDistributionId() external view returns (uint256);
+    function _nextDistributionId() external view returns (uint256);
     
     /**
     * @dev Returns true if the index has been marked claimed. 
@@ -77,5 +77,5 @@ interface IAaveMerkleDistributor {
     // This event is triggered whenever a call to #claim succeeds.
     event Claimed(uint256 index, address indexed account, uint256 amount, uint256 indexed distributionId);
     // this event is triggered when adding a new distribution
-    event Distribution(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
+    event DistributionAdded(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
 }
