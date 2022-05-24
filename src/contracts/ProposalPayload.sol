@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.13;
 
-import {IAaveMerkleDistributor} from './interfaces/IAaveMerkleDistributor.sol';
 import {AaveMerkleDistributor} from './AaveMerkleDistributor.sol';
 
 /// @title Payload to initialize the tokens rescue phase 1
@@ -32,7 +31,7 @@ contract ProposalPayload {
 
     function execute() external {
         // deploy distributor
-        IAaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
+        AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
 
         // initialize first distributions
         address[] memory tokens = new address[](4);
