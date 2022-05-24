@@ -4,10 +4,13 @@ pragma solidity ^0.8.13;
 import {IAaveMerkleDistributor} from './interfaces/IAaveMerkleDistributor';
 import {AaveMerkleDistributor} from './AaveMerkleDistributor';
 
+/// @title Payload to initialize the tokens rescue phase 1
+/// @author BGD
+/// @notice Provides an execute function for Aave governance to:
+///         - Deploy the Aave Merkle Distributor contract.
+///         - Initialize it with the merkleTrees for token rescue for:
+///         - AAVE, stkAAVE, USDT, UNI tokens
 contract ProposalPayload {
-    // ---------------------------- //
-    //    distribution constants
-    // ---------------------------- //
     // AAVE distribution
     address public constant AAVE_TOKEN = 0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9;
     address public constant AAVE_MERKLE_ROOT = 0xc2b53b6e06509b53a9ce00ce0ab1955b9dcf607774c46e7268ee1c990436003f;
@@ -23,6 +26,9 @@ contract ProposalPayload {
     // UNI distribution
     address public constant UNI_TOKEN = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
     address public constant UNI_MERKLE_ROOT = 0x0d02ecdaab34b26ed6ffa029ffa15bc377852ba0dc0e2ce18927d554ea3d939e;
+
+    // short executor
+    address public constant SHORT_EXECUTOR = 0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
 
     function execute() external {
         // deploy distributor
@@ -43,7 +49,7 @@ contract ProposalPayload {
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
         
-        // give ownership to gnosis safe??
-        
+        // give ownership of distributor to short executor
+        aaveMerkleDistributor.transferOwnership(SHORT_EXECUTOR);
     }
 }
