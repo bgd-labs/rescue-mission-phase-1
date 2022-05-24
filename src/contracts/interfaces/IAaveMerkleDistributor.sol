@@ -3,23 +3,33 @@ pragma solidity ^0.8.13;
 
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IAaveMerkleDistributor {
+    /// @dev struct that contains the information for a distributionId id
+    struct DistributionInformation {
+        /// @dev Returns the address of the token distributed in the distributionId.
+        address token;
+        /// @dev Returns the merkle root of the merkle tree containing account balances available to claim.
+        bytes32 merkleRoot;
+        /// @dev BitMap containing the address index to claimed bool. 
+        //       This works by storing the indexes 0-255 as 0, 256-511 as 1.
+        //       It is using the bit representation of uint256 to save on gas.
+        mapping(uint256 => uint256) claimedBitMap;
+    }
+
+    /** 
+    * @dev Returns the token of a distribution.
+    */
+    function getRoundToken(uint256 distributionId) external view returns (address);
+
+    /** 
+    * @dev Returns the merkleRoot of a distribution.
+    */
+    function getRoundMerkleRoot(uint256 distributionId) external view returns (bytes32);
+
     /** 
     * @dev Returns the id of the last initialized distribution.
     */
     function lastDistributionId() external view returns (uint256);
     
-    /** 
-    * @dev Returns the address of the token distributed in the distributionId.
-    * @param distributionId id of the distribution you want the token of
-    */
-    function token(uint256 distributionId) external view returns (address);
-    
-    /**
-    * @dev Returns the merkle root of the merkle tree containing account balances available to claim.
-    * @param distributionId id of the distribution you want the merkleRoot of
-    */
-    function merkleRoot(uint256 distributionId) external view returns (bytes32);
-      
     /**
     * @dev Returns true if the index has been marked claimed. 
     * @param index of the address and proof of the claimer

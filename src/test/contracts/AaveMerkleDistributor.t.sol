@@ -58,8 +58,8 @@ contract AaveMerkleDistributorTest is Test {
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
 
         assertEq(aaveMerkleDistributor.lastDistributionId(), 0);
-        assertEq(aaveMerkleDistributor.token(0), address(AAVE_TOKEN));
-        assertEq(aaveMerkleDistributor.merkleRoot(0), MERKLE_ROOT);
+        assertEq(aaveMerkleDistributor.getRoundToken(0), address(AAVE_TOKEN));
+        assertEq(aaveMerkleDistributor.getRoundMerkleRoot(0), MERKLE_ROOT);
     }
 
     function testAddMultipleDistributions () public {
@@ -80,10 +80,10 @@ contract AaveMerkleDistributorTest is Test {
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
         assertEq(aaveMerkleDistributor.lastDistributionId(), 1);
-        assertEq(aaveMerkleDistributor.token(0), address(AAVE_TOKEN));
-        assertEq(aaveMerkleDistributor.merkleRoot(0), MERKLE_ROOT);
-        assertEq(aaveMerkleDistributor.token(1), address(1));
-        assertEq(aaveMerkleDistributor.merkleRoot(1), MERKLE_ROOT);
+        assertEq(aaveMerkleDistributor.getRoundToken(0), address(AAVE_TOKEN));
+        assertEq(aaveMerkleDistributor.getRoundMerkleRoot(0), MERKLE_ROOT);
+        assertEq(aaveMerkleDistributor.getRoundToken(1), address(1));
+        assertEq(aaveMerkleDistributor.getRoundMerkleRoot(1), MERKLE_ROOT);
     }
 
     function testAddIncompleteDistributions() public {
@@ -129,6 +129,20 @@ contract AaveMerkleDistributorTest is Test {
     }
 
     function testIsClaimedFalse() public {     
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(AAVE_TOKEN);
+
+        bytes32[] memory merkleRoots = new bytes32[](1);
+        merkleRoots[0] = MERKLE_ROOT;
+
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+
+        vm.expectRevert(bytes('MerkleDistributor: Distribution dont exist'));
+        
+        assertEq(aaveMerkleDistributor.isClaimed(0, 1), false);
+    }
+
+    function testIsClaimedWhenWrongDistributionId() public {
         address[] memory tokens = new address[](1);
         tokens[0] = address(AAVE_TOKEN);
 

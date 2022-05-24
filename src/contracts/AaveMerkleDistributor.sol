@@ -10,28 +10,34 @@ import {IAaveMerkleDistributor} from './interfaces/IAaveMerkleDistributor.sol';
 contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     using SafeERC20 for IERC20;
 
-    /// @dev key is the distribution round of a determined token and merkleRoot
-    mapping(uint256 => address) public override token;
-    mapping(uint256 => bytes32) public override merkleRoot;
-    
-    // This is a packed array of booleans.
-    // TODO: explain how this works
-    mapping(uint256 => mapping(uint256 => uint256)) claimedBitMap;
+    mapping(uint256 => DistributionInformation) public distributionInformation;
 
     uint256 public lastDistributionId = 0;
 
     function contructor() public {}
 
     /// @inheritdoc IAaveMerkleDistributor
+    function getRoundToken(uint256 distributionId) external view returns (address) {
+        require(distributionId <= lastDistributionId, 'MerkleDistributor: Distribution dont exist');
+        return distributionInformation[distributionId].token;
+    }
+
+    /// @inheritdoc IAaveMerkleDistributor
+    function getRoundMerkleRoot(uint256 distributionId) external view returns (bytes32) {
+        require(distributionId <= lastDistributionId, 'MerkleDistributor: Distribution dont exist');
+        return distributionInformation[distributionId].merkleRoot;
+    }
+
+    /// @inheritdoc IAaveMerkleDistributor
     function addDistributions(address[] memory tokens, bytes32[] memory merkleRoots) public onlyOwner override {
         require(tokens.length == merkleRoots.length, 'MerkleDistributor: tokens not the same length as merkleRoots'); 
         for(uint i = 0; i < tokens.length; i=i+1) {
-            if (token[0] != address(0)) {
+            if (distributionInformation[0].token != address(0)) {
                 lastDistributionId = lastDistributionId + 1;
             }
-            
-            token[lastDistributionId] = tokens[i];
-            merkleRoot[lastDistributionId] = merkleRoots[i];
+
+            distributionInformation[lastDistributionId].token = tokens[i];
+            distributionInformation[lastDistributionId].merkleRoot = merkleRoots[i];
             
             emit Distribution(tokens[i], merkleRoots[i], lastDistributionId);
         }
@@ -39,9 +45,10 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
 
     /// @inheritdoc IAaveMerkleDistributor
     function isClaimed(uint256 index, uint256 distributionId) public view override returns (bool) {
+        require(distributionId <= lastDistributionId, 'MerkleDistributor: Distribution dont exist');
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        uint256 claimedWord = claimedBitMap[distributionId][claimedWordIndex];
+        uint256 claimedWord = distributionInformation[distributionId].claimedBitMap[claimedWordIndex];
         uint256 mask = (1 << claimedBitIndex);
         return claimedWord & mask == mask;
     }
@@ -53,11 +60,11 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
-        require(MerkleProof.verify(merkleProof, merkleRoot[distributionId], node), 'MerkleDistributor: Invalid proof.');
+        require(MerkleProof.verify(merkleProof, distributionInformation[distributionId].merkleRoot, node), 'MerkleDistributor: Invalid proof.');
 
         // Mark it claimed and send the token.
         _setClaimed(index, distributionId);
-        IERC20(token[distributionId]).safeTransfer(account, amount);
+        IERC20(distributionInformation[distributionId].token).safeTransfer(account, amount);
 
         emit Claimed(index, account, amount, distributionId);
     }
@@ -84,7 +91,8 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     function _setClaimed(uint256 index, uint256 distributionId) private {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        claimedBitMap[distributionId][claimedWordIndex] = claimedBitMap[distributionId][claimedWordIndex] | (1 << claimedBitIndex);
+        distributionInformation[distributionId].claimedBitMap[claimedWordIndex] = 
+            distributionInformation[distributionId].claimedBitMap[claimedWordIndex] | (1 << claimedBitIndex);
     }
 
     /**
