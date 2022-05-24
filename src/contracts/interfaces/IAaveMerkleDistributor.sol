@@ -17,11 +17,13 @@ interface IAaveMerkleDistributor {
 
     /** 
     * @dev Returns the token of a distribution.
+    * @param distributionId id of the distribution round
     */
     function getRoundToken(uint256 distributionId) external view returns (address);
 
     /** 
     * @dev Returns the merkleRoot of a distribution.
+    * @param distributionId id of the distribution round
     */
     function getRoundMerkleRoot(uint256 distributionId) external view returns (bytes32);
 
