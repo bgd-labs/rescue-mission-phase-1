@@ -19,24 +19,21 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     /// @inheritdoc IAaveMerkleDistributor
     function getDistribution(uint256 distributionId) external view returns (DistributionWithoutClaimed memory) {
         require(distributionId < _nextDistributionId, 'MerkleDistributor: Distribution dont exist');
-        
-        DistributionWithoutClaimed memory distributionWithoutClaimed;
-        distributionWithoutClaimed.token = _distributions[distributionId].token;
-        distributionWithoutClaimed.merkleRoot = _distributions[distributionId].merkleRoot;
-        
-        return distributionWithoutClaimed;
+                
+        return DistributionWithoutClaimed({token: _distributions[distributionId].token, merkleRoot: _distributions[distributionId].merkleRoot});
     }
 
     /// @inheritdoc IAaveMerkleDistributor
     function addDistributions(address[] memory tokens, bytes32[] memory merkleRoots) public onlyOwner override {
         require(tokens.length == merkleRoots.length, 'MerkleDistributor: tokens not the same length as merkleRoots'); 
         for(uint i = 0; i < tokens.length; i++) {
-            _distributions[_nextDistributionId].token = tokens[i];
-            _distributions[_nextDistributionId].merkleRoot = merkleRoots[i];
-            
-            emit DistributionAdded(tokens[i], merkleRoots[i], _nextDistributionId);
+            uint256 currentDistributionId = _nextDistributionId;
+            _distributions[currentDistributionId].token = tokens[i];
+            _distributions[currentDistributionId].merkleRoot = merkleRoots[i];
 
             _nextDistributionId++;
+
+            emit DistributionAdded(tokens[i], merkleRoots[i], currentDistributionId);
         }
     }
 
