@@ -22,6 +22,7 @@ async function fetchTxns(
   symbol: keyof typeof TOKENS,
   to: string,
   network: keyof typeof JSON_RPC_PROVIDER,
+  name: string,
   validateEvent?: (events: Event[]) => Promise<Event[]>,
 ): Promise<Record<string, string>> {
   const token = TOKENS[symbol];
@@ -87,10 +88,12 @@ async function fetchTxns(
 
   // Write events map of address value to json
   const addressValueMap: Record<string, string> = {};
+  let totalValue = BigNumber.from(0);
   events.forEach((e: Event) => {
     if (e.args) {
       let value = BigNumber.from(e.args.value.toString());
       if (value.gt(0)) {
+        totalValue = totalValue.add(value);
         // if we are looking at LEND token rescue
         // we need to divide by 100 as users will get the rescue amount
         // in AAVE tokens
@@ -108,6 +111,13 @@ async function fetchTxns(
       }
     }
   });
+
+  // write total amount on txt
+  const path = `./scripts/maps/amountsByContract.txt`;
+  fs.appendFileSync(
+    path,
+    `total amount for ${name} in wei: ${totalValue} ${symbol}\r\n`,
+  );
 
   return addressValueMap;
 }
@@ -192,12 +202,24 @@ async function generateAaveMap() {
   // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
   // await fetchTxns('AAVE', migrator, ChainId.mainnet);
   const mappedContracts: Record<string, string>[] = await Promise.all([
-    fetchTxns('LEND', migrator, ChainId.mainnet, validateMigrationEvents),
-    fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet),
-    fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet),
-    fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet),
-    fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet),
-    fetchTxns('AAVE', TOKENS.STKAAVE, ChainId.mainnet, validateStkAaveEvents),
+    fetchTxns(
+      'LEND',
+      migrator,
+      ChainId.mainnet,
+      'LEND-MIGRATOR',
+      validateMigrationEvents,
+    ),
+    fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet, 'AAVE-AAVE'),
+    fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet, 'AAVE-LEND'),
+    fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet, 'LEND-AAVE'),
+    fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet, 'LEND-LEND'),
+    fetchTxns(
+      'AAVE',
+      TOKENS.STKAAVE,
+      ChainId.mainnet,
+      'AAVE-STKAAVE',
+      validateStkAaveEvents,
+    ),
   ]);
 
   generateAndSaveMap(mappedContracts, 'aave');
@@ -205,7 +227,7 @@ async function generateAaveMap() {
 
 async function generateStkAaveMap() {
   const mappedContracts: Record<string, string>[] = await Promise.all([
-    fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet),
+    fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet, 'STKAAVE-STKAAVE'),
   ]);
 
   generateAndSaveMap(mappedContracts, 'stkAave');
@@ -215,7 +237,7 @@ async function generateUniMap() {
   // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
   // await fetchTxns('AAVE', migrator, ChainId.mainnet);
   const mapedContracts: Record<string, string>[] = await Promise.all([
-    fetchTxns('UNI', TOKENS.AAVE, ChainId.mainnet),
+    fetchTxns('UNI', TOKENS.AAVE, ChainId.mainnet, 'UNI-AAVE'),
   ]);
 
   generateAndSaveMap(mapedContracts, 'uni');
@@ -225,7 +247,7 @@ async function generateUsdtMap() {
   // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
   // await fetchTxns('AAVE', migrator, ChainId.mainnet);
   const mapedContracts: Record<string, string>[] = await Promise.all([
-    fetchTxns('USDT', TOKENS.AAVE, ChainId.mainnet),
+    fetchTxns('USDT', TOKENS.AAVE, ChainId.mainnet, 'USDT-AAVE'),
   ]);
 
   generateAndSaveMap(mapedContracts, 'usdt');
