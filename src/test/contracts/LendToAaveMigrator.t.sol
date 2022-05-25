@@ -21,6 +21,7 @@ contract LendToAaveMigratorTest is Test {
   
   LendToAaveMigrator migratorImpl;
   AaveMerkleDistributor aaveMerkleDistributor;
+  InitializableAdminUpgradeabilityProxy migratorProxy;
 
   event AaveTokensRescued(address from, address indexed to, uint256 amount);
   event LendMigrated(address indexed sender, uint256 indexed amount);
@@ -29,13 +30,13 @@ contract LendToAaveMigratorTest is Test {
     aaveMerkleDistributor = new AaveMerkleDistributor();
     migratorImpl = new LendToAaveMigrator(aave, lend, lendAaveRatio);
 
+    migratorProxy = InitializableAdminUpgradeabilityProxy(migratorProxyAddress);
   }
 
   function testInitialize() public {
     LendToAaveMigrator oldMigrator = LendToAaveMigrator(migratorProxyAddress);
     uint256 beforeTotalLendMigrated = oldMigrator._totalLendMigrated();
 
-    InitializableAdminUpgradeabilityProxy migratorProxy = InitializableAdminUpgradeabilityProxy(migratorProxyAddress);
 
     vm.expectEmit(true, true, false, true);
     emit LendMigrated(migratorProxyAddress, lendAmountToMigrate);
@@ -45,7 +46,7 @@ contract LendToAaveMigratorTest is Test {
     emit AaveTokensRescued(migratorProxyAddress, address(aaveMerkleDistributor), tokensRescued);
 
     migratorProxy.initialize(
-      migratorImpl,
+      address(migratorImpl),
       address(1),
       abi.encodeWithSignature(
         'initialize(address,uint256)',
@@ -54,7 +55,9 @@ contract LendToAaveMigratorTest is Test {
       )
     );
 
-    assertEq(beforeTotalLendMigrated, beforeTotalLendMigrated + migratorProxy._totalLendMigrated);
-    assertEq(IERC20(lend).balanceOf(migratorProxy));
+    LendToAaveMigrator newMigrator = LendToAaveMigrator(migratorProxyAddress);
+
+    assertEq(beforeTotalLendMigrated, beforeTotalLendMigrated + newMigrator._totalLendMigrated());
+    assertEq(IERC20(lend).balanceOf(address(migratorProxy)), 0);
   }
 }
