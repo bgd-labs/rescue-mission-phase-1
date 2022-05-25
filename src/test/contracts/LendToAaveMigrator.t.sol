@@ -15,7 +15,7 @@ contract LendToAaveMigratorTest is Test {
   IERC20 public constant lend = IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
   uint256 public constant lendAaveRatio = 100;
 
-  uint256 public constant lendAmountToMigrate = 1 ether;
+  uint256 public constant lendAmountToMigrate = 8007719287288096435418;
 
   address payable migratorProxyAddress = payable(0x317625234562B1526Ea2FaC4030Ea499C5291de4);
   
