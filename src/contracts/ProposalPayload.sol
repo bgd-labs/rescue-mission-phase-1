@@ -34,6 +34,7 @@ contract ProposalPayload {
     IERC20 public constant LEND = IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
     uint256 public constant LEND_AAVE_RATIO = 100;
     uint256 public constant LEND_TO_MIGRATOR_RESCUE_AMOUNT = 8007719287288096435418;
+    uint256 public constant LEND_TO_LEND_RESCUE_AMOUNT = 841600717506653731350931;
 
     function execute() external {
         // deploy distributor
@@ -63,12 +64,13 @@ contract ProposalPayload {
 
         LendToAaveMigrator lendToAaveMigratorImpl = new LendToAaveMigrator(IERC20(AAVE_TOKEN), LEND, LEND_AAVE_RATIO);
 
+        uint256 totalLendAmountToRescue = LEND_TO_MIGRATOR_RESCUE_AMOUNT + LEND_TO_LEND_RESCUE_AMOUNT;
         lendToAaveMigratorProxy.upgradeToAndCall(
             address(lendToAaveMigratorImpl), 
             abi.encodeWithSignature(
                 'initialize(address,uint256)',
                 address(aaveMerkleDistributor),
-                LEND_TO_MIGRATOR_RESCUE_AMOUNT
+                totalLendAmountToRescue
             )
         );
     }
