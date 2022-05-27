@@ -44,10 +44,14 @@ contract LendToAaveMigrator is VersionedInitializable {
     }
 
     /**
-    * @dev initializes the implementation
+    * @dev initializes the implementation and rescues the LEND sent to the contract
+    * by migrating them to AAVE and sending them to the AaveMerkleDistributor
+    * and then burning the LEND tokens
+    * @param aaveMerkleDistributor address of the AAVE rescue distributor
+    * @param lendAmount amount of lend that need to be rescued
     */
     function initialize(address aaveMerkleDistributor, uint256 lendAmount) public initializer {
-        // account for the LEND sent to the contract for the total miggration
+        // account for the LEND sent to the contract for the total migration
         _totalLendMigrated = _totalLendMigrated + lendAmount;
 
         // transfer AAVE + LEND sent to this contract
@@ -72,6 +76,7 @@ contract LendToAaveMigrator is VersionedInitializable {
     /**
     * @dev executes the migration from LEND to AAVE. Users need to give allowance to this contract to transfer LEND before executing
     * this transaction.
+    * burns the migrated LEND amount 
     * @param amount the amount of LEND to be migrated
     */
     function migrateFromLEND(uint256 amount) external {
@@ -81,6 +86,8 @@ contract LendToAaveMigrator is VersionedInitializable {
         LEND.transferFrom(msg.sender, address(this), amount);
         AAVE.transfer(msg.sender, amount / LEND_AAVE_RATIO);
         emit LendMigrated(msg.sender, amount);
+
+        LEND.transfer(address(0), amount);
     }
 
     /**

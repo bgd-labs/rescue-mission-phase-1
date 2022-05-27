@@ -21,6 +21,11 @@ interface IAaveMerkleDistributor {
         bytes32 merkleRoot;
     }
 
+    // This event is triggered whenever a call to #claim succeeds.
+    event Claimed(uint256 index, address indexed account, uint256 amount, uint256 indexed distributionId);
+    // this event is triggered when adding a new distribution
+    event DistributionAdded(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
+    
     /**
     * @dev returns the token and merkleRoot of a distirbution id
     * @param distributionId id of the distribution we want the information of
@@ -33,7 +38,7 @@ interface IAaveMerkleDistributor {
     function _nextDistributionId() external view returns (uint256);
     
     /**
-    * @dev Returns true if the index has been marked claimed. 
+    * @dev Returns true if the index has been marked claimed.
     * @param index of the address and proof of the claimer
     * @param distributionId id of the distribution you want to check if index has been claimed
     */
@@ -73,9 +78,4 @@ interface IAaveMerkleDistributor {
     * @param amount amount to send
     */
     function emergencyEtherTransfer(address to, uint256 amount) external;
-
-    // This event is triggered whenever a call to #claim succeeds.
-    event Claimed(uint256 index, address indexed account, uint256 amount, uint256 indexed distributionId);
-    // this event is triggered when adding a new distribution
-    event DistributionAdded(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
 }
