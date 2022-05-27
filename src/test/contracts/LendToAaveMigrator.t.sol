@@ -3,10 +3,9 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import {IERC20} from "../../contracts/dependencies/openZeppelin/IERC20.sol";
-import {InitializableAdminUpgradeabilityProxy} from "../../contracts/dependencies/upgradeability/InitializableAdminUpgradeabilityProxy.sol";
 import {LendToAaveMigrator} from "../../contracts/LendToAaveMigrator.sol";
 import {AaveMerkleDistributor} from "../../contracts/AaveMerkleDistributor.sol";
-
+import {IInitializableAdminUpgradeabilityProxy} from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 
 contract LendToAaveMigratorTest is Test {
     using stdStorage for StdStorage;
@@ -22,7 +21,7 @@ contract LendToAaveMigratorTest is Test {
     
     LendToAaveMigrator migratorImpl;
     AaveMerkleDistributor aaveMerkleDistributor;
-    InitializableAdminUpgradeabilityProxy migratorProxy;
+    IInitializableAdminUpgradeabilityProxy migratorProxy;
     LendToAaveMigrator migrator;
 
     event AaveTokensRescued(address from, address indexed to, uint256 amount);
@@ -31,7 +30,7 @@ contract LendToAaveMigratorTest is Test {
     function setUp() public {
         aaveMerkleDistributor = new AaveMerkleDistributor();
         migratorImpl = new LendToAaveMigrator(AAVE, LEND, LEND_AAVE_RATIO);
-        migratorProxy = InitializableAdminUpgradeabilityProxy(migratorProxyAddress);
+        migratorProxy = IInitializableAdminUpgradeabilityProxy(migratorProxyAddress);
         migrator = LendToAaveMigrator(migratorProxyAddress);
     }
 
