@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.13;
 
-import {AaveMerkleDistributor} from './AaveMerkleDistributor.sol';
+import {AaveMerkleDistributor} from "./AaveMerkleDistributor.sol";
+import {IInitializableAdminUpgradeabilityProxy} from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import {LendToAaveMigrator} from "./LendToAaveMigrator.sol";
+import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
 
 /// @title Payload to initialize the tokens rescue phase 1
 /// @author BGD
@@ -26,6 +29,12 @@ contract ProposalPayload {
     address public constant UNI_TOKEN = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
     bytes32 public constant UNI_MERKLE_ROOT = 0x0d02ecdaab34b26ed6ffa029ffa15bc377852ba0dc0e2ce18927d554ea3d939e;
 
+    // LEND constants
+    address public constant MIGRATOR_PROXY_ADDRESS = payable(0x317625234562B1526Ea2FaC4030Ea499C5291de4);
+    IERC20 public constant LEND = IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
+    uint256 public constant LEND_AAVE_RATIO = 100;
+    uint256 public constant LEND_TO_MIGRATOR_RESCUE_AMOUNT = 8007719287288096435418;
+
     function execute() external {
         // deploy distributor
         AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
@@ -47,5 +56,20 @@ contract ProposalPayload {
         
         // give ownership of distributor to short executor
         aaveMerkleDistributor.transferOwnership(msg.sender);
+
+        // Deploy new LendToAaveMigrator implementation and rescue LEND
+        IInitializableAdminUpgradeabilityProxy lendToAaveMigratorProxy = 
+            IInitializableAdminUpgradeabilityProxy(MIGRATOR_PROXY_ADDRESS);
+
+        LendToAaveMigrator lendToAaveMigratorImpl = new LendToAaveMigrator(IERC20(AAVE_TOKEN), LEND, LEND_AAVE_RATIO);
+
+        lendToAaveMigratorProxy.upgradeToAndCall(
+            address(lendToAaveMigratorImpl), 
+            abi.encodeWithSignature(
+                'initialize(address,uint256)',
+                address(aaveMerkleDistributor),
+                LEND_TO_MIGRATOR_RESCUE_AMOUNT
+            )
+        );
     }
 }

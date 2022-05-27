@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import {IERC20} from "../../contracts/dependencies/openZeppelin/IERC20.sol";
 import {LendToAaveMigrator} from "../../contracts/LendToAaveMigrator.sol";
 import {AaveMerkleDistributor} from "../../contracts/AaveMerkleDistributor.sol";
-import {IInitializableAdminUpgradeabilityProxy} from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import {IInitializableAdminUpgradeabilityProxy} from "../../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 
 contract LendToAaveMigratorTest is Test {
     using stdStorage for StdStorage;
@@ -37,10 +37,6 @@ contract LendToAaveMigratorTest is Test {
     function testInitialize() public {
         uint256 beforeTotalLendMigrated = migrator._totalLendMigrated();
 
-        vm.prank(MIGRATOR_PROXY_ADMIN);
-        migratorProxy.upgradeTo(address(migratorImpl));
-
-
         vm.expectEmit(true, true, false, true);
         emit LendMigrated(migratorProxyAddress, lendAmountToMigrate);
 
@@ -48,10 +44,14 @@ contract LendToAaveMigratorTest is Test {
         vm.expectEmit(false, true, false, true);
         emit AaveTokensRescued(migratorProxyAddress, address(aaveMerkleDistributor), tokensRescued);
 
-        migrator.initialize(
-            address(aaveMerkleDistributor),
-            lendAmountToMigrate
-            
+        vm.prank(MIGRATOR_PROXY_ADMIN);
+        migratorProxy.upgradeToAndCall(
+            address(migratorImpl), 
+            abi.encodeWithSignature(
+                'initialize(address,uint256)',
+                address(aaveMerkleDistributor),
+                lendAmountToMigrate
+            )
         );
 
         assertEq(migrator._totalLendMigrated(), beforeTotalLendMigrated + lendAmountToMigrate);
@@ -62,12 +62,13 @@ contract LendToAaveMigratorTest is Test {
 
     function testMigrationStarted() public {
         vm.prank(MIGRATOR_PROXY_ADMIN);
-        migratorProxy.upgradeTo(address(migratorImpl));
-
-        migrator.initialize(
-            address(aaveMerkleDistributor),
-            lendAmountToMigrate
-            
+        migratorProxy.upgradeToAndCall(
+            address(migratorImpl), 
+            abi.encodeWithSignature(
+                'initialize(address,uint256)',
+                address(aaveMerkleDistributor),
+                lendAmountToMigrate
+            )
         );
 
         assertEq(migrator.migrationStarted(), true);
@@ -75,12 +76,13 @@ contract LendToAaveMigratorTest is Test {
 
     function migrateFromLEND() public {
         vm.prank(MIGRATOR_PROXY_ADMIN);
-        migratorProxy.upgradeTo(address(migratorImpl));
-
-        migrator.initialize(
-            address(aaveMerkleDistributor),
-            lendAmountToMigrate
-            
+        migratorProxy.upgradeToAndCall(
+            address(migratorImpl), 
+            abi.encodeWithSignature(
+                'initialize(address,uint256)',
+                address(aaveMerkleDistributor),
+                lendAmountToMigrate
+            )
         );
 
         uint256 beforeLendMigratorAmount = LEND.balanceOf(address(migrator));
