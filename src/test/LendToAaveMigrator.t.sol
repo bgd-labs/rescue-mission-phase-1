@@ -2,10 +2,10 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import {IERC20} from "../../contracts/dependencies/openZeppelin/IERC20.sol";
-import {LendToAaveMigrator} from "../../contracts/LendToAaveMigrator.sol";
-import {AaveMerkleDistributor} from "../../contracts/AaveMerkleDistributor.sol";
-import {IInitializableAdminUpgradeabilityProxy} from "../../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
+import {LendToAaveMigrator} from "../contracts/LendToAaveMigrator.sol";
+import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
+import {IInitializableAdminUpgradeabilityProxy} from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 
 contract LendToAaveMigratorTest is Test {
     using stdStorage for StdStorage;
