@@ -8,7 +8,7 @@ import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 import {IInitializableAdminUpgradeabilityProxy} from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 
 contract LendToAaveMigratorTest is Test {
-    using stdStorage for StdStorage;
+    // using stdStorage for StdStorage;
 
     IERC20 public constant AAVE = IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
     IERC20 public constant LEND = IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
