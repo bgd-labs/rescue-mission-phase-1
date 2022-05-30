@@ -5,20 +5,33 @@ import "forge-std/Test.sol";
 import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 import {ProposalPayload} from "../contracts/ProposalPayload.sol";
+import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
+import {IAaveMerkleDistributor} from "../contracts/interfaces/IAaveMerkleDistributor.sol";
+import {LendToAaveMigrator} from "../contracts/LendToAaveMigrator.sol";
 
 
 contract ProposalPayloadTest is Test {
     IERC20 public constant AAVE = IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
     address internal constant AAVE_WHALE = address(0x25F2226B597E8F9514B3F68F00f494cF4f286491);
-    address internal proposalPayload;
+    ProposalPayload internal proposalPayload;
+    uint256 public beforeTotalLendMigrated;
+    LendToAaveMigrator public migrator;
 
     function setUp() public {
-        proposalPayload = address(new ProposalPayload());
+        AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
+        
+        // give ownership of distributor to short executor
+        aaveMerkleDistributor.transferOwnership(AaveGovHelpers.SHORT_EXECUTOR);
+
+        proposalPayload = new ProposalPayload(address(aaveMerkleDistributor));
+
+        migrator = LendToAaveMigrator(proposalPayload.MIGRATOR_PROXY_ADDRESS());
+        beforeTotalLendMigrated = migrator._totalLendMigrated();
     }
 
     function testProposal() public {
         address[] memory targets = new address[](1);
-        targets[0] = proposalPayload;
+        targets[0] = address(proposalPayload);
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
         string[] memory signatures = new string[](1);
@@ -45,22 +58,54 @@ contract ProposalPayloadTest is Test {
         AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
 
         _validateAaveMerkleDistribution(proposalId);
-        _validateLendTokenRescue(proposalId);
+        _validateTokenRescue(proposalId);
     }
 
-    function _validateAaveMerkleTreeDistribution(uint256 proposalId) internal {
+    function _validateAaveMerkleDistribution(uint256 proposalId) internal {
         IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
             ._getProposalById(proposalId);
         // Generally, there is no reason to have more than 1 payload if using the DELEGATECALL pattern
         address payload = proposalData.targets[0];
     
         // from payload get data;
-        // address aaveMerkleDistributor = ProposalPayload(payload).
+        ProposalPayload proposalPayload = ProposalPayload(payload);
+        AaveMerkleDistributor aaveMerkleDistributor = AaveMerkleDistributor(proposalPayload.AAVE_MERKLE_DISTRIBUTOR());
+
+        IAaveMerkleDistributor.DistributionWithoutClaimed memory distribution;
+
+        distribution = aaveMerkleDistributor.getDistribution(0);
+        assertEq(distribution.token, proposalPayload.AAVE_TOKEN());
+        assertEq(distribution.merkleRoot, proposalPayload.AAVE_MERKLE_ROOT());
+        
+        distribution = aaveMerkleDistributor.getDistribution(1);
+        assertEq(distribution.token, proposalPayload.stkAAVE_TOKEN());
+        assertEq(distribution.merkleRoot, proposalPayload.stkAAVE_MERKLE_ROOT());
+
+        distribution = aaveMerkleDistributor.getDistribution(2);
+        assertEq(distribution.token, proposalPayload.USDT_TOKEN());
+        assertEq(distribution.merkleRoot, proposalPayload.USDT_MERKLE_ROOT());
+
+        distribution = aaveMerkleDistributor.getDistribution(3);
+        assertEq(distribution.token, proposalPayload.UNI_TOKEN());
+        assertEq(distribution.merkleRoot, proposalPayload.UNI_MERKLE_ROOT());
+
+        assertEq(aaveMerkleDistributor.owner(), AaveGovHelpers.SHORT_EXECUTOR);
     }
 
-    function _validateAaveMerkleDistributor(uint256 proposalId) internal {
+    function _validateTokenRescue(uint256 proposalId) internal {
         IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
             ._getProposalById(proposalId);
         address payload = proposalData.targets[0];
+        ProposalPayload proposalPayload = ProposalPayload(payload);
+
+        LendToAaveMigrator lendToAaveMigrator = LendToAaveMigrator(proposalPayload.MIGRATOR_PROXY_ADDRESS());
+
+        uint256 totalLendAmountToRescue = 
+            proposalPayload.LEND_TO_MIGRATOR_RESCUE_AMOUNT() + proposalPayload.LEND_TO_LEND_RESCUE_AMOUNT();
+
+        assertEq(
+            AAVE.balanceOf(proposalPayload.AAVE_MERKLE_DISTRIBUTOR()),
+            totalLendAmountToRescue / proposalPayload.LEND_AAVE_RATIO());
+        assertEq(migrator._totalLendMigrated(), beforeTotalLendMigrated + totalLendAmountToRescue);
     }
 }

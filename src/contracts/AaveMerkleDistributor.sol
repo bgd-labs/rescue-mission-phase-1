@@ -5,7 +5,7 @@ import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
 import {SafeERC20} from "./dependencies/openZeppelin/SafeERC20.sol";
 import {Ownable} from "./dependencies/openZeppelin/Ownable.sol";
 import {MerkleProof} from "./dependencies/openZeppelin/MerkleProof.sol";
-import {IAaveMerkleDistributor} from './interfaces/IAaveMerkleDistributor.sol';
+import {IAaveMerkleDistributor} from "./interfaces/IAaveMerkleDistributor.sol";
 
 contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     using SafeERC20 for IERC20;

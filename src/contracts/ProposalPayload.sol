@@ -9,10 +9,11 @@ import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
 /// @title Payload to initialize the tokens rescue phase 1
 /// @author BGD
 /// @notice Provides an execute function for Aave governance to:
-///         - Deploy the Aave Merkle Distributor contract.
-///         - Initialize it with the merkleTrees for token rescue for:
+///         - Initialize the AaveMerkleDistributor with the merkleTrees for token rescue for:
 ///         - AAVE, stkAAVE, USDT, UNI tokens
 contract ProposalPayload {
+    address public immutable AAVE_MERKLE_DISTRIBUTOR;
+    
     // AAVE distribution
     address public constant AAVE_TOKEN = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     bytes32 public constant AAVE_MERKLE_ROOT = 0xc2b53b6e06509b53a9ce00ce0ab1955b9dcf607774c46e7268ee1c990436003f;
@@ -29,16 +30,20 @@ contract ProposalPayload {
     address public constant UNI_TOKEN = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
     bytes32 public constant UNI_MERKLE_ROOT = 0x0d02ecdaab34b26ed6ffa029ffa15bc377852ba0dc0e2ce18927d554ea3d939e;
 
-    // LEND constants
+    // LEND rescue constants
     address public constant MIGRATOR_PROXY_ADDRESS = payable(0x317625234562B1526Ea2FaC4030Ea499C5291de4);
     IERC20 public constant LEND = IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
     uint256 public constant LEND_AAVE_RATIO = 100;
     uint256 public constant LEND_TO_MIGRATOR_RESCUE_AMOUNT = 8007719287288096435418;
     uint256 public constant LEND_TO_LEND_RESCUE_AMOUNT = 841600717506653731350931;
 
+    constructor(address aaveMerkleDistributor) public {
+        AAVE_MERKLE_DISTRIBUTOR = aaveMerkleDistributor;
+    }
+
     function execute() external {
         // deploy distributor
-        AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
+        AaveMerkleDistributor aaveMerkleDistributor = AaveMerkleDistributor(AAVE_MERKLE_DISTRIBUTOR);
 
         // initialize first distributions
         address[] memory tokens = new address[](4);
@@ -55,8 +60,6 @@ contract ProposalPayload {
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
         
-        // give ownership of distributor to short executor
-        aaveMerkleDistributor.transferOwnership(msg.sender);
 
         // Deploy new LendToAaveMigrator implementation and rescue LEND
         IInitializableAdminUpgradeabilityProxy lendToAaveMigratorProxy = 
@@ -68,7 +71,7 @@ contract ProposalPayload {
         lendToAaveMigratorProxy.upgradeToAndCall(
             address(lendToAaveMigratorImpl), 
             abi.encodeWithSignature(
-                'initialize(address,uint256)',
+                "initialize(address,uint256)",
                 address(aaveMerkleDistributor),
                 totalLendAmountToRescue
             )
