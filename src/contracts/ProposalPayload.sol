@@ -60,7 +60,6 @@ contract ProposalPayload {
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
         
-
         // Deploy new LendToAaveMigrator implementation and rescue LEND
         IInitializableAdminUpgradeabilityProxy lendToAaveMigratorProxy = 
             IInitializableAdminUpgradeabilityProxy(MIGRATOR_PROXY_ADDRESS);
