@@ -41,12 +41,12 @@ contract AaveTokenV2Test is Test {
         amounts[1] = USDT_RESCUE_AMOUNT;
         amounts[2] = UNI_RESCUE_AMOUNT;
 
-        // vm.expectEmit(true, true, false, true);
-        // emit TokensRescued(tokens[0], address(aaveMerkleDistributor), amounts[0]);
-        // vm.expectEmit(true, true, false, true);
-        // emit TokensRescued(tokens[1], address(aaveMerkleDistributor), amounts[1]);
-        // vm.expectEmit(true, true, false, true);
-        // emit TokensRescued(tokens[2], address(aaveMerkleDistributor), amounts[2]);
+        vm.expectEmit(true, true, false, true);
+        emit TokensRescued(tokens[0], address(aaveMerkleDistributor), amounts[0]);
+        vm.expectEmit(true, true, false, true);
+        emit TokensRescued(tokens[1], address(aaveMerkleDistributor), amounts[1]);
+        vm.expectEmit(true, true, false, true);
+        emit TokensRescued(tokens[2], address(aaveMerkleDistributor), amounts[2]);
 
         vm.prank(0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7);
         aaveProxy.upgradeToAndCall(
