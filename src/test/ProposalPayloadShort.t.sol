@@ -4,16 +4,16 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
-import {ProposalPayload} from "../contracts/ProposalPayload.sol";
+import {ProposalPayloadShort} from "../contracts/ProposalPayloadShort.sol";
 import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 import {IAaveMerkleDistributor} from "../contracts/interfaces/IAaveMerkleDistributor.sol";
 import {LendToAaveMigrator} from "../contracts/LendToAaveMigrator.sol";
 
 
-contract ProposalPayloadTest is Test {
+contract ProposalPayloadShortTest is Test {
     IERC20 public constant AAVE = IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
     address internal constant AAVE_WHALE = address(0x25F2226B597E8F9514B3F68F00f494cF4f286491);
-    ProposalPayload internal proposalPayload;
+    ProposalPayloadShort internal proposalPayload;
     uint256 public beforeTotalLendMigrated;
     LendToAaveMigrator public migrator;
 
@@ -23,7 +23,7 @@ contract ProposalPayloadTest is Test {
         // give ownership of distributor to short executor
         aaveMerkleDistributor.transferOwnership(AaveGovHelpers.SHORT_EXECUTOR);
 
-        proposalPayload = new ProposalPayload(address(aaveMerkleDistributor));
+        proposalPayload = new ProposalPayloadShort(address(aaveMerkleDistributor));
 
         migrator = LendToAaveMigrator(proposalPayload.MIGRATOR_PROXY_ADDRESS());
         beforeTotalLendMigrated = migrator._totalLendMigrated();
@@ -68,7 +68,7 @@ contract ProposalPayloadTest is Test {
         address payload = proposalData.targets[0];
     
         // from payload get data;
-        ProposalPayload proposalPayload = ProposalPayload(payload);
+        ProposalPayloadShort proposalPayload = ProposalPayloadShort(payload);
         AaveMerkleDistributor aaveMerkleDistributor = AaveMerkleDistributor(proposalPayload.AAVE_MERKLE_DISTRIBUTOR());
 
         IAaveMerkleDistributor.DistributionWithoutClaimed memory distribution;
@@ -96,7 +96,7 @@ contract ProposalPayloadTest is Test {
         IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
             ._getProposalById(proposalId);
         address payload = proposalData.targets[0];
-        ProposalPayload proposalPayload = ProposalPayload(payload);
+        ProposalPayloadShort proposalPayload = ProposalPayloadShort(payload);
 
         LendToAaveMigrator lendToAaveMigrator = LendToAaveMigrator(proposalPayload.MIGRATOR_PROXY_ADDRESS());
 

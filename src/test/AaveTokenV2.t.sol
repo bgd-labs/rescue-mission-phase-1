@@ -8,7 +8,7 @@ import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 import {AaveTokenV2} from "../contracts/AaveTokenV2.sol";
 
 contract AaveTokenV2Test is Test {
-    address public constant MIGRATOR_PROXY_ADMIN = 0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
+    address public constant AAVE_PROXY_ADMIN = 0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
 
     address public constant AAVE_TOKEN = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     uint256 public constant AAVE_RESCUE_AMOUNT = 28317484543674044370842;
@@ -48,7 +48,7 @@ contract AaveTokenV2Test is Test {
         vm.expectEmit(true, true, false, true);
         emit TokensRescued(tokens[2], address(aaveMerkleDistributor), amounts[2]);
 
-        vm.prank(0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7);
+        vm.prank(AAVE_PROXY_ADMIN);
         aaveProxy.upgradeToAndCall(
             address(aaveTokenImpl), 
             abi.encodeWithSignature(

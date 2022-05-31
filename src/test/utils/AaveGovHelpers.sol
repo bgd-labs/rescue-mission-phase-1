@@ -2,6 +2,9 @@
 pragma solidity 0.8.13;
 
 import "forge-std/Vm.sol";
+import "forge-std/console.sol";
+import "forge-std/Test.sol";
+import {IERC20} from "../../contracts/dependencies/openZeppelin/IERC20.sol";
 
 interface IAaveGov {
     struct ProposalWithoutVotes {
@@ -76,8 +79,14 @@ library AaveGovHelpers {
     IAaveGov internal constant GOV =
         IAaveGov(0xEC568fffba86c094cf06b22134B23074DFE2252c);
 
-    address constant SHORT_EXECUTOR =
+    address public constant SHORT_EXECUTOR =
         0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
+
+    address public constant LONG_EXECUTOR =
+        0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
+
+    address public constant AAVE = 
+        0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
     function _createProposal(
         Vm vm,

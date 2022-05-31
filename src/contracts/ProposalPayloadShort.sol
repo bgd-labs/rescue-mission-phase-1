@@ -11,7 +11,7 @@ import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
 /// @notice Provides an execute function for Aave governance to:
 ///         - Initialize the AaveMerkleDistributor with the merkleTrees for token rescue for:
 ///         - AAVE, stkAAVE, USDT, UNI tokens
-contract ProposalPayload {
+contract ProposalPayloadShort {
     address public immutable AAVE_MERKLE_DISTRIBUTOR;
     
     // AAVE distribution
@@ -42,7 +42,6 @@ contract ProposalPayload {
     }
 
     function execute() external {
-        // deploy distributor
         AaveMerkleDistributor aaveMerkleDistributor = AaveMerkleDistributor(AAVE_MERKLE_DISTRIBUTOR);
 
         // initialize first distributions
