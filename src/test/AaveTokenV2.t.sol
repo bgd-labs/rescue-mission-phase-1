@@ -48,15 +48,19 @@ contract AaveTokenV2Test is Test {
         // vm.expectEmit(true, true, false, true);
         // emit TokensRescued(tokens[2], address(aaveMerkleDistributor), amounts[2]);
 
-        vm.prank(MIGRATOR_PROXY_ADMIN);
+        vm.prank(0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7);
         aaveProxy.upgradeToAndCall(
             address(aaveTokenImpl), 
             abi.encodeWithSignature(
-                "initialize(address[] memory,uint256[] memory,address)",
+                "initialize(address[],uint256[],address)",
                 tokens,
                 amounts,
                 address(aaveMerkleDistributor)
             )
         );
+
+        assertEq(AAVE.balanceOf(address(aaveMerkleDistributor)), AAVE_RESCUE_AMOUNT);
+        assertEq(IERC20(USDT_TOKEN).balanceOf(address(aaveMerkleDistributor)), USDT_RESCUE_AMOUNT);
+        assertEq(IERC20(UNI_TOKEN).balanceOf(address(aaveMerkleDistributor)), UNI_RESCUE_AMOUNT);
     }
 }

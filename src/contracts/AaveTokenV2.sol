@@ -1127,6 +1127,7 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
  */
 contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20; // UPDATED: to be able to use safeTransfer
 
   string internal constant NAME = 'Aave Token';
   string internal constant SYMBOL = 'AAVE';
@@ -1168,6 +1169,9 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
 
   /**
    * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy
+   * @param tokens array of token addresses to be rescued
+   * @param amounts array of amounts of the tokens to be rescued
+   * @param aaveMerkleDistributor address of the aave merkle distributor contract where the amounts will be sent
    */
   function initialize(
     address[] memory tokens,
@@ -1177,9 +1181,9 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
     // send tokens to distributor
     require(tokens.length == amounts.length, 'Aave initialization: tokens not the same length as amounts'); 
     for(uint i = 0; i < tokens.length; i++) {
-        ERC20(tokens[i]).transfer(aaveMerkleDistributor, amounts[i]);
+      IERC20(tokens[i]).safeTransfer(aaveMerkleDistributor, amounts[i]);
 
-        emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
+      emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
     }
   }
 
