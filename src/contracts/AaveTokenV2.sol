@@ -1177,7 +1177,6 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
     // send tokens to distributor
     require(tokens.length == amounts.length, 'Aave initialization: tokens not the same length as amounts'); 
     for(uint i = 0; i < tokens.length; i++) {
-        
         ERC20(tokens[i]).transfer(aaveMerkleDistributor, amounts[i]);
 
         emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
