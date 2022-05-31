@@ -10,13 +10,24 @@ import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
 contract ProposalPayloadLongTest is Test {
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
+    address public constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
+    address public constant UNI = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
     address internal constant AAVE_WHALE = address(0x25F2226B597E8F9514B3F68F00f494cF4f286491);
-    address internal constant AAVE_WHALE2 = address(0x4da27a545c0c5B758a6BA100e3a049001de870f5);
-    
+    uint256 public beforeAaveBalance;
+    uint256 public beforeUsdtBalance;
+    uint256 public beforeUniBalance;
     ProposalPayloadLong internal proposalPayload;
+    IERC20 aaveToken = IERC20(AAVE);
+    IERC20 usdtToken = IERC20(USDT);
+    IERC20 uniToken = IERC20(UNI);
 
     function setUp() public {
         _prepareWhale();
+
+        // get balances before proposal execution
+        beforeAaveBalance = aaveToken.balanceOf(AAVE);
+        beforeUsdtBalance = usdtToken.balanceOf(AAVE);
+        beforeUniBalance = uniToken.balanceOf(AAVE);
 
         AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
     
@@ -24,7 +35,6 @@ contract ProposalPayloadLongTest is Test {
         aaveMerkleDistributor.transferOwnership(AaveGovHelpers.SHORT_EXECUTOR);
 
         proposalPayload = new ProposalPayloadLong(address(aaveMerkleDistributor));
-
     }
 
     function testProposal() public {
@@ -53,7 +63,6 @@ contract ProposalPayloadLongTest is Test {
             })
         );
 
-        console.log('balance ', IERC20(AAVE).balanceOf(AAVE_WHALE));
         AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
 
         _validateAaveContractTokensRescued(proposalId);
@@ -69,7 +78,7 @@ contract ProposalPayloadLongTest is Test {
         ProposalPayloadLong proposalPayload = ProposalPayloadLong(payload);
 
         address aaveMerkleDistributor = address(AaveMerkleDistributor(proposalPayload.AAVE_MERKLE_DISTRIBUTOR()));
-
+        
         assertEq(
             IERC20(proposalPayload.AAVE_TOKEN()).balanceOf(aaveMerkleDistributor),
             proposalPayload.AAVE_RESCUE_AMOUNT()
@@ -82,12 +91,23 @@ contract ProposalPayloadLongTest is Test {
             IERC20(proposalPayload.UNI_TOKEN()).balanceOf(aaveMerkleDistributor),
             proposalPayload.UNI_RESCUE_AMOUNT()
         );
-        
+        assertEq(
+            aaveToken.balanceOf(AAVE), 
+            beforeAaveBalance - proposalPayload.AAVE_RESCUE_AMOUNT()
+        );
+        assertEq(
+            aaveToken.balanceOf(USDT), 
+            beforeUsdtBalance - proposalPayload.USDT_RESCUE_AMOUNT()
+        );
+        assertEq(
+            aaveToken.balanceOf(UNI), 
+            beforeUniBalance - proposalPayload.UNI_RESCUE_AMOUNT()
+        );
     }
 
     function _prepareWhale() internal {
-        deal(AAVE, address(this), 4000000 ether);
+        deal(AAVE, address(this), 5000000 ether);
         deal(address(this), 1 ether);
-        IERC20(AAVE).transfer(AAVE_WHALE, 3000000 ether);
+        IERC20(AAVE).transfer(AAVE_WHALE, 4000000 ether);
     }
 }
