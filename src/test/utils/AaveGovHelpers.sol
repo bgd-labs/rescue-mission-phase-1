@@ -3,9 +3,6 @@ pragma solidity >=0.7.5 <0.9.0;
 pragma abicoder v2;
 
 import "forge-std/Vm.sol";
-import "forge-std/console.sol";
-import "forge-std/Test.sol";
-import {IERC20} from "../../contracts/dependencies/openZeppelin/IERC20.sol";
 
 interface IAaveGov {
     struct ProposalWithoutVotes {

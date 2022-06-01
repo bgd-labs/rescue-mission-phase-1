@@ -2,7 +2,7 @@
 pragma solidity ^0.7.5;
 
 import "forge-std/Test.sol";
-import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
+import {IERC20} from "../contracts/AaveTokenV2.sol";
 import {ProposalPayloadLong} from "../contracts/ProposalPayloadLong.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 

@@ -1133,7 +1133,7 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
   string internal constant SYMBOL = 'AAVE';
   uint8 internal constant DECIMALS = 18;
 
-  uint256 public constant REVISION = 2;
+  uint256 public constant REVISION = 3;
 
   /// @dev owner => next valid nonce to submit with permit()
   mapping(address => uint256) public _nonces;

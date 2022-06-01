@@ -2,9 +2,9 @@
 pragma solidity ^0.7.5;
 
 import "forge-std/Test.sol";
-import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
+// import {IERC20} from "../contracts/dependencies/openZeppelin/pre-v8/IERC20.sol";
 import {IInitializableAdminUpgradeabilityProxy} from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import {AaveTokenV2} from "../contracts/AaveTokenV2.sol";
+import {AaveTokenV2, IERC20} from "../contracts/AaveTokenV2.sol";
 
 contract AaveTokenV2Test is Test {
     address public constant AAVE_MERKLE_DISTRIBUTOR = address(1);
