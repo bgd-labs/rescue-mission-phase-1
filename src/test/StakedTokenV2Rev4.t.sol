@@ -90,8 +90,9 @@ contract StakedTokenV2Rev4Test is Test {
         assertEq(stkAave.EMISSION_MANAGER(), emissionManager);
         assertEq(stkAave.DISTRIBUTION_END(), block.timestamp.add(distributionDuration));
         assertEq(stkAave.symbol(), symbol);
-        console.log('decimals:', stkAave.decimals());
-        // assertEq(stkAave.decimals(), decimals);
+        assertEq(uint256(stkAave.decimals()), uint256(decimals));
+
+        assertEq(stkAave.REVISION(), oldRevision.add(1));
 
         assertEq(IERC20(AAVE_TOKEN).balanceOf(AAVE_MERKLE_DISTRIBUTOR), AAVE_RESCUE_AMOUNT);
         assertEq(IERC20(STK_AAVE_TOKEN).balanceOf(AAVE_MERKLE_DISTRIBUTOR), STK_AAVE_RESCUE_AMOUNT);

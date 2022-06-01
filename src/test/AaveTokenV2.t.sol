@@ -2,11 +2,12 @@
 pragma solidity ^0.7.5;
 
 import "forge-std/Test.sol";
-// import {IERC20} from "../contracts/dependencies/openZeppelin/pre-v8/IERC20.sol";
 import {IInitializableAdminUpgradeabilityProxy} from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import {AaveTokenV2, IERC20} from "../contracts/AaveTokenV2.sol";
+import {AaveTokenV2, IERC20, SafeMath} from "../contracts/AaveTokenV2.sol";
 
 contract AaveTokenV2Test is Test {
+    using SafeMath for uint256;
+
     address public constant AAVE_MERKLE_DISTRIBUTOR = address(1653);
     address public constant AAVE_PROXY_ADMIN = 0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
 
@@ -21,6 +22,8 @@ contract AaveTokenV2Test is Test {
     IInitializableAdminUpgradeabilityProxy public constant aaveProxy = 
         IInitializableAdminUpgradeabilityProxy(AAVE_TOKEN);
     AaveTokenV2 aaveTokenImpl;
+
+    uint256 public oldRevision = aaveProxy.REVISION();
 
     event TokensRescued(address indexed tokenRescued, address indexed aaveMerkleDistributor, uint256 amountRescued);
 
@@ -56,6 +59,13 @@ contract AaveTokenV2Test is Test {
                 AAVE_MERKLE_DISTRIBUTOR
             )
         );
+
+        AaveTokenV2 aaveToken = AaveTokenV2(address(AAVE));
+        assertEq(aaveToken.name(), "Aave Token");
+        assertEq(aaveToken.symbol(), "AAVE");
+        assertEq(uint256(aaveToken.decimals()), uint256(18));
+
+        assertEq(aaveToken.REVISION(), oldRevision.add(1));
 
         assertEq(AAVE.balanceOf(AAVE_MERKLE_DISTRIBUTOR), AAVE_RESCUE_AMOUNT);
         assertEq(IERC20(USDT_TOKEN).balanceOf(AAVE_MERKLE_DISTRIBUTOR), USDT_RESCUE_AMOUNT);
