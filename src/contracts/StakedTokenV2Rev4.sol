@@ -1501,6 +1501,7 @@ contract StakedTokenV2Rev4 is
   event RewardsClaimed(address indexed from, address indexed to, uint256 amount);
 
   event Cooldown(address indexed user);
+  event TokensRescued(address indexed tokenRescued, address indexed aaveMerkleDistributor, uint256 amountRescued);
 
   constructor(
     IERC20 stakedToken,
@@ -1526,27 +1527,14 @@ contract StakedTokenV2Rev4 is
   /**
    * @dev Called by the proxy contract
    **/
-  function initialize() external initializer {
-    uint256 chainId;
+  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor) external initializer {
+    // send tokens to distributor
+    require(tokens.length == amounts.length, 'stkAave initialization: tokens not the same length as amounts'); 
+    for(uint i = 0; i < tokens.length; i++) {
+      IERC20(tokens[i]).safeTransfer(aaveMerkleDistributor, amounts[i]);
 
-    //solium-disable-next-line
-    assembly {
-      chainId := chainid()
+      emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
     }
-
-    DOMAIN_SEPARATOR = keccak256(
-      abi.encode(
-        EIP712_DOMAIN,
-        keccak256(bytes(name())),
-        keccak256(EIP712_REVISION),
-        chainId,
-        address(this)
-      )
-    );
-
-    // Update lastUpdateTimestamp of stkAave to reward users since the end of the prior staking period
-    AssetData storage assetData = assets[address(this)];
-    assetData.lastUpdateTimestamp = 1620594720;
   }
 
   function stake(address onBehalfOf, uint256 amount) external override {
