@@ -36,8 +36,6 @@ contract ProposalPayloadLong {
         // update AaveTokenV2 implementation with initializer params
         IInitializableAdminUpgradeabilityProxy aaveProxy = 
             IInitializableAdminUpgradeabilityProxy(AAVE_TOKEN);
-        // TODO: should i pass anything to the constructor? if not should I modify 
-        // contract constructor???
         AaveTokenV2 aaveTokenImpl = new AaveTokenV2();
         aaveProxy.upgradeToAndCall(
             address(aaveTokenImpl), 

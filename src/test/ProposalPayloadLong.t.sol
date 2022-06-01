@@ -8,7 +8,7 @@ import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
 
 contract ProposalPayloadLongTest is Test {
-    address public constant AAVE_MERKLE_DISTRIBUTOR = address(1);
+    address public constant AAVE_MERKLE_DISTRIBUTOR = address(1653);
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address public constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
     address public constant UNI = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
@@ -59,7 +59,7 @@ contract ProposalPayloadLongTest is Test {
         );
 
         AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
-
+        // TODO: validate that it has correct name symbol etc
         _validateAaveContractTokensRescued(proposalId);
     }
 

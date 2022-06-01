@@ -7,7 +7,7 @@ import {IInitializableAdminUpgradeabilityProxy} from "../contracts/interfaces/II
 import {AaveTokenV2, IERC20} from "../contracts/AaveTokenV2.sol";
 
 contract AaveTokenV2Test is Test {
-    address public constant AAVE_MERKLE_DISTRIBUTOR = address(1);
+    address public constant AAVE_MERKLE_DISTRIBUTOR = address(1653);
     address public constant AAVE_PROXY_ADMIN = 0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
 
     address public constant AAVE_TOKEN = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
