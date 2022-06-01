@@ -1,14 +1,16 @@
 /**
- *Submitted for verification at Etherscan.io on 2020-12-10
+ *Submitted for verification at Etherscan.io on 2021-05-05
 */
+
+/**
+ *Submitted for verification at Etherscan.io on 2020-12-10
+ */
 
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.7.5;
 pragma experimental ABIEncoderV2;
 
-
 interface IGovernancePowerDelegationToken {
-  
   enum DelegationType {VOTING_POWER, PROPOSITION_POWER}
 
   /**
@@ -37,19 +39,21 @@ interface IGovernancePowerDelegationToken {
    * @param delegationType the type of delegation (VOTING_POWER, PROPOSITION_POWER)
    **/
   function delegateByType(address delegatee, DelegationType delegationType) external virtual;
+
   /**
    * @dev delegates all the powers to a specific user
    * @param delegatee the user to which the power will be delegated
    **/
   function delegate(address delegatee) external virtual;
+
   /**
    * @dev returns the delegatee of an user
    * @param delegator the address of the delegator
    **/
   function getDelegateeByType(address delegator, DelegationType delegationType)
     external
-    virtual
     view
+    virtual
     returns (address);
 
   /**
@@ -59,8 +63,8 @@ interface IGovernancePowerDelegationToken {
    **/
   function getPowerCurrent(address user, DelegationType delegationType)
     external
-    virtual
     view
+    virtual
     returns (uint256);
 
   /**
@@ -71,12 +75,12 @@ interface IGovernancePowerDelegationToken {
     address user,
     uint256 blockNumber,
     DelegationType delegationType
-  ) external virtual view returns (uint256);
- 
+  ) external view virtual returns (uint256);
+
   /**
-  * @dev returns the total supply at a certain block number
-  **/
-  function totalSupplyAt(uint256 blockNumber) external virtual view returns (uint256);
+   * @dev returns the total supply at a certain block number
+   **/
+  function totalSupplyAt(uint256 blockNumber) external view virtual returns (uint256);
 }
 
 /**
@@ -100,7 +104,6 @@ abstract contract Context {
     return msg.data;
   }
 }
-
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -180,8 +183,6 @@ interface IERC20 {
    */
   event Approval(address indexed owner, address indexed spender, uint256 value);
 }
-
-
 
 /**
  * @dev From https://github.com/OpenZeppelin/openzeppelin-contracts
@@ -345,8 +346,6 @@ library SafeMath {
   }
 }
 
-
-
 /**
  * @dev Collection of functions related to the address type
  * From https://github.com/OpenZeppelin/openzeppelin-contracts
@@ -432,278 +431,325 @@ library Address {
  * allowances. See {IERC20-approve}.
  */
 contract ERC20 is Context, IERC20 {
-    using SafeMath for uint256;
-    using Address for address;
+  using SafeMath for uint256;
+  using Address for address;
 
-    mapping (address => uint256) private _balances;
+  mapping(address => uint256) private _balances;
 
-    mapping (address => mapping (address => uint256)) private _allowances;
+  mapping(address => mapping(address => uint256)) private _allowances;
 
-    uint256 private _totalSupply;
+  uint256 private _totalSupply;
 
-    string internal _name;
-    string internal _symbol;
-    uint8 private _decimals;
+  string internal _name;
+  string internal _symbol;
+  uint8 private _decimals;
 
-    /**
-     * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
-     * a default value of 18.
-     *
-     * To select a different value for {decimals}, use {_setupDecimals}.
-     *
-     * All three of these values are immutable: they can only be set once during
-     * construction.
-     */
-    constructor (string memory name, string memory symbol) public {
-        _name = name;
-        _symbol = symbol;
-        _decimals = 18;
-    }
+  /**
+   * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
+   * a default value of 18.
+   *
+   * To select a different value for {decimals}, use {_setupDecimals}.
+   *
+   * All three of these values are immutable: they can only be set once during
+   * construction.
+   */
+  constructor(string memory name, string memory symbol) public {
+    _name = name;
+    _symbol = symbol;
+    _decimals = 18;
+  }
 
-    /**
-     * @dev Returns the name of the token.
-     */
-    function name() public view returns (string memory) {
-        return _name;
-    }
+  /**
+   * @dev Returns the name of the token.
+   */
+  function name() public view returns (string memory) {
+    return _name;
+  }
 
-    /**
-     * @dev Returns the symbol of the token, usually a shorter version of the
-     * name.
-     */
-    function symbol() public view returns (string memory) {
-        return _symbol;
-    }
+  /**
+   * @dev Returns the symbol of the token, usually a shorter version of the
+   * name.
+   */
+  function symbol() public view returns (string memory) {
+    return _symbol;
+  }
 
-    /**
-     * @dev Returns the number of decimals used to get its user representation.
-     * For example, if `decimals` equals `2`, a balance of `505` tokens should
-     * be displayed to a user as `5,05` (`505 / 10 ** 2`).
-     *
-     * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
-     * called.
-     *
-     * NOTE: This information is only used for _display_ purposes: it in
-     * no way affects any of the arithmetic of the contract, including
-     * {IERC20-balanceOf} and {IERC20-transfer}.
-     */
-    function decimals() public view returns (uint8) {
-        return _decimals;
-    }
+  /**
+   * @dev Returns the number of decimals used to get its user representation.
+   * For example, if `decimals` equals `2`, a balance of `505` tokens should
+   * be displayed to a user as `5,05` (`505 / 10 ** 2`).
+   *
+   * Tokens usually opt for a value of 18, imitating the relationship between
+   * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
+   * called.
+   *
+   * NOTE: This information is only used for _display_ purposes: it in
+   * no way affects any of the arithmetic of the contract, including
+   * {IERC20-balanceOf} and {IERC20-transfer}.
+   */
+  function decimals() public view returns (uint8) {
+    return _decimals;
+  }
 
-    /**
-     * @dev See {IERC20-totalSupply}.
-     */
-    function totalSupply() public view override returns (uint256) {
-        return _totalSupply;
-    }
+  /**
+   * @dev See {IERC20-totalSupply}.
+   */
+  function totalSupply() public view override returns (uint256) {
+    return _totalSupply;
+  }
 
-    /**
-     * @dev See {IERC20-balanceOf}.
-     */
-    function balanceOf(address account) public view override returns (uint256) {
-        return _balances[account];
-    }
+  /**
+   * @dev See {IERC20-balanceOf}.
+   */
+  function balanceOf(address account) public view override returns (uint256) {
+    return _balances[account];
+  }
 
-    /**
-     * @dev See {IERC20-transfer}.
-     *
-     * Requirements:
-     *
-     * - `recipient` cannot be the zero address.
-     * - the caller must have a balance of at least `amount`.
-     */
-    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        _transfer(_msgSender(), recipient, amount);
-        return true;
-    }
+  /**
+   * @dev See {IERC20-transfer}.
+   *
+   * Requirements:
+   *
+   * - `recipient` cannot be the zero address.
+   * - the caller must have a balance of at least `amount`.
+   */
+  function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+    _transfer(_msgSender(), recipient, amount);
+    return true;
+  }
 
-    /**
-     * @dev See {IERC20-allowance}.
-     */
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
-        return _allowances[owner][spender];
-    }
+  /**
+   * @dev See {IERC20-allowance}.
+   */
+  function allowance(address owner, address spender)
+    public
+    view
+    virtual
+    override
+    returns (uint256)
+  {
+    return _allowances[owner][spender];
+  }
 
-    /**
-     * @dev See {IERC20-approve}.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     */
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
-        _approve(_msgSender(), spender, amount);
-        return true;
-    }
+  /**
+   * @dev See {IERC20-approve}.
+   *
+   * Requirements:
+   *
+   * - `spender` cannot be the zero address.
+   */
+  function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    _approve(_msgSender(), spender, amount);
+    return true;
+  }
 
-    /**
-     * @dev See {IERC20-transferFrom}.
-     *
-     * Emits an {Approval} event indicating the updated allowance. This is not
-     * required by the EIP. See the note at the beginning of {ERC20};
-     *
-     * Requirements:
-     * - `sender` and `recipient` cannot be the zero address.
-     * - `sender` must have a balance of at least `amount`.
-     * - the caller must have allowance for ``sender``'s tokens of at least
-     * `amount`.
-     */
-    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
-        _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
-        return true;
-    }
+  /**
+   * @dev See {IERC20-transferFrom}.
+   *
+   * Emits an {Approval} event indicating the updated allowance. This is not
+   * required by the EIP. See the note at the beginning of {ERC20};
+   *
+   * Requirements:
+   * - `sender` and `recipient` cannot be the zero address.
+   * - `sender` must have a balance of at least `amount`.
+   * - the caller must have allowance for ``sender``'s tokens of at least
+   * `amount`.
+   */
+  function transferFrom(
+    address sender,
+    address recipient,
+    uint256 amount
+  ) public virtual override returns (bool) {
+    _transfer(sender, recipient, amount);
+    _approve(
+      sender,
+      _msgSender(),
+      _allowances[sender][_msgSender()].sub(amount, 'ERC20: transfer amount exceeds allowance')
+    );
+    return true;
+  }
 
-    /**
-     * @dev Atomically increases the allowance granted to `spender` by the caller.
-     *
-     * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IERC20-approve}.
-     *
-     * Emits an {Approval} event indicating the updated allowance.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     */
-    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
-        return true;
-    }
+  /**
+   * @dev Atomically increases the allowance granted to `spender` by the caller.
+   *
+   * This is an alternative to {approve} that can be used as a mitigation for
+   * problems described in {IERC20-approve}.
+   *
+   * Emits an {Approval} event indicating the updated allowance.
+   *
+   * Requirements:
+   *
+   * - `spender` cannot be the zero address.
+   */
+  function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+    _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
+    return true;
+  }
 
-    /**
-     * @dev Atomically decreases the allowance granted to `spender` by the caller.
-     *
-     * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IERC20-approve}.
-     *
-     * Emits an {Approval} event indicating the updated allowance.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     * - `spender` must have allowance for the caller of at least
-     * `subtractedValue`.
-     */
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
-        return true;
-    }
+  /**
+   * @dev Atomically decreases the allowance granted to `spender` by the caller.
+   *
+   * This is an alternative to {approve} that can be used as a mitigation for
+   * problems described in {IERC20-approve}.
+   *
+   * Emits an {Approval} event indicating the updated allowance.
+   *
+   * Requirements:
+   *
+   * - `spender` cannot be the zero address.
+   * - `spender` must have allowance for the caller of at least
+   * `subtractedValue`.
+   */
+  function decreaseAllowance(address spender, uint256 subtractedValue)
+    public
+    virtual
+    returns (bool)
+  {
+    _approve(
+      _msgSender(),
+      spender,
+      _allowances[_msgSender()][spender].sub(
+        subtractedValue,
+        'ERC20: decreased allowance below zero'
+      )
+    );
+    return true;
+  }
 
-    /**
-     * @dev Moves tokens `amount` from `sender` to `recipient`.
-     *
-     * This is internal function is equivalent to {transfer}, and can be used to
-     * e.g. implement automatic token fees, slashing mechanisms, etc.
-     *
-     * Emits a {Transfer} event.
-     *
-     * Requirements:
-     *
-     * - `sender` cannot be the zero address.
-     * - `recipient` cannot be the zero address.
-     * - `sender` must have a balance of at least `amount`.
-     */
-    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
-        require(sender != address(0), "ERC20: transfer from the zero address");
-        require(recipient != address(0), "ERC20: transfer to the zero address");
+  /**
+   * @dev Moves tokens `amount` from `sender` to `recipient`.
+   *
+   * This is internal function is equivalent to {transfer}, and can be used to
+   * e.g. implement automatic token fees, slashing mechanisms, etc.
+   *
+   * Emits a {Transfer} event.
+   *
+   * Requirements:
+   *
+   * - `sender` cannot be the zero address.
+   * - `recipient` cannot be the zero address.
+   * - `sender` must have a balance of at least `amount`.
+   */
+  function _transfer(
+    address sender,
+    address recipient,
+    uint256 amount
+  ) internal virtual {
+    require(sender != address(0), 'ERC20: transfer from the zero address');
+    require(recipient != address(0), 'ERC20: transfer to the zero address');
 
-        _beforeTokenTransfer(sender, recipient, amount);
+    _beforeTokenTransfer(sender, recipient, amount);
 
-        _balances[sender] = _balances[sender].sub(amount, "ERC20: transfer amount exceeds balance");
-        _balances[recipient] = _balances[recipient].add(amount);
-        emit Transfer(sender, recipient, amount);
-    }
+    _balances[sender] = _balances[sender].sub(amount, 'ERC20: transfer amount exceeds balance');
+    _balances[recipient] = _balances[recipient].add(amount);
+    emit Transfer(sender, recipient, amount);
+  }
 
-    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
-     * the total supply.
-     *
-     * Emits a {Transfer} event with `from` set to the zero address.
-     *
-     * Requirements
-     *
-     * - `to` cannot be the zero address.
-     */
-    function _mint(address account, uint256 amount) internal virtual {
-        require(account != address(0), "ERC20: mint to the zero address");
+  /** @dev Creates `amount` tokens and assigns them to `account`, increasing
+   * the total supply.
+   *
+   * Emits a {Transfer} event with `from` set to the zero address.
+   *
+   * Requirements
+   *
+   * - `to` cannot be the zero address.
+   */
+  function _mint(address account, uint256 amount) internal virtual {
+    require(account != address(0), 'ERC20: mint to the zero address');
 
-        _beforeTokenTransfer(address(0), account, amount);
+    _beforeTokenTransfer(address(0), account, amount);
 
-        _totalSupply = _totalSupply.add(amount);
-        _balances[account] = _balances[account].add(amount);
-        emit Transfer(address(0), account, amount);
-    }
+    _totalSupply = _totalSupply.add(amount);
+    _balances[account] = _balances[account].add(amount);
+    emit Transfer(address(0), account, amount);
+  }
 
-    /**
-     * @dev Destroys `amount` tokens from `account`, reducing the
-     * total supply.
-     *
-     * Emits a {Transfer} event with `to` set to the zero address.
-     *
-     * Requirements
-     *
-     * - `account` cannot be the zero address.
-     * - `account` must have at least `amount` tokens.
-     */
-    function _burn(address account, uint256 amount) internal virtual {
-        require(account != address(0), "ERC20: burn from the zero address");
+  /**
+   * @dev Destroys `amount` tokens from `account`, reducing the
+   * total supply.
+   *
+   * Emits a {Transfer} event with `to` set to the zero address.
+   *
+   * Requirements
+   *
+   * - `account` cannot be the zero address.
+   * - `account` must have at least `amount` tokens.
+   */
+  function _burn(address account, uint256 amount) internal virtual {
+    require(account != address(0), 'ERC20: burn from the zero address');
 
-        _beforeTokenTransfer(account, address(0), amount);
+    _beforeTokenTransfer(account, address(0), amount);
 
-        _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
-        _totalSupply = _totalSupply.sub(amount);
-        emit Transfer(account, address(0), amount);
-    }
+    _balances[account] = _balances[account].sub(amount, 'ERC20: burn amount exceeds balance');
+    _totalSupply = _totalSupply.sub(amount);
+    emit Transfer(account, address(0), amount);
+  }
 
-    /**
-     * @dev Sets `amount` as the allowance of `spender` over the `owner`s tokens.
-     *
-     * This is internal function is equivalent to `approve`, and can be used to
-     * e.g. set automatic allowances for certain subsystems, etc.
-     *
-     * Emits an {Approval} event.
-     *
-     * Requirements:
-     *
-     * - `owner` cannot be the zero address.
-     * - `spender` cannot be the zero address.
-     */
-    function _approve(address owner, address spender, uint256 amount) internal virtual {
-        require(owner != address(0), "ERC20: approve from the zero address");
-        require(spender != address(0), "ERC20: approve to the zero address");
+  /**
+   * @dev Sets `amount` as the allowance of `spender` over the `owner`s tokens.
+   *
+   * This is internal function is equivalent to `approve`, and can be used to
+   * e.g. set automatic allowances for certain subsystems, etc.
+   *
+   * Emits an {Approval} event.
+   *
+   * Requirements:
+   *
+   * - `owner` cannot be the zero address.
+   * - `spender` cannot be the zero address.
+   */
+  function _approve(
+    address owner,
+    address spender,
+    uint256 amount
+  ) internal virtual {
+    require(owner != address(0), 'ERC20: approve from the zero address');
+    require(spender != address(0), 'ERC20: approve to the zero address');
 
-        _allowances[owner][spender] = amount;
-        emit Approval(owner, spender, amount);
-    }
+    _allowances[owner][spender] = amount;
+    emit Approval(owner, spender, amount);
+  }
 
-    /**
-     * @dev Sets {decimals} to a value other than the default one of 18.
-     *
-     * WARNING: This function should only be called from the constructor. Most
-     * applications that interact with token contracts will not expect
-     * {decimals} to ever change, and may work incorrectly if it does.
-     */
-    function _setupDecimals(uint8 decimals_) internal {
-        _decimals = decimals_;
-    }
+  /**
+   * @dev Sets {decimals} to a value other than the default one of 18.
+   *
+   * WARNING: This function should only be called from the constructor. Most
+   * applications that interact with token contracts will not expect
+   * {decimals} to ever change, and may work incorrectly if it does.
+   */
+  function _setupDecimals(uint8 decimals_) internal {
+    _decimals = decimals_;
+  }
 
-    /**
-     * @dev Hook that is called before any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * will be to transferred to `to`.
-     * - when `from` is zero, `amount` tokens will be minted for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
+  /**
+   * @dev Hook that is called before any transfer of tokens. This includes
+   * minting and burning.
+   *
+   * Calling conditions:
+   *
+   * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+   * will be to transferred to `to`.
+   * - when `from` is zero, `amount` tokens will be minted for `to`.
+   * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
+   * - `from` and `to` are never both zero.
+   *
+   * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+   */
+  function _beforeTokenTransfer(
+    address from,
+    address to,
+    uint256 amount
+  ) internal virtual {}
+}
+
+interface IStakedAave {
+  function stake(address to, uint256 amount) external;
+
+  function redeem(address to, uint256 amount) external;
+
+  function cooldown() external;
+
+  function claimRewards(address to, uint256 amount) external;
 }
 
 interface ITransferHook {
@@ -714,6 +760,19 @@ interface ITransferHook {
   ) external;
 }
 
+library DistributionTypes {
+  struct AssetConfigInput {
+    uint128 emissionPerSecond;
+    uint256 totalStaked;
+    address underlyingAsset;
+  }
+
+  struct UserStakeInput {
+    address underlyingAsset;
+    uint256 stakedByUser;
+    uint256 totalStaked;
+  }
+}
 
 /**
  * @title SafeERC20
@@ -813,8 +872,248 @@ abstract contract VersionedInitializable {
   uint256[50] private ______gap;
 }
 
+interface IAaveDistributionManager {
+  function configureAssets(DistributionTypes.AssetConfigInput[] calldata assetsConfigInput)
+    external;
+}
 
+/**
+ * @title AaveDistributionManager
+ * @notice Accounting contract to manage multiple staking distributions
+ * @author Aave
+ **/
+contract AaveDistributionManager is IAaveDistributionManager {
+  using SafeMath for uint256;
 
+  struct AssetData {
+    uint128 emissionPerSecond;
+    uint128 lastUpdateTimestamp;
+    uint256 index;
+    mapping(address => uint256) users;
+  }
+
+  uint256 public immutable DISTRIBUTION_END;
+
+  address public immutable EMISSION_MANAGER;
+
+  uint8 public constant PRECISION = 18;
+
+  mapping(address => AssetData) public assets;
+
+  event AssetConfigUpdated(address indexed asset, uint256 emission);
+  event AssetIndexUpdated(address indexed asset, uint256 index);
+  event UserIndexUpdated(address indexed user, address indexed asset, uint256 index);
+
+  constructor(address emissionManager, uint256 distributionDuration) public {
+    DISTRIBUTION_END = block.timestamp.add(distributionDuration);
+    EMISSION_MANAGER = emissionManager;
+  }
+
+  /**
+   * @dev Configures the distribution of rewards for a list of assets
+   * @param assetsConfigInput The list of configurations to apply
+   **/
+  function configureAssets(DistributionTypes.AssetConfigInput[] calldata assetsConfigInput)
+    external
+    override
+  {
+    require(msg.sender == EMISSION_MANAGER, 'ONLY_EMISSION_MANAGER');
+
+    for (uint256 i = 0; i < assetsConfigInput.length; i++) {
+      AssetData storage assetConfig = assets[assetsConfigInput[i].underlyingAsset];
+
+      _updateAssetStateInternal(
+        assetsConfigInput[i].underlyingAsset,
+        assetConfig,
+        assetsConfigInput[i].totalStaked
+      );
+
+      assetConfig.emissionPerSecond = assetsConfigInput[i].emissionPerSecond;
+
+      emit AssetConfigUpdated(
+        assetsConfigInput[i].underlyingAsset,
+        assetsConfigInput[i].emissionPerSecond
+      );
+    }
+  }
+
+  /**
+   * @dev Updates the state of one distribution, mainly rewards index and timestamp
+   * @param underlyingAsset The address used as key in the distribution, for example sAAVE or the aTokens addresses on Aave
+   * @param assetConfig Storage pointer to the distribution's config
+   * @param totalStaked Current total of staked assets for this distribution
+   * @return The new distribution index
+   **/
+  function _updateAssetStateInternal(
+    address underlyingAsset,
+    AssetData storage assetConfig,
+    uint256 totalStaked
+  ) internal returns (uint256) {
+    uint256 oldIndex = assetConfig.index;
+    uint128 lastUpdateTimestamp = assetConfig.lastUpdateTimestamp;
+
+    if (block.timestamp == lastUpdateTimestamp) {
+      return oldIndex;
+    }
+
+    uint256 newIndex =
+      _getAssetIndex(oldIndex, assetConfig.emissionPerSecond, lastUpdateTimestamp, totalStaked);
+
+    if (newIndex != oldIndex) {
+      assetConfig.index = newIndex;
+      emit AssetIndexUpdated(underlyingAsset, newIndex);
+    }
+
+    assetConfig.lastUpdateTimestamp = uint128(block.timestamp);
+
+    return newIndex;
+  }
+
+  /**
+   * @dev Updates the state of an user in a distribution
+   * @param user The user's address
+   * @param asset The address of the reference asset of the distribution
+   * @param stakedByUser Amount of tokens staked by the user in the distribution at the moment
+   * @param totalStaked Total tokens staked in the distribution
+   * @return The accrued rewards for the user until the moment
+   **/
+  function _updateUserAssetInternal(
+    address user,
+    address asset,
+    uint256 stakedByUser,
+    uint256 totalStaked
+  ) internal returns (uint256) {
+    AssetData storage assetData = assets[asset];
+    uint256 userIndex = assetData.users[user];
+    uint256 accruedRewards = 0;
+
+    uint256 newIndex = _updateAssetStateInternal(asset, assetData, totalStaked);
+
+    if (userIndex != newIndex) {
+      if (stakedByUser != 0) {
+        accruedRewards = _getRewards(stakedByUser, newIndex, userIndex);
+      }
+
+      assetData.users[user] = newIndex;
+      emit UserIndexUpdated(user, asset, newIndex);
+    }
+
+    return accruedRewards;
+  }
+
+  /**
+   * @dev Used by "frontend" stake contracts to update the data of an user when claiming rewards from there
+   * @param user The address of the user
+   * @param stakes List of structs of the user data related with his stake
+   * @return The accrued rewards for the user until the moment
+   **/
+  function _claimRewards(address user, DistributionTypes.UserStakeInput[] memory stakes)
+    internal
+    returns (uint256)
+  {
+    uint256 accruedRewards = 0;
+
+    for (uint256 i = 0; i < stakes.length; i++) {
+      accruedRewards = accruedRewards.add(
+        _updateUserAssetInternal(
+          user,
+          stakes[i].underlyingAsset,
+          stakes[i].stakedByUser,
+          stakes[i].totalStaked
+        )
+      );
+    }
+
+    return accruedRewards;
+  }
+
+  /**
+   * @dev Return the accrued rewards for an user over a list of distribution
+   * @param user The address of the user
+   * @param stakes List of structs of the user data related with his stake
+   * @return The accrued rewards for the user until the moment
+   **/
+  function _getUnclaimedRewards(address user, DistributionTypes.UserStakeInput[] memory stakes)
+    internal
+    view
+    returns (uint256)
+  {
+    uint256 accruedRewards = 0;
+
+    for (uint256 i = 0; i < stakes.length; i++) {
+      AssetData storage assetConfig = assets[stakes[i].underlyingAsset];
+      uint256 assetIndex =
+        _getAssetIndex(
+          assetConfig.index,
+          assetConfig.emissionPerSecond,
+          assetConfig.lastUpdateTimestamp,
+          stakes[i].totalStaked
+        );
+
+      accruedRewards = accruedRewards.add(
+        _getRewards(stakes[i].stakedByUser, assetIndex, assetConfig.users[user])
+      );
+    }
+    return accruedRewards;
+  }
+
+  /**
+   * @dev Internal function for the calculation of user's rewards on a distribution
+   * @param principalUserBalance Amount staked by the user on a distribution
+   * @param reserveIndex Current index of the distribution
+   * @param userIndex Index stored for the user, representation his staking moment
+   * @return The rewards
+   **/
+  function _getRewards(
+    uint256 principalUserBalance,
+    uint256 reserveIndex,
+    uint256 userIndex
+  ) internal pure returns (uint256) {
+    return principalUserBalance.mul(reserveIndex.sub(userIndex)).div(10**uint256(PRECISION));
+  }
+
+  /**
+   * @dev Calculates the next value of an specific distribution index, with validations
+   * @param currentIndex Current index of the distribution
+   * @param emissionPerSecond Representing the total rewards distributed per second per asset unit, on the distribution
+   * @param lastUpdateTimestamp Last moment this distribution was updated
+   * @param totalBalance of tokens considered for the distribution
+   * @return The new index.
+   **/
+  function _getAssetIndex(
+    uint256 currentIndex,
+    uint256 emissionPerSecond,
+    uint128 lastUpdateTimestamp,
+    uint256 totalBalance
+  ) internal view returns (uint256) {
+    if (
+      emissionPerSecond == 0 ||
+      totalBalance == 0 ||
+      lastUpdateTimestamp == block.timestamp ||
+      lastUpdateTimestamp >= DISTRIBUTION_END
+    ) {
+      return currentIndex;
+    }
+
+    uint256 currentTimestamp =
+      block.timestamp > DISTRIBUTION_END ? DISTRIBUTION_END : block.timestamp;
+    uint256 timeDelta = currentTimestamp.sub(lastUpdateTimestamp);
+    return
+      emissionPerSecond.mul(timeDelta).mul(10**uint256(PRECISION)).div(totalBalance).add(
+        currentIndex
+      );
+  }
+
+  /**
+   * @dev Returns the data of an user on a distribution
+   * @param user Address of the user
+   * @param asset The address of the reference asset of the distribution
+   * @return The new index
+   **/
+  function getUserAssetData(address user, address asset) public view returns (uint256) {
+    return assets[asset].users[user];
+  }
+}
 
 /**
  * @notice implementation of the AAVE token contract
@@ -823,13 +1122,11 @@ abstract contract VersionedInitializable {
 abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDelegationToken {
   using SafeMath for uint256;
   /// @notice The EIP-712 typehash for the delegation struct used by the contract
-  bytes32 public constant DELEGATE_BY_TYPE_TYPEHASH = keccak256(
-    'DelegateByType(address delegatee,uint256 type,uint256 nonce,uint256 expiry)'
-  );
+  bytes32 public constant DELEGATE_BY_TYPE_TYPEHASH =
+    keccak256('DelegateByType(address delegatee,uint256 type,uint256 nonce,uint256 expiry)');
 
-  bytes32 public constant DELEGATE_TYPEHASH = keccak256(
-    'Delegate(address delegatee,uint256 nonce,uint256 expiry)'
-  );
+  bytes32 public constant DELEGATE_TYPEHASH =
+    keccak256('Delegate(address delegatee,uint256 nonce,uint256 expiry)');
 
   /// @dev snapshot of a value on a specific block, used for votes
   struct Snapshot {
@@ -861,8 +1158,8 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
    **/
   function getDelegateeByType(address delegator, DelegationType delegationType)
     external
-    override
     view
+    override
     returns (address)
   {
     (, , mapping(address => address) storage delegates) = _getDelegationDataByType(delegationType);
@@ -877,8 +1174,8 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
    **/
   function getPowerCurrent(address user, DelegationType delegationType)
     external
-    override
     view
+    override
     returns (uint256)
   {
     (
@@ -898,7 +1195,7 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
     address user,
     uint256 blockNumber,
     DelegationType delegationType
-  ) external override view returns (uint256) {
+  ) external view override returns (uint256) {
     (
       mapping(address => mapping(uint256 => Snapshot)) storage snapshots,
       mapping(address => uint256) storage snapshotsCounts,
@@ -914,7 +1211,7 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
    * In this initial implementation with no AAVE minting, simply returns the current supply
    * A snapshots mapping will need to be added in case a mint function is added to the AAVE token in the future
    **/
-  function totalSupplyAt(uint256 blockNumber) external override view returns (uint256) {
+  function totalSupplyAt(uint256 blockNumber) external view override returns (uint256) {
     return super.totalSupply();
   }
 
@@ -1062,8 +1359,8 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
    **/
   function _getDelegationDataByType(DelegationType delegationType)
     internal
-    virtual
     view
+    virtual
     returns (
       mapping(address => mapping(uint256 => Snapshot)) storage, //snapshots
       mapping(address => uint256) storage, //snapshots count
@@ -1122,62 +1419,350 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
 }
 
 /**
- * @notice implementation of the AAVE token contract
+ * @title ERC20WithSnapshot
+ * @notice ERC20 including snapshots of balances on transfer-related actions
  * @author Aave
- */
-contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
+ **/
+abstract contract GovernancePowerWithSnapshot is GovernancePowerDelegationERC20 {
   using SafeMath for uint256;
-  using SafeERC20 for IERC20;
 
-  string internal constant NAME = 'Aave Token';
-  string internal constant SYMBOL = 'AAVE';
-  uint8 internal constant DECIMALS = 18;
-
-  uint256 public constant REVISION = 2;
-
-  /// @dev owner => next valid nonce to submit with permit()
-  mapping(address => uint256) public _nonces;
-
+  /**
+   * @dev The following storage layout points to the prior StakedToken.sol implementation:
+   * _snapshots => _votingSnapshots
+   * _snapshotsCounts =>  _votingSnapshotsCounts
+   * _aaveGovernance => _aaveGovernance
+   */
   mapping(address => mapping(uint256 => Snapshot)) public _votingSnapshots;
-
   mapping(address => uint256) public _votingSnapshotsCounts;
 
   /// @dev reference to the Aave governance contract to call (if initialized) on _beforeTokenTransfer
   /// !!! IMPORTANT The Aave governance is considered a trustable contract, being its responsibility
-  /// to control all potential reentrancies by calling back the AaveToken
+  /// to control all potential reentrancies by calling back the this contract
   ITransferHook public _aaveGovernance;
 
-  bytes32 public DOMAIN_SEPARATOR;
-  bytes public constant EIP712_REVISION = bytes('1');
-  bytes32 internal constant EIP712_DOMAIN = keccak256(
-    'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-  );
-  bytes32 public constant PERMIT_TYPEHASH = keccak256(
-    'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)'
-  );
+  function _setAaveGovernance(ITransferHook aaveGovernance) internal virtual {
+    _aaveGovernance = aaveGovernance;
+  }
+}
 
+/**
+ * @title StakedToken
+ * @notice Contract to stake Aave token, tokenize the position and get rewards, inheriting from a distribution manager contract
+ * @author Aave
+ **/
+contract StakedTokenV2Rev4 is
+  IStakedAave,
+  GovernancePowerWithSnapshot,
+  VersionedInitializable,
+  AaveDistributionManager
+{
+  using SafeMath for uint256;
+  using SafeERC20 for IERC20;
+
+  /// @dev Start of Storage layout from StakedToken v1
+  uint256 public constant REVISION = 4;
+
+  IERC20 public immutable STAKED_TOKEN;
+  IERC20 public immutable REWARD_TOKEN;
+  uint256 public immutable COOLDOWN_SECONDS;
+
+  /// @notice Seconds available to redeem once the cooldown period is fullfilled
+  uint256 public immutable UNSTAKE_WINDOW;
+
+  /// @notice Address to pull from the rewards, needs to have approved this contract
+  address public immutable REWARDS_VAULT;
+
+  mapping(address => uint256) public stakerRewardsToClaim;
+  mapping(address => uint256) public stakersCooldowns;
+
+  /// @dev End of Storage layout from StakedToken v1
+
+  /// @dev To see the voting mappings, go to GovernancePowerWithSnapshot.sol
   mapping(address => address) internal _votingDelegates;
 
   mapping(address => mapping(uint256 => Snapshot)) internal _propositionPowerSnapshots;
   mapping(address => uint256) internal _propositionPowerSnapshotsCounts;
-
   mapping(address => address) internal _propositionPowerDelegates;
 
-  event TokensRescued(address indexed tokenRescued, address indexed aaveMerkleDistributor, uint256 amountRescued);
+  bytes32 public DOMAIN_SEPARATOR;
+  bytes public constant EIP712_REVISION = bytes('1');
+  bytes32 internal constant EIP712_DOMAIN =
+    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)');
+  bytes32 public constant PERMIT_TYPEHASH =
+    keccak256('Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)');
 
-  constructor() ERC20(NAME, SYMBOL) public {}
+  /// @dev owner => next valid nonce to submit with permit()
+  mapping(address => uint256) public _nonces;
+
+  event Staked(address indexed from, address indexed onBehalfOf, uint256 amount);
+  event Redeem(address indexed from, address indexed to, uint256 amount);
+
+  event RewardsAccrued(address user, uint256 amount);
+  event RewardsClaimed(address indexed from, address indexed to, uint256 amount);
+
+  event Cooldown(address indexed user);
+
+  constructor(
+    IERC20 stakedToken,
+    IERC20 rewardToken,
+    uint256 cooldownSeconds,
+    uint256 unstakeWindow,
+    address rewardsVault,
+    address emissionManager,
+    uint128 distributionDuration,
+    string memory name,
+    string memory symbol,
+    uint8 decimals
+  ) public ERC20(name, symbol) AaveDistributionManager(emissionManager, distributionDuration) {
+    STAKED_TOKEN = stakedToken;
+    REWARD_TOKEN = rewardToken;
+    COOLDOWN_SECONDS = cooldownSeconds;
+    UNSTAKE_WINDOW = unstakeWindow;
+    REWARDS_VAULT = rewardsVault;
+    _aaveGovernance = ITransferHook(address(0));
+    ERC20._setupDecimals(decimals);
+  }
 
   /**
-   * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy
-   */
-  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor) external initializer {
-    // send tokens to distributor
-    require(tokens.length == amounts.length, 'Aave initialization: tokens not the same length as amounts'); 
-    for(uint i = 0; i < tokens.length; i++) {
-      IERC20(tokens[i]).safeTransfer(aaveMerkleDistributor, amounts[i]);
+   * @dev Called by the proxy contract
+   **/
+  function initialize() external initializer {
+    uint256 chainId;
 
-      emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
+    //solium-disable-next-line
+    assembly {
+      chainId := chainid()
     }
+
+    DOMAIN_SEPARATOR = keccak256(
+      abi.encode(
+        EIP712_DOMAIN,
+        keccak256(bytes(name())),
+        keccak256(EIP712_REVISION),
+        chainId,
+        address(this)
+      )
+    );
+
+    // Update lastUpdateTimestamp of stkAave to reward users since the end of the prior staking period
+    AssetData storage assetData = assets[address(this)];
+    assetData.lastUpdateTimestamp = 1620594720;
+  }
+
+  function stake(address onBehalfOf, uint256 amount) external override {
+    require(amount != 0, 'INVALID_ZERO_AMOUNT');
+    uint256 balanceOfUser = balanceOf(onBehalfOf);
+
+    uint256 accruedRewards =
+      _updateUserAssetInternal(onBehalfOf, address(this), balanceOfUser, totalSupply());
+    if (accruedRewards != 0) {
+      emit RewardsAccrued(onBehalfOf, accruedRewards);
+      stakerRewardsToClaim[onBehalfOf] = stakerRewardsToClaim[onBehalfOf].add(accruedRewards);
+    }
+
+    stakersCooldowns[onBehalfOf] = getNextCooldownTimestamp(0, amount, onBehalfOf, balanceOfUser);
+
+    _mint(onBehalfOf, amount);
+    IERC20(STAKED_TOKEN).safeTransferFrom(msg.sender, address(this), amount);
+
+    emit Staked(msg.sender, onBehalfOf, amount);
+  }
+
+  /**
+   * @dev Redeems staked tokens, and stop earning rewards
+   * @param to Address to redeem to
+   * @param amount Amount to redeem
+   **/
+  function redeem(address to, uint256 amount) external override {
+    require(amount != 0, 'INVALID_ZERO_AMOUNT');
+    //solium-disable-next-line
+    uint256 cooldownStartTimestamp = stakersCooldowns[msg.sender];
+    require(
+      block.timestamp > cooldownStartTimestamp.add(COOLDOWN_SECONDS),
+      'INSUFFICIENT_COOLDOWN'
+    );
+    require(
+      block.timestamp.sub(cooldownStartTimestamp.add(COOLDOWN_SECONDS)) <= UNSTAKE_WINDOW,
+      'UNSTAKE_WINDOW_FINISHED'
+    );
+    uint256 balanceOfMessageSender = balanceOf(msg.sender);
+
+    uint256 amountToRedeem = (amount > balanceOfMessageSender) ? balanceOfMessageSender : amount;
+
+    _updateCurrentUnclaimedRewards(msg.sender, balanceOfMessageSender, true);
+
+    _burn(msg.sender, amountToRedeem);
+
+    if (balanceOfMessageSender.sub(amountToRedeem) == 0) {
+      stakersCooldowns[msg.sender] = 0;
+    }
+
+    IERC20(STAKED_TOKEN).safeTransfer(to, amountToRedeem);
+
+    emit Redeem(msg.sender, to, amountToRedeem);
+  }
+
+  /**
+   * @dev Activates the cooldown period to unstake
+   * - It can't be called if the user is not staking
+   **/
+  function cooldown() external override {
+    require(balanceOf(msg.sender) != 0, 'INVALID_BALANCE_ON_COOLDOWN');
+    //solium-disable-next-line
+    stakersCooldowns[msg.sender] = block.timestamp;
+
+    emit Cooldown(msg.sender);
+  }
+
+  /**
+   * @dev Claims an `amount` of `REWARD_TOKEN` to the address `to`
+   * @param to Address to stake for
+   * @param amount Amount to stake
+   **/
+  function claimRewards(address to, uint256 amount) external override {
+    uint256 newTotalRewards =
+      _updateCurrentUnclaimedRewards(msg.sender, balanceOf(msg.sender), false);
+    uint256 amountToClaim = (amount == type(uint256).max) ? newTotalRewards : amount;
+
+    stakerRewardsToClaim[msg.sender] = newTotalRewards.sub(amountToClaim, 'INVALID_AMOUNT');
+
+    REWARD_TOKEN.safeTransferFrom(REWARDS_VAULT, to, amountToClaim);
+
+    emit RewardsClaimed(msg.sender, to, amountToClaim);
+  }
+
+  /**
+   * @dev Internal ERC20 _transfer of the tokenized staked tokens
+   * @param from Address to transfer from
+   * @param to Address to transfer to
+   * @param amount Amount to transfer
+   **/
+  function _transfer(
+    address from,
+    address to,
+    uint256 amount
+  ) internal override {
+    uint256 balanceOfFrom = balanceOf(from);
+    // Sender
+    _updateCurrentUnclaimedRewards(from, balanceOfFrom, true);
+
+    // Recipient
+    if (from != to) {
+      uint256 balanceOfTo = balanceOf(to);
+      _updateCurrentUnclaimedRewards(to, balanceOfTo, true);
+
+      uint256 previousSenderCooldown = stakersCooldowns[from];
+      stakersCooldowns[to] = getNextCooldownTimestamp(
+        previousSenderCooldown,
+        amount,
+        to,
+        balanceOfTo
+      );
+      // if cooldown was set and whole balance of sender was transferred - clear cooldown
+      if (balanceOfFrom == amount && previousSenderCooldown != 0) {
+        stakersCooldowns[from] = 0;
+      }
+    }
+
+    super._transfer(from, to, amount);
+  }
+
+  /**
+   * @dev Updates the user state related with his accrued rewards
+   * @param user Address of the user
+   * @param userBalance The current balance of the user
+   * @param updateStorage Boolean flag used to update or not the stakerRewardsToClaim of the user
+   * @return The unclaimed rewards that were added to the total accrued
+   **/
+  function _updateCurrentUnclaimedRewards(
+    address user,
+    uint256 userBalance,
+    bool updateStorage
+  ) internal returns (uint256) {
+    uint256 accruedRewards =
+      _updateUserAssetInternal(user, address(this), userBalance, totalSupply());
+    uint256 unclaimedRewards = stakerRewardsToClaim[user].add(accruedRewards);
+
+    if (accruedRewards != 0) {
+      if (updateStorage) {
+        stakerRewardsToClaim[user] = unclaimedRewards;
+      }
+      emit RewardsAccrued(user, accruedRewards);
+    }
+
+    return unclaimedRewards;
+  }
+
+  /**
+   * @dev Calculates the how is gonna be a new cooldown timestamp depending on the sender/receiver situation
+   *  - If the timestamp of the sender is "better" or the timestamp of the recipient is 0, we take the one of the recipient
+   *  - Weighted average of from/to cooldown timestamps if:
+   *    # The sender doesn't have the cooldown activated (timestamp 0).
+   *    # The sender timestamp is expired
+   *    # The sender has a "worse" timestamp
+   *  - If the receiver's cooldown timestamp expired (too old), the next is 0
+   * @param fromCooldownTimestamp Cooldown timestamp of the sender
+   * @param amountToReceive Amount
+   * @param toAddress Address of the recipient
+   * @param toBalance Current balance of the receiver
+   * @return The new cooldown timestamp
+   **/
+  function getNextCooldownTimestamp(
+    uint256 fromCooldownTimestamp,
+    uint256 amountToReceive,
+    address toAddress,
+    uint256 toBalance
+  ) public view returns (uint256) {
+    uint256 toCooldownTimestamp = stakersCooldowns[toAddress];
+    if (toCooldownTimestamp == 0) {
+      return 0;
+    }
+
+    uint256 minimalValidCooldownTimestamp =
+      block.timestamp.sub(COOLDOWN_SECONDS).sub(UNSTAKE_WINDOW);
+
+    if (minimalValidCooldownTimestamp > toCooldownTimestamp) {
+      toCooldownTimestamp = 0;
+    } else {
+      uint256 fromCooldownTimestamp =
+        (minimalValidCooldownTimestamp > fromCooldownTimestamp)
+          ? block.timestamp
+          : fromCooldownTimestamp;
+
+      if (fromCooldownTimestamp < toCooldownTimestamp) {
+        return toCooldownTimestamp;
+      } else {
+        toCooldownTimestamp = (
+          amountToReceive.mul(fromCooldownTimestamp).add(toBalance.mul(toCooldownTimestamp))
+        )
+          .div(amountToReceive.add(toBalance));
+      }
+    }
+    return toCooldownTimestamp;
+  }
+
+  /**
+   * @dev Return the total rewards pending to claim by an staker
+   * @param staker The staker address
+   * @return The rewards
+   */
+  function getTotalRewardsBalance(address staker) external view returns (uint256) {
+    DistributionTypes.UserStakeInput[] memory userStakeInputs =
+      new DistributionTypes.UserStakeInput[](1);
+    userStakeInputs[0] = DistributionTypes.UserStakeInput({
+      underlyingAsset: address(this),
+      stakedByUser: balanceOf(staker),
+      totalStaked: totalSupply()
+    });
+    return stakerRewardsToClaim[staker].add(_getUnclaimedRewards(staker, userStakeInputs));
+  }
+
+  /**
+   * @dev returns the revision of the implementation contract
+   * @return The revision
+   */
+  function getRevision() internal pure override returns (uint256) {
+    return REVISION;
   }
 
   /**
@@ -1204,24 +1789,18 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
     //solium-disable-next-line
     require(block.timestamp <= deadline, 'INVALID_EXPIRATION');
     uint256 currentValidNonce = _nonces[owner];
-    bytes32 digest = keccak256(
-      abi.encodePacked(
-        '\x19\x01',
-        DOMAIN_SEPARATOR,
-        keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, currentValidNonce, deadline))
-      )
-    );
+    bytes32 digest =
+      keccak256(
+        abi.encodePacked(
+          '\x19\x01',
+          DOMAIN_SEPARATOR,
+          keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, currentValidNonce, deadline))
+        )
+      );
 
     require(owner == ecrecover(digest, v, r, s), 'INVALID_SIGNATURE');
     _nonces[owner] = currentValidNonce.add(1);
     _approve(owner, spender, value);
-  }
-
-  /**
-   * @dev returns the revision of the implementation contract
-   */
-  function getRevision() internal override pure returns (uint256) {
-    return REVISION;
   }
 
   /**
@@ -1238,8 +1817,15 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
     address to,
     uint256 amount
   ) internal override {
-    address votingFromDelegatee = _getDelegatee(from, _votingDelegates);
-    address votingToDelegatee = _getDelegatee(to, _votingDelegates);
+    address votingFromDelegatee = _votingDelegates[from];
+    address votingToDelegatee = _votingDelegates[to];
+
+    if (votingFromDelegatee == address(0)) {
+      votingFromDelegatee = from;
+    }
+    if (votingToDelegatee == address(0)) {
+      votingToDelegatee = to;
+    }
 
     _moveDelegatesByType(
       votingFromDelegatee,
@@ -1248,8 +1834,15 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
       DelegationType.VOTING_POWER
     );
 
-    address propPowerFromDelegatee = _getDelegatee(from, _propositionPowerDelegates);
-    address propPowerToDelegatee = _getDelegatee(to, _propositionPowerDelegates);
+    address propPowerFromDelegatee = _propositionPowerDelegates[from];
+    address propPowerToDelegatee = _propositionPowerDelegates[to];
+
+    if (propPowerFromDelegatee == address(0)) {
+      propPowerFromDelegatee = from;
+    }
+    if (propPowerToDelegatee == address(0)) {
+      propPowerToDelegatee = to;
+    }
 
     _moveDelegatesByType(
       propPowerFromDelegatee,
@@ -1267,8 +1860,8 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
 
   function _getDelegationDataByType(DelegationType delegationType)
     internal
-    override
     view
+    override
     returns (
       mapping(address => mapping(uint256 => Snapshot)) storage, //snapshots
       mapping(address => uint256) storage, //snapshots count
@@ -1305,9 +1898,10 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
     bytes32 r,
     bytes32 s
   ) public {
-    bytes32 structHash = keccak256(
-      abi.encode(DELEGATE_BY_TYPE_TYPEHASH, delegatee, uint256(delegationType), nonce, expiry)
-    );
+    bytes32 structHash =
+      keccak256(
+        abi.encode(DELEGATE_BY_TYPE_TYPEHASH, delegatee, uint256(delegationType), nonce, expiry)
+      );
     bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR, structHash));
     address signatory = ecrecover(digest, v, r, s);
     require(signatory != address(0), 'INVALID_SIGNATURE');

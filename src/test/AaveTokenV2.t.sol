@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.8.13;
+pragma solidity ^0.7.5;
 
 import "forge-std/Test.sol";
 import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
 import {IInitializableAdminUpgradeabilityProxy} from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 import {AaveTokenV2} from "../contracts/AaveTokenV2.sol";
 
 contract AaveTokenV2Test is Test {
+    address public constant AAVE_MERKLE_DISTRIBUTOR = address(1);
     address public constant AAVE_PROXY_ADMIN = 0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
 
     address public constant AAVE_TOKEN = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
@@ -20,13 +20,11 @@ contract AaveTokenV2Test is Test {
     IERC20 public constant AAVE = IERC20(AAVE_TOKEN);
     IInitializableAdminUpgradeabilityProxy public constant aaveProxy = 
         IInitializableAdminUpgradeabilityProxy(AAVE_TOKEN);
-    AaveMerkleDistributor aaveMerkleDistributor;
     AaveTokenV2 aaveTokenImpl;
 
     event TokensRescued(address indexed tokenRescued, address indexed aaveMerkleDistributor, uint256 amountRescued);
 
     function setUp() public {
-        aaveMerkleDistributor = new AaveMerkleDistributor();
         aaveTokenImpl = new AaveTokenV2();
     }
 
@@ -42,11 +40,11 @@ contract AaveTokenV2Test is Test {
         amounts[2] = UNI_RESCUE_AMOUNT;
 
         vm.expectEmit(true, true, false, true);
-        emit TokensRescued(tokens[0], address(aaveMerkleDistributor), amounts[0]);
+        emit TokensRescued(tokens[0], AAVE_MERKLE_DISTRIBUTOR, amounts[0]);
         vm.expectEmit(true, true, false, true);
-        emit TokensRescued(tokens[1], address(aaveMerkleDistributor), amounts[1]);
+        emit TokensRescued(tokens[1], AAVE_MERKLE_DISTRIBUTOR, amounts[1]);
         vm.expectEmit(true, true, false, true);
-        emit TokensRescued(tokens[2], address(aaveMerkleDistributor), amounts[2]);
+        emit TokensRescued(tokens[2], AAVE_MERKLE_DISTRIBUTOR, amounts[2]);
 
         vm.prank(AAVE_PROXY_ADMIN);
         aaveProxy.upgradeToAndCall(
@@ -55,12 +53,12 @@ contract AaveTokenV2Test is Test {
                 "initialize(address[],uint256[],address)",
                 tokens,
                 amounts,
-                address(aaveMerkleDistributor)
+                AAVE_MERKLE_DISTRIBUTOR
             )
         );
 
-        assertEq(AAVE.balanceOf(address(aaveMerkleDistributor)), AAVE_RESCUE_AMOUNT);
-        assertEq(IERC20(USDT_TOKEN).balanceOf(address(aaveMerkleDistributor)), USDT_RESCUE_AMOUNT);
-        assertEq(IERC20(UNI_TOKEN).balanceOf(address(aaveMerkleDistributor)), UNI_RESCUE_AMOUNT);
+        assertEq(AAVE.balanceOf(AAVE_MERKLE_DISTRIBUTOR), AAVE_RESCUE_AMOUNT);
+        assertEq(IERC20(USDT_TOKEN).balanceOf(AAVE_MERKLE_DISTRIBUTOR), USDT_RESCUE_AMOUNT);
+        assertEq(IERC20(UNI_TOKEN).balanceOf(AAVE_MERKLE_DISTRIBUTOR), UNI_RESCUE_AMOUNT);
     }
 }

@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.8.13;
+pragma solidity 0.8.0;
 
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IAaveMerkleDistributor {
     /// @dev struct that contains the information for a distributionId id
+    /// @param merkleRoot the merkle root of the merkle tree containing account balances available to claim.
+    /// @param claimedBitMap containing the address index to claimed bool. 
+    //       This works by storing the indexes 0-255 as 0, 256-511 as 1.
+    //       It is using the bit representation of uint256 to save on gas.
     struct Distribution {
-        /// @dev Returns the address of the token distributed in the distributionId.
         address token;
-        /// @dev Returns the merkle root of the merkle tree containing account balances available to claim.
         bytes32 merkleRoot;
-        /// @dev BitMap containing the address index to claimed bool. 
-        //       This works by storing the indexes 0-255 as 0, 256-511 as 1.
-        //       It is using the bit representation of uint256 to save on gas.
         mapping(uint256 => uint256) claimedBitMap;
     }
 

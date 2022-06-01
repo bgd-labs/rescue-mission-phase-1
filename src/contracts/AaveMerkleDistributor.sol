@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: AGPL-3.0Returns
+pragma solidity ^0.8.0;
 
 import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
 import {SafeERC20} from "./dependencies/openZeppelin/SafeERC20.sol";
@@ -12,12 +12,12 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
 
     mapping(uint256 => Distribution) public _distributions;
 
-    uint256 public _nextDistributionId = 0;
+    uint256 public override _nextDistributionId = 0;
 
     function contructor() public {}
 
     /// @inheritdoc IAaveMerkleDistributor
-    function getDistribution(uint256 distributionId) external view returns (DistributionWithoutClaimed memory) {
+    function getDistribution(uint256 distributionId) external view override returns (DistributionWithoutClaimed memory) {
         require(distributionId < _nextDistributionId, 'MerkleDistributor: Distribution dont exist');
                 
         return DistributionWithoutClaimed({token: _distributions[distributionId].token, merkleRoot: _distributions[distributionId].merkleRoot});

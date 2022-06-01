@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.8.13;
+pragma solidity ^0.7.5;
 
 import "forge-std/Test.sol";
 import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
-import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 import {ProposalPayloadLong} from "../contracts/ProposalPayloadLong.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
 
 contract ProposalPayloadLongTest is Test {
+    address public constant AAVE_MERKLE_DISTRIBUTOR = address(1);
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address public constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
     address public constant UNI = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
@@ -29,12 +29,7 @@ contract ProposalPayloadLongTest is Test {
         beforeUsdtBalance = usdtToken.balanceOf(AAVE);
         beforeUniBalance = uniToken.balanceOf(AAVE);
 
-        AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
-    
-        // give ownership of distributor to short executor
-        aaveMerkleDistributor.transferOwnership(AaveGovHelpers.SHORT_EXECUTOR);
-
-        proposalPayload = new ProposalPayloadLong(address(aaveMerkleDistributor));
+        proposalPayload = new ProposalPayloadLong(AAVE_MERKLE_DISTRIBUTOR);
     }
 
     function testProposal() public {
@@ -77,7 +72,7 @@ contract ProposalPayloadLongTest is Test {
         // from payload get data;
         ProposalPayloadLong proposalPayload = ProposalPayloadLong(payload);
 
-        address aaveMerkleDistributor = address(AaveMerkleDistributor(proposalPayload.AAVE_MERKLE_DISTRIBUTOR()));
+        address aaveMerkleDistributor = proposalPayload.AAVE_MERKLE_DISTRIBUTOR();
         
         assertEq(
             IERC20(proposalPayload.AAVE_TOKEN()).balanceOf(aaveMerkleDistributor),

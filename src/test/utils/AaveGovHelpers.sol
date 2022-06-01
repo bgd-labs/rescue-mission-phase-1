@@ -1,5 +1,6 @@
-// SPDX-License-Identifier: MIT
-pragma solidity 0.8.13;
+// SPDX-License-Identifier: AGPL-3.0
+pragma solidity >=0.7.5 <0.9.0;
+pragma abicoder v2;
 
 import "forge-std/Vm.sol";
 import "forge-std/console.sol";
