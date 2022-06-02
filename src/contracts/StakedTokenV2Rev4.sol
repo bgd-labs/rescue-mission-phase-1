@@ -1529,7 +1529,7 @@ contract StakedTokenV2Rev4 is
    **/
   function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor) external initializer {
     // send tokens to distributor
-    require(tokens.length == amounts.length, 'stkAave initialization: tokens not the same length as amounts'); 
+    require(tokens.length == amounts.length, 'initialize(): amounts and tokens lengths inconsistent'); 
     for(uint i = 0; i < tokens.length; i++) {
       IERC20(tokens[i]).safeTransfer(aaveMerkleDistributor, amounts[i]);
 

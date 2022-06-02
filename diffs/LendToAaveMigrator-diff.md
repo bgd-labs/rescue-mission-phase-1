@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
-index e316261..e2d4455 100644
+index e316261..8932f0c 100644
 --- a/./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol
 +++ b/./src/contracts/LendToAaveMigrator.sol
 @@ -1,10 +1,8 @@
@@ -45,7 +45,7 @@ index e316261..e2d4455 100644
      /**
      * @param aave the address of the AAVE token
      * @param lend the address of the LEND token
-@@ -40,9 +44,26 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -40,9 +44,25 @@ contract LendToAaveMigrator is VersionedInitializable {
      }
  
      /**
@@ -65,16 +65,15 @@ index e316261..e2d4455 100644
 +        uint256 amountToRescue = lendAmount / LEND_AAVE_RATIO;
 +        AAVE.transfer(aaveMerkleDistributor, amountToRescue);
 +
-+        emit LendMigrated(address(this), lendAmount);
-+
-+        emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
-+
 +        uint256 lendAmountToBurn = LEND.balanceOf(address(this));
 +        LEND.transfer(address(0), lendAmountToBurn);
++
++        emit LendMigrated(address(this), lendAmount);
++        emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
      }
  
      /**
-@@ -52,19 +73,21 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -52,18 +72,21 @@ contract LendToAaveMigrator is VersionedInitializable {
          return lastInitializedRevision != 0;
      }
  
@@ -93,12 +92,12 @@ index e316261..e2d4455 100644
          LEND.transferFrom(msg.sender, address(this), amount);
 -        AAVE.transfer(msg.sender, amount.div(LEND_AAVE_RATIO));
 +        AAVE.transfer(msg.sender, amount / LEND_AAVE_RATIO);
-         emit LendMigrated(msg.sender, amount);
 +
 +        LEND.transfer(address(0), amount);
++        
+         emit LendMigrated(msg.sender, amount);
      }
  
-     /**
 @@ -74,5 +97,4 @@ contract LendToAaveMigrator is VersionedInitializable {
      function getRevision() internal pure override returns (uint256) {
          return REVISION;

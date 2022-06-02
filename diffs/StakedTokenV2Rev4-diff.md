@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/StakedTokenV2Rev3/StakedTokenV2Rev3.sol b/./src/contracts/StakedTokenV2Rev4.sol
-index 893cc8c..a170671 100644
+index 893cc8c..b34161c 100644
 --- a/./etherscan/StakedTokenV2Rev3/StakedTokenV2Rev3.sol
 +++ b/./src/contracts/StakedTokenV2Rev4.sol
 @@ -1,3 +1,7 @@
@@ -61,7 +61,7 @@ index 893cc8c..a170671 100644
 -    uint256 chainId;
 +  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor) external initializer {
 +    // send tokens to distributor
-+    require(tokens.length == amounts.length, 'stkAave initialization: tokens not the same length as amounts'); 
++    require(tokens.length == amounts.length, 'initialize(): amounts and tokens lengths inconsistent'); 
 +    for(uint i = 0; i < tokens.length; i++) {
 +      IERC20(tokens[i]).safeTransfer(aaveMerkleDistributor, amounts[i]);
  
