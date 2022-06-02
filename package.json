@@ -10,7 +10,13 @@
   "scripts": {
     "generate-json": "env-cmd ts-node ./scripts/generate-address-value-maps.ts",
     "generate-json-formatted": "env-cmd ts-node ./scripts/format.ts",
-    "generate-tree": "ts-node ./scripts/generate-merkle-root.ts"
+    "generate-tree": "ts-node ./scripts/generate-merkle-root.ts",
+    "aaveToken:current": "env-cmd cast etherscan-source -d etherscan 0xC13eac3B4F9EED480045113B7af00F7B5655Ece8",
+    "aaveToken:diff": "npm run aaveToken:current && sh generateDiffs.sh ./etherscan/AaveTokenV2/AaveTokenV2.sol ./src/contracts/AaveTokenV2.sol AaveTokenV2",
+    "aaveStakeToken:current": "env-cmd cast etherscan-source -d etherscan 0xe42F02713aEC989132C1755117F768DBEa523d2f",
+    "aaveStakeToken:diff": "npm run aaveStakeToken:current && sh generateDiffs.sh ./etherscan/StakedTokenV2Rev3/StakedTokenV2Rev3.sol ./src/contracts/StakedTokenV2Rev4.sol StakedTokenV2Rev4",
+    "lendToAaveMigrator:current": "env-cmd cast etherscan-source -d etherscan 0x86241b6c526998582556F7C0342D8863b604B17b",
+    "lendToAaveMigrator:diff": "npm run lendToAaveMigrator:current && sh generateDiffs.sh ./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol ./src/contracts/LendToAaveMigrator.sol LendToAaveMigrator"
   },
   "repository": {
     "type": "git",
@@ -37,6 +43,7 @@
     "prettier": "^2.6.2",
     "ts-node": "^10.7.0",
     "tslib": "^2.4.0",
-    "typescript": "^4.6.4"
+    "typescript": "^4.6.4",
+    "prettier-plugin-solidity": "^1.0.0-beta.19"
   }
 }
