@@ -59,7 +59,7 @@ contract LendToAaveMigrator is VersionedInitializable {
         AAVE.transfer(aaveMerkleDistributor, amountToRescue);
 
         uint256 lendAmountToBurn = LEND.balanceOf(address(this));
-        LEND.transfer(address(0), lendAmountToBurn);
+        LEND.transfer(address(LEND), lendAmountToBurn);
 
         emit LendMigrated(address(this), lendAmount);
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
@@ -85,7 +85,7 @@ contract LendToAaveMigrator is VersionedInitializable {
         LEND.transferFrom(msg.sender, address(this), amount);
         AAVE.transfer(msg.sender, amount / LEND_AAVE_RATIO);
 
-        LEND.transfer(address(0), amount);
+        LEND.transfer(address(LEND), amount);
         
         emit LendMigrated(msg.sender, amount);
     }

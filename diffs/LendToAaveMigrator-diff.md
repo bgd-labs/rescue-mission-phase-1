@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
-index e316261..8932f0c 100644
+index e316261..ba5cd00 100644
 --- a/./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol
 +++ b/./src/contracts/LendToAaveMigrator.sol
 @@ -1,10 +1,8 @@
@@ -66,7 +66,7 @@ index e316261..8932f0c 100644
 +        AAVE.transfer(aaveMerkleDistributor, amountToRescue);
 +
 +        uint256 lendAmountToBurn = LEND.balanceOf(address(this));
-+        LEND.transfer(address(0), lendAmountToBurn);
++        LEND.transfer(address(LEND), lendAmountToBurn);
 +
 +        emit LendMigrated(address(this), lendAmount);
 +        emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
@@ -93,7 +93,7 @@ index e316261..8932f0c 100644
 -        AAVE.transfer(msg.sender, amount.div(LEND_AAVE_RATIO));
 +        AAVE.transfer(msg.sender, amount / LEND_AAVE_RATIO);
 +
-+        LEND.transfer(address(0), amount);
++        LEND.transfer(address(LEND), amount);
 +        
          emit LendMigrated(msg.sender, amount);
      }
