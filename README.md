@@ -1,4 +1,4 @@
-# Aave rescue mission. Phase 1 :ambulance: :ghost
+# Aave rescue mission. Phase 1 :ambulance: :ghost:
 
 Repository containing all the code needed for the initial phase to rescue tokens sent directly to contracts of the Aave ecosystem.
 
