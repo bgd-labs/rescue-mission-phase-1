@@ -210,7 +210,8 @@ async function generateAaveMap() {
       validateMigrationEvents,
     ),
     fetchTxns('AAVE', TOKENS.AAVE, ChainId.mainnet, 'AAVE-AAVE'),
-    fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet, 'AAVE-LEND'),
+    // can't recuperate aave sent to lend as lend is not upgreadable
+    // fetchTxns('AAVE', TOKENS.LEND, ChainId.mainnet, 'AAVE-LEND'),
     fetchTxns('LEND', TOKENS.AAVE, ChainId.mainnet, 'LEND-AAVE'),
     fetchTxns('LEND', TOKENS.LEND, ChainId.mainnet, 'LEND-LEND'),
     fetchTxns(
