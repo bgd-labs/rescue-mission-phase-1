@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity >=0.7.5;
+pragma solidity >=0.6.0 < 0.9.0;
 
 import "forge-std/Test.sol";
 import {AaveTokenV2} from "../contracts/AaveTokenV2.sol";
@@ -7,6 +7,8 @@ import {StakedTokenV2Rev4, IERC20 as STKIERC20} from "../contracts/StakedTokenV2
 import {LendToAaveMigrator} from "../contracts/LendToAaveMigrator.sol";
 import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 import { IERC20 } from "../contracts/dependencies/openZeppelin/IERC20.sol";
+import {ProposalPayloadShort} from "../contracts/ProposalPayloadShort.sol";
+import {ProposalPayloadLong} from "../contracts/ProposalPayloadLong.sol";
 
 
 contract Deploy is Test {
@@ -80,9 +82,9 @@ contract Deploy is Test {
         proposalPayloadLong = new ProposalPayloadLong(
             address(aaveMerkleDistributor),
             address(aaveTokenV2Impl),
-            address(stkAaveImpl)
+            address(stakedTokenV2Rev4Impl)
         );
 
-        vm.endBroadcast();
+        vm.stopBroadcast();
     }
 }
