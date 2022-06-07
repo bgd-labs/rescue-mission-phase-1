@@ -3,8 +3,6 @@ pragma solidity ^0.8.0;
 
 import { AaveMerkleDistributor } from "./AaveMerkleDistributor.sol";
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import { LendToAaveMigrator } from "./LendToAaveMigrator.sol";
-import { IERC20 } from "./dependencies/openZeppelin/IERC20.sol";
 
 /// @title Payload to initialize the tokens rescue phase 1
 /// @author BGD
@@ -13,6 +11,7 @@ import { IERC20 } from "./dependencies/openZeppelin/IERC20.sol";
 ///         - AAVE, stkAAVE, USDT, UNI tokens
 contract ProposalPayloadShort {
     AaveMerkleDistributor public immutable AAVE_MERKLE_DISTRIBUTOR;
+    address public immutable LEND_TO_AAVE_MIGRATOR_IMPL;
 
     // AAVE distribution
     address public constant AAVE_TOKEN =
@@ -43,13 +42,11 @@ contract ProposalPayloadShort {
         0x0d02ecdaab34b26ed6ffa029ffa15bc377852ba0dc0e2ce18927d554ea3d939e;
 
     // LEND rescue constants
-    address public constant MIGRATOR_PROXY_ADDRESS =
-        payable(0x317625234562B1526Ea2FaC4030Ea499C5291de4);
-
-    IERC20 public constant LEND =
-        IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
-
-    uint256 public constant LEND_AAVE_RATIO = 100;
+    IInitializableAdminUpgradeabilityProxy
+        public constant MIGRATOR_PROXY_ADDRESS =
+        IInitializableAdminUpgradeabilityProxy(
+            0x317625234562B1526Ea2FaC4030Ea499C5291de4
+        );
 
     uint256 public constant LEND_TO_MIGRATOR_RESCUE_AMOUNT =
         8007719287288096435418;
@@ -57,8 +54,12 @@ contract ProposalPayloadShort {
     uint256 public constant LEND_TO_LEND_RESCUE_AMOUNT =
         841600717506653731350931;
 
-    constructor(AaveMerkleDistributor aaveMerkleDistributor) public {
+    constructor(
+        AaveMerkleDistributor aaveMerkleDistributor,
+        address lendToAaveMigratorImpl
+    ) public {
         AAVE_MERKLE_DISTRIBUTOR = aaveMerkleDistributor;
+        LEND_TO_AAVE_MIGRATOR_IMPL = lendToAaveMigratorImpl;
     }
 
     function execute() external {
@@ -78,20 +79,10 @@ contract ProposalPayloadShort {
         AAVE_MERKLE_DISTRIBUTOR.addDistributions(tokens, merkleRoots);
 
         // Deploy new LendToAaveMigrator implementation and rescue LEND
-        IInitializableAdminUpgradeabilityProxy lendToAaveMigratorProxy = IInitializableAdminUpgradeabilityProxy(
-                MIGRATOR_PROXY_ADDRESS
-            );
-
-        LendToAaveMigrator lendToAaveMigratorImpl = new LendToAaveMigrator(
-            IERC20(AAVE_TOKEN),
-            LEND,
-            LEND_AAVE_RATIO
-        );
-
         uint256 totalLendAmountToRescue = LEND_TO_MIGRATOR_RESCUE_AMOUNT +
             LEND_TO_LEND_RESCUE_AMOUNT;
-        lendToAaveMigratorProxy.upgradeToAndCall(
-            address(lendToAaveMigratorImpl),
+        MIGRATOR_PROXY_ADDRESS.upgradeToAndCall(
+            LEND_TO_AAVE_MIGRATOR_IMPL,
             abi.encodeWithSignature(
                 "initialize(address,uint256)",
                 address(AAVE_MERKLE_DISTRIBUTOR),

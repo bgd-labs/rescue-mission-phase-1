@@ -18,15 +18,32 @@ contract ProposalPayloadShortTest is Test {
     uint256 public beforeTotalLendMigrated;
     LendToAaveMigrator public migrator;
 
+    uint256 public constant LEND_AAVE_RATIO = 100;
+
+    IERC20 public constant LEND =
+        IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
+
     function setUp() public {
         AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
 
         // give ownership of distributor to short executor
         aaveMerkleDistributor.transferOwnership(AaveGovHelpers.SHORT_EXECUTOR);
 
-        proposalPayload = new ProposalPayloadShort(aaveMerkleDistributor);
+        // Deploy new LendToAaveMigrator implementation and rescue LEND
+        LendToAaveMigrator lendToAaveMigratorImpl = new LendToAaveMigrator(
+            AAVE,
+            LEND,
+            LEND_AAVE_RATIO
+        );
 
-        migrator = LendToAaveMigrator(proposalPayload.MIGRATOR_PROXY_ADDRESS());
+        proposalPayload = new ProposalPayloadShort(
+            aaveMerkleDistributor,
+            address(lendToAaveMigratorImpl)
+        );
+
+        migrator = LendToAaveMigrator(
+            address(proposalPayload.MIGRATOR_PROXY_ADDRESS())
+        );
         beforeTotalLendMigrated = migrator._totalLendMigrated();
     }
 
@@ -105,7 +122,7 @@ contract ProposalPayloadShortTest is Test {
         ProposalPayloadShort proposalPayload = ProposalPayloadShort(payload);
 
         LendToAaveMigrator lendToAaveMigrator = LendToAaveMigrator(
-            proposalPayload.MIGRATOR_PROXY_ADDRESS()
+            address(proposalPayload.MIGRATOR_PROXY_ADDRESS())
         );
 
         uint256 totalLendAmountToRescue = proposalPayload
@@ -114,7 +131,7 @@ contract ProposalPayloadShortTest is Test {
 
         assertEq(
             AAVE.balanceOf(address(proposalPayload.AAVE_MERKLE_DISTRIBUTOR())),
-            totalLendAmountToRescue / proposalPayload.LEND_AAVE_RATIO()
+            totalLendAmountToRescue / LEND_AAVE_RATIO
         );
         assertEq(
             migrator._totalLendMigrated(),
