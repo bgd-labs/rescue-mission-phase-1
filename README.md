@@ -88,4 +88,4 @@ We have used foundry to create this solidity project, so to run the tests you wi
 
 ## Mentions
 
-This project is based on Uniswap's [merkle-distributor](https://github.com/Uniswap/merkle-distributor) and adapted for Aave use case.
+In this project we based the AaveMerkleDistributor contract, and the merkleTree generation on Uniswap's [merkle-distributor](https://github.com/Uniswap/merkle-distributor) project.
