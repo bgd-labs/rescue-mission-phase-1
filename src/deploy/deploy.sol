@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity >=0.7.5;
 
-import "forge-std/Script.sol";
+import "forge-std/Test.sol";
 import {AaveTokenV2} from "../contracts/AaveTokenV2.sol";
 import {StakedTokenV2Rev4, IERC20 as STKIERC20} from "../contracts/StakedTokenV2Rev4.sol";
 import {LendToAaveMigrator} from "../contracts/LendToAaveMigrator.sol";
 import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 import { IERC20 } from "../contracts/dependencies/openZeppelin/IERC20.sol";
-import {} from "";
-import {} from "";
-import {} from "";
 
 
-contract Deploy is Script {
+contract Deploy is Test {
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address public constant LEND = 0x80fB784B7eD66730e8b1DBd9820aFD29931aab03;
     
