@@ -10,5 +10,5 @@ cache/
 node_modules/
 
 etherscan/
-
+broadcast/
 scripts/maps/*Formatted.json

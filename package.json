@@ -16,7 +16,13 @@
     "aaveStakeToken:current": "env-cmd cast etherscan-source -d etherscan 0xe42F02713aEC989132C1755117F768DBEa523d2f",
     "aaveStakeToken:diff": "npm run aaveStakeToken:current && sh generateDiffs.sh ./etherscan/StakedTokenV2Rev3/StakedTokenV2Rev3.sol ./src/contracts/StakedTokenV2Rev4.sol StakedTokenV2Rev4",
     "lendToAaveMigrator:current": "env-cmd cast etherscan-source -d etherscan 0x86241b6c526998582556F7C0342D8863b604B17b",
-    "lendToAaveMigrator:diff": "npm run lendToAaveMigrator:current && sh generateDiffs.sh ./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol ./src/contracts/LendToAaveMigrator.sol LendToAaveMigrator"
+    "lendToAaveMigrator:diff": "npm run lendToAaveMigrator:current && sh generateDiffs.sh ./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol ./src/contracts/LendToAaveMigrator.sol LendToAaveMigrator",
+    "deploy:test": "env-cmd npm run deploy:frok",
+    "deploy:mainnet": "env-cmd npm run deploy:broadcast",
+    "deploy:goerli": "env-cmd npm run deploy:broadcast:goerli",
+    "deploy:frok": "forge script ./src/deploy/deploy.sol --fork-url https://rpc.flashbots.net --private-key $PRIVATE_KEY -vvvv",
+    "deploy:broadcast": "forge script ./src/deploy/deploy.sol --private-key $PRIVATE_KEY --broadcast -vvvv",
+    "deploy:broadcast:goerli": "forge script ./src/deploy/deploy.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify -vvvv" 
   },
   "repository": {
     "type": "git",

@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity >=0.6.0 < 0.9.0;
+pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import {AaveTokenV2} from "../contracts/AaveTokenV2.sol";
-import {StakedTokenV2Rev4, IERC20 as STKIERC20} from "../contracts/StakedTokenV2Rev4.sol";
 import {LendToAaveMigrator} from "../contracts/LendToAaveMigrator.sol";
 import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 import { IERC20 } from "../contracts/dependencies/openZeppelin/IERC20.sol";
 import {ProposalPayloadShort} from "../contracts/ProposalPayloadShort.sol";
-import {ProposalPayloadLong} from "../contracts/ProposalPayloadLong.sol";
+
+// artifacts
+string constant aaveTokenV2Artifact = "out/AaveTokenV2.sol/AaveTokenV2.json";
+string constant stakedTokenV2Rev4Artifact = "out/StakedTokenV2Rev4.sol/StakedTokenV2Rev4.json";
+string constant proposalPayloadLongArtifact = "out/ProposalPayloadLong.sol/ProposalPayloadLong.json";
 
 
 contract Deploy is Test {
@@ -25,17 +27,17 @@ contract Deploy is Test {
 
     // contracts
     LendToAaveMigrator lendToAaveMigratorImpl;
-    AaveTokenV2 aaveTokenV2Impl;
-    StakedTokenV2Rev4 stakedTokenV2Rev4Impl;
+    address public aaveTokenV2Impl;
+    address public stakedTokenV2Rev4Impl;
     AaveMerkleDistributor aaveMerkleDistributor;
 
     // payloads
     ProposalPayloadShort proposalPayloadShort;
-    ProposalPayloadLong proposalPayloadLong;
+    address public proposalPayloadLong;
 
     // staked token deploy params
-    STKIERC20 public constant stakedToken = STKIERC20(AAVE);
-    STKIERC20 public constant rewardToken = STKIERC20(AAVE);
+    IERC20 public constant stakedToken = IERC20(AAVE);
+    IERC20 public constant rewardToken = IERC20(AAVE);
     uint256 public constant cooldownSeconds = 864000;
     uint256 public constant unstakeWindow = 172800;
     address public constant rewardsVault =
@@ -52,11 +54,15 @@ contract Deploy is Test {
         
         // deploy aave merkle distributor
         aaveMerkleDistributor = new AaveMerkleDistributor();
+        console.log("AaveMerkleDistributor:", address(aaveMerkleDistributor));
         aaveMerkleDistributor.transferOwnership(SHORT_EXECUTOR);
 
         // deploy new implementations
-        aaveTokenV2Impl = new AaveTokenV2();
-        stakedTokenV2Rev4Impl = new StakedTokenV2Rev4(
+        // We need to use deployCode as solidity version of aaveToken is 0.7.5 and conflicts with other contract versions (0.8.0)
+        aaveTokenV2Impl = deployCode(aaveTokenV2Artifact);
+        console.log("aaveTokenV2Impl: ", aaveTokenV2Impl);
+
+        stakedTokenV2Rev4Impl = deployCode(stakedTokenV2Rev4Artifact, abi.encode(
             stakedToken,
             rewardToken,
             cooldownSeconds,
@@ -67,23 +73,25 @@ contract Deploy is Test {
             name,
             symbol,
             decimals
-        );
+        ));
+        console.log("stakedTokenV2Rev4Impl:", stakedTokenV2Rev4Impl);
+
         lendToAaveMigratorImpl = new LendToAaveMigrator(
             IERC20(AAVE),
             IERC20(LEND),
             LEND_AAVE_RATIO
         );
+        console.log("lendToAaveMigratorImpl:", address(lendToAaveMigratorImpl));
 
         // deploy proposal payloads
         proposalPayloadShort = new ProposalPayloadShort(
             aaveMerkleDistributor,
             address(lendToAaveMigratorImpl)
         );
-        proposalPayloadLong = new ProposalPayloadLong(
-            address(aaveMerkleDistributor),
-            address(aaveTokenV2Impl),
-            address(stakedTokenV2Rev4Impl)
-        );
+        console.log("proposalPayloadShort:", address(proposalPayloadShort));
+
+        proposalPayloadLong = deployCode(proposalPayloadLongArtifact, abi.encode(address(aaveMerkleDistributor), aaveTokenV2Impl, stakedTokenV2Rev4Impl));
+        console.log("proposalPayloadLong:", proposalPayloadLong);
 
         vm.stopBroadcast();
     }
