@@ -74,7 +74,7 @@ For the token rescue to be executed, there has been a need to create to Proposal
     - AAVE: 28317484543674044370842 AAVE in WEI.
     - USDT: 110947986090000000000 UNI in WEI.
     - UNI: 15631946764 USD in WEI.
-  - StakedTokenV2Rev4: from this new implementation the next tokens will be rescued:
+  - StakedTokenV2Rev4: from this new implementation the following tokens will be rescued:
     - AAVE: 372671398516378775101 AAVE in WEI.
     - stkAAVE: 107412975567454603565 stkAAVE in WEI.
 
