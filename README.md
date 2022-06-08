@@ -70,7 +70,7 @@ For the token rescue to be executed, there has been a need to create to Proposal
   - LEND amount sent to LendToAaveMigrator: 8007719287288096435418 LEND in WEI.
   - LEND amount sent to LEND contract: 841600717506653731350931 LEND in WEI. This amount will directly be accounted by rescuing AAVE, as the LEND contract will not be updated, but as the LendToAaveMigrator has all remaining AAVE, we can assume that it was sent there, and so it can be migrated with the rest of the LEND amount sent.
 - [ProposalPayloadLong](/src/contracts/ProposalPayloadLong.sol): This proposal payload will deploy and initialize the new implementations for the AAVE token and the stkAAVE token with appropriate amounts:
-  - AaveTokenV2: from this new implementations the next tokens will be rescued:
+  - AaveTokenV2: from this new implementations the following tokens will be rescued:
     - AAVE: 28317484543674044370842 AAVE in WEI.
     - USDT: 110947986090000000000 UNI in WEI.
     - UNI: 15631946764 USD in WEI.
