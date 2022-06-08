@@ -64,7 +64,7 @@ The following contracts are updates on the current deployed implementations, to 
 
 ### Governance Payloads
 
-For the token rescue to be executed, there has been a need to create to Proposal payloads. One to be executed by the Aave Governcance [short executor](https://etherscan.io/address/0xEE56e2B3D491590B5b31738cC34d5232F378a8D5), and the other one for the [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7)
+For the token rescue to be executed, there has been a need to create two Proposal payloads. One to be executed by the Aave Governance [short executor](https://etherscan.io/address/0xEE56e2B3D491590B5b31738cC34d5232F378a8D5), and the other one for the [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7)
 
 - [ProposalPayloadShort](/src/contracts/ProposalPayloadShort.sol): This proposal payload will deploy the AaveMerkleDistributor contract and add the AAVE, USDT, UNI and stkAAVE distributions. It will also deploy the new implementation of the LendToAaveMigrator. The LendToAaveMigrator will be initialized with the deployed AaveMerkleDistributor and with the LEND amount calculated by adding:
   - LEND amount sent to LendToAaveMigrator: 8007719287288096435418 LEND in WEI.
