@@ -19,8 +19,8 @@
     "lendToAaveMigrator:diff": "npm run lendToAaveMigrator:current && sh generateDiffs.sh ./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol ./src/contracts/LendToAaveMigrator.sol LendToAaveMigrator",
     "deploy:test": "env-cmd npm run deployTest",
     "deploy": "env-cmd npm run deploy:broadcast",
-    "deployTest": "forge script ./src/deploy/deploy.sol --fork-url $FORK_URL --private-key $PRIVATE_KEY -vvvv",
-    "deploy:broadcast": "forge script ./src/deploy/deploy.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify -vvvv",
+    "deployTest": "forge script ./src/deploy/deploy.sol --fork-url $FORK_URL --private-key $PRIVATE_KEY --optimize --optimizer-runs 200 -vvvv",
+    "deploy:broadcast": "forge script ./src/deploy/deploy.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
     "test:contracts": "forge test --fork-url $FORK_URL -vvvv"
   },
   "repository": {
