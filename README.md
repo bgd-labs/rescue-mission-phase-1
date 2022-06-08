@@ -22,7 +22,7 @@ This repository is divided in two parts:
 
 To install and execute the project locally, you need:
 
-- ```npm install``` : As the merkle trees are generated bia Nodejs scripts, you need to install all dependencies necessary.
+- ```npm install``` : As the merkle trees are generated via Nodejs scripts, you need to install all dependencies necessary.
 - ```forge install``` : This project is made using [Foundry](https://book.getfoundry.sh/) so to run it you will need to install it, and then install its dependencies.
 
 ## Merkle Trees
