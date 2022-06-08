@@ -86,6 +86,29 @@ We have used foundry to create this solidity project, so to run the tests you wi
 ➜ forge test --fork-url https://rpc.flashbots.net -vvvv --fork-block-number <latest block number>
 ```
 
+To test deployment you can run ```npm run deploy:test``` which will give out possible deployed addresses and will output gas estimation. For this you will need to add these on your .env file:
+```
+PRIVATE_KEY= // used to deploy contracts
+FORK_URL= // rpc url pointing to mainnet
+```
+
+
+### Deploy
+
+To deploy the necessary contracts and proposal payloads, a deploy.sol solidity forge script has been created. There we make use of the [deployCode](https://book.getfoundry.sh/reference/forge-std/deployCode.html?highlight=deploycode#deploycode) forge std method to deploy the contracts that have the solidity version 0.7.5 (mainly the AaveTokenV2, StakedTokenV2Rev4 and ProposalPayloadLong) that are incompatible with the 0.8.0 version used everywhere else.
+
+You can use the npm script:
+```
+npm run deploy
+```
+Which will deploy everything needed for the rescue phase 1 and will try to verify with etherscan. For this remember to add:
+```
+ETHERSCAN_API_KEY= // used to verify contracts against etherscan
+PRIVATE_KEY= // used to deploy contracts
+FORK_URL= // rpc url pointing to mainnet
+```
+to your .env file. If you want to deploy to a test network you only need to change ```FORK_URL``` to the rpc pointing to that network.
+
 ## Mentions
 
 In this project we based the AaveMerkleDistributor contract, and the merkleTree generation on Uniswap's [merkle-distributor](https://github.com/Uniswap/merkle-distributor) project.
