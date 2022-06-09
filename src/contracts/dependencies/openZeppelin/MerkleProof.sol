@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts (last updated v4.6.0) (utils/cryptography/MerkleProof.sol)
 // commit: 3bdf4bf
 
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.0;
 
 /**
  * @dev These functions deal with verification of Merkle Trees proofs.

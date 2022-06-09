@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.8.13;
+pragma solidity 0.8.0;
 
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IAaveMerkleDistributor {
     /// @dev struct that contains the information for a distributionId id
+    /// @param merkleRoot the merkle root of the merkle tree containing account balances available to claim.
+    /// @param claimedBitMap containing the address index to claimed bool. 
+    //       This works by storing the indexes 0-255 as 0, 256-511 as 1.
+    //       It is using the bit representation of uint256 to save on gas.
     struct Distribution {
-        /// @dev Returns the address of the token distributed in the distributionId.
         address token;
-        /// @dev Returns the merkle root of the merkle tree containing account balances available to claim.
         bytes32 merkleRoot;
-        /// @dev BitMap containing the address index to claimed bool. 
-        //       This works by storing the indexes 0-255 as 0, 256-511 as 1.
-        //       It is using the bit representation of uint256 to save on gas.
         mapping(uint256 => uint256) claimedBitMap;
     }
 
@@ -21,6 +20,11 @@ interface IAaveMerkleDistributor {
         bytes32 merkleRoot;
     }
 
+    // This event is triggered whenever a call to #claim succeeds.
+    event Claimed(uint256 index, address indexed account, uint256 amount, uint256 indexed distributionId);
+    // this event is triggered when adding a new distribution
+    event DistributionAdded(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
+    
     /**
     * @dev returns the token and merkleRoot of a distirbution id
     * @param distributionId id of the distribution we want the information of
@@ -33,7 +37,7 @@ interface IAaveMerkleDistributor {
     function _nextDistributionId() external view returns (uint256);
     
     /**
-    * @dev Returns true if the index has been marked claimed. 
+    * @dev Returns true if the index has been marked claimed.
     * @param index of the address and proof of the claimer
     * @param distributionId id of the distribution you want to check if index has been claimed
     */
@@ -73,9 +77,4 @@ interface IAaveMerkleDistributor {
     * @param amount amount to send
     */
     function emergencyEtherTransfer(address to, uint256 amount) external;
-
-    // This event is triggered whenever a call to #claim succeeds.
-    event Claimed(uint256 index, address indexed account, uint256 amount, uint256 indexed distributionId);
-    // this event is triggered when adding a new distribution
-    event DistributionAdded(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
 }

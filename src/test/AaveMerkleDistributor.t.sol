@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
 
-import {IERC20} from '../../contracts/dependencies/openZeppelin/IERC20.sol';
-import {IAaveMerkleDistributor} from '../../contracts/interfaces/IAaveMerkleDistributor.sol';
-import {AaveMerkleDistributor} from '../../contracts/AaveMerkleDistributor.sol';
+import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
+import {IAaveMerkleDistributor} from "../contracts/interfaces/IAaveMerkleDistributor.sol";
+import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
 
 contract AaveMerkleDistributorTest is Test {
     using stdStorage for StdStorage;
