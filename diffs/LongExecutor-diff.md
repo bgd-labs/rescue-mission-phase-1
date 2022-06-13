@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/Executor/Executor.sol b/./src/contracts/LongExecutor.sol
-index 01c891e..6b408b2 100644
+index 01c891e..5c21f78 100644
 --- a/./etherscan/Executor/Executor.sol
 +++ b/./src/contracts/LongExecutor.sol
 @@ -867,7 +867,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
@@ -93,21 +93,21 @@ index 01c891e..6b408b2 100644
 +  function updateVoteDifferential(uint256 voteDifferential) external override onlyAdmin {
 +    uint256 oldVoteDifferential = VOTE_DIFFERENTIAL;
 +    VOTE_DIFFERENTIAL = voteDifferential;
-+    emit VotingDurationUpdated(address(this), getAdmin(), oldVoteDifferential, VOTE_DIFFERENTIAL);
++    emit VoteDifferentialUpdated(address(this), getAdmin(), oldVoteDifferential, VOTE_DIFFERENTIAL);
 +  }
 +
 +  /// @inheritdoc IExecutor
 +  function updateMinimumQuorum(uint256 minimumQuorum) external override onlyAdmin {
 +    uint256 oldMinimumQuorum = MINIMUM_QUORUM;
 +    MINIMUM_QUORUM = minimumQuorum;
-+    emit VotingDurationUpdated(address(this), getAdmin(), oldMinimumQuorum, MINIMUM_QUORUM);
++    emit MinimumQuorumUpdated(address(this), getAdmin(), oldMinimumQuorum, MINIMUM_QUORUM);
 +  }
 +
 +  /// @inheritdoc IExecutor
 +  function updatePropositionThreshold(uint256 propositionThreshold) external override onlyAdmin {
 +    uint256 oldPropositionThreshold = PROPOSITION_THRESHOLD;
 +    PROPOSITION_THRESHOLD = propositionThreshold;
-+    emit VotingDurationUpdated(address(this), getAdmin(), oldPropositionThreshold, PROPOSITION_THRESHOLD);
++    emit PropositionThresholdUpdated(address(this), getAdmin(), oldPropositionThreshold, PROPOSITION_THRESHOLD);
 +  }
  }
 \ No newline at end of file
