@@ -926,30 +926,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
   receive() external payable {}
 }
 
-interface IExecutor {
-  /**
-  * @dev method tu update the voting duration of the proposal
-  * @param votingDuration duration of the vote
-  */
-  function updateVotingDuration(uint256 votingDuration) external;
-
-  /**
-  * @dev method to update the vote differential needed to pass the proposal
-  * @param voteDifferential differential needed on the votes to pass the proposal
-  */
-  function updateVoteDifferential(uint256 voteDifferential) external;
-
-  /**
-  * @dev method to update the minimum quorum needed to pass the proposal
-  * @param minimumQuorum quorum needed to pass the proposal 
-  */
-  function updateMinimumQuorum(uint256 minimumQuorum) external;
-  /**
-    * @dev method to update the propositionThreshold
-    * @param propositionThreshold new proposition threshold
-    **/
-  function updatePropositionThreshold(uint256 propositionThreshold) external;
-
+interface IProposalValidator {
   /**
    * @dev Called to validate a proposal (e.g when creating new proposal in Governance)
    * @param governance Governance Contract
@@ -1076,15 +1053,13 @@ interface IExecutor {
 }
 
 /**
- * @title Time Locked, Validator, Executor Contract
- * @dev Contract
- * - Validate Proposal creations/ cancellation
- * - Proposition Power functions: Validates proposition creations/ cancellation
- * - Voting Power functions: Validates success of propositions.
- * - Queue, Execute, Cancel, successful proposals' transactions.
+ * @title Proposal Validator Contract, inherited by  Aave Governance Executors
+ * @dev Validates/Invalidations propositions state modifications.
+ * Proposition Power functions: Validates proposition creations/ cancellation
+ * Voting Power functions: Validates success of propositions.
  * @author Aave
  **/
-contract Executor is ExecutorWithTimelock, IExecutor {
+contract ProposalValidator is IProposalValidator {
   using SafeMath for uint256;
 
   uint256 public override PROPOSITION_THRESHOLD;
@@ -1093,17 +1068,213 @@ contract Executor is ExecutorWithTimelock, IExecutor {
   uint256 public override MINIMUM_QUORUM;
   uint256 public constant override ONE_HUNDRED_WITH_PRECISION = 10000; // Equivalent to 100%, but scaled for precision
 
-    /**
+  /**
    * @dev Constructor
    * @param propositionThreshold minimum percentage of supply needed to submit a proposal
    * - In ONE_HUNDRED_WITH_PRECISION units
-   * @param voteDuration duration in blocks of the voting period
+   * @param votingDuration duration in blocks of the voting period
    * @param voteDifferential percentage of supply that `for` votes need to be over `against`
    *   in order for the proposal to pass
    * - In ONE_HUNDRED_WITH_PRECISION units
    * @param minimumQuorum minimum percentage of the supply in FOR-voting-power need for a proposal to pass
    * - In ONE_HUNDRED_WITH_PRECISION units
    **/
+  constructor(
+    uint256 propositionThreshold,
+    uint256 votingDuration,
+    uint256 voteDifferential,
+    uint256 minimumQuorum
+  ) {
+    PROPOSITION_THRESHOLD = propositionThreshold;
+    VOTING_DURATION = votingDuration;
+    VOTE_DIFFERENTIAL = voteDifferential;
+    MINIMUM_QUORUM = minimumQuorum;
+  }
+
+  /**
+   * @dev Called to validate a proposal (e.g when creating new proposal in Governance)
+   * @param governance Governance Contract
+   * @param user Address of the proposal creator
+   * @param blockNumber Block Number against which to make the test (e.g proposal creation block -1).
+   * @return boolean, true if can be created
+   **/
+  function validateCreatorOfProposal(
+    IAaveGovernanceV2 governance,
+    address user,
+    uint256 blockNumber
+  ) external view override returns (bool) {
+    return isPropositionPowerEnough(governance, user, blockNumber);
+  }
+
+  /**
+   * @dev Called to validate the cancellation of a proposal
+   * Needs to creator to have lost proposition power threashold
+   * @param governance Governance Contract
+   * @param user Address of the proposal creator
+   * @param blockNumber Block Number against which to make the test (e.g proposal creation block -1).
+   * @return boolean, true if can be cancelled
+   **/
+  function validateProposalCancellation(
+    IAaveGovernanceV2 governance,
+    address user,
+    uint256 blockNumber
+  ) external view override returns (bool) {
+    return !isPropositionPowerEnough(governance, user, blockNumber);
+  }
+
+  /**
+   * @dev Returns whether a user has enough Proposition Power to make a proposal.
+   * @param governance Governance Contract
+   * @param user Address of the user to be challenged.
+   * @param blockNumber Block Number against which to make the challenge.
+   * @return true if user has enough power
+   **/
+  function isPropositionPowerEnough(
+    IAaveGovernanceV2 governance,
+    address user,
+    uint256 blockNumber
+  ) public view override returns (bool) {
+    IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
+      governance.getGovernanceStrategy()
+    );
+    return
+      currentGovernanceStrategy.getPropositionPowerAt(user, blockNumber) >=
+      getMinimumPropositionPowerNeeded(governance, blockNumber);
+  }
+
+  /**
+   * @dev Returns the minimum Proposition Power needed to create a proposition.
+   * @param governance Governance Contract
+   * @param blockNumber Blocknumber at which to evaluate
+   * @return minimum Proposition Power needed
+   **/
+  function getMinimumPropositionPowerNeeded(IAaveGovernanceV2 governance, uint256 blockNumber)
+    public
+    view
+    override
+    returns (uint256)
+  {
+    IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
+      governance.getGovernanceStrategy()
+    );
+    return
+      currentGovernanceStrategy
+        .getTotalPropositionSupplyAt(blockNumber)
+        .mul(PROPOSITION_THRESHOLD)
+        .div(ONE_HUNDRED_WITH_PRECISION);
+  }
+
+  /**
+   * @dev Returns whether a proposal passed or not
+   * @param governance Governance Contract
+   * @param proposalId Id of the proposal to set
+   * @return true if proposal passed
+   **/
+  function isProposalPassed(IAaveGovernanceV2 governance, uint256 proposalId)
+    external
+    view
+    override
+    returns (bool)
+  {
+    return (isQuorumValid(governance, proposalId) &&
+      isVoteDifferentialValid(governance, proposalId));
+  }
+
+  /**
+   * @dev Calculates the minimum amount of Voting Power needed for a proposal to Pass
+   * @param votingSupply Total number of oustanding voting tokens
+   * @return voting power needed for a proposal to pass
+   **/
+  function getMinimumVotingPowerNeeded(uint256 votingSupply)
+    public
+    view
+    override
+    returns (uint256)
+  {
+    return votingSupply.mul(MINIMUM_QUORUM).div(ONE_HUNDRED_WITH_PRECISION);
+  }
+
+  /**
+   * @dev Check whether a proposal has reached quorum, ie has enough FOR-voting-power
+   * Here quorum is not to understand as number of votes reached, but number of for-votes reached
+   * @param governance Governance Contract
+   * @param proposalId Id of the proposal to verify
+   * @return voting power needed for a proposal to pass
+   **/
+  function isQuorumValid(IAaveGovernanceV2 governance, uint256 proposalId)
+    public
+    view
+    override
+    returns (bool)
+  {
+    IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
+    uint256 votingSupply = IGovernanceStrategy(proposal.strategy).getTotalVotingSupplyAt(
+      proposal.startBlock
+    );
+
+    return proposal.forVotes >= getMinimumVotingPowerNeeded(votingSupply);
+  }
+
+  /**
+   * @dev Check whether a proposal has enough extra FOR-votes than AGAINST-votes
+   * FOR VOTES - AGAINST VOTES > VOTE_DIFFERENTIAL * voting supply
+   * @param governance Governance Contract
+   * @param proposalId Id of the proposal to verify
+   * @return true if enough For-Votes
+   **/
+  function isVoteDifferentialValid(IAaveGovernanceV2 governance, uint256 proposalId)
+    public
+    view
+    override
+    returns (bool)
+  {
+    IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
+    uint256 votingSupply = IGovernanceStrategy(proposal.strategy).getTotalVotingSupplyAt(
+      proposal.startBlock
+    );
+
+    return (proposal.forVotes.mul(ONE_HUNDRED_WITH_PRECISION).div(votingSupply) >
+      proposal.againstVotes.mul(ONE_HUNDRED_WITH_PRECISION).div(votingSupply).add(
+        VOTE_DIFFERENTIAL
+      ));
+  }
+}
+
+
+interface IExecutor {
+  /**
+  * @dev method tu update the voting duration of the proposal
+  * @param votingDuration duration of the vote
+  */
+  function updateVotingDuration(uint256 votingDuration) external;
+
+  /**
+  * @dev method to update the vote differential needed to pass the proposal
+  * @param voteDifferential differential needed on the votes to pass the proposal
+  */
+  function updateVoteDifferential(uint256 voteDifferential) external;
+
+  /**
+  * @dev method to update the minimum quorum needed to pass the proposal
+  * @param minimumQuorum quorum needed to pass the proposal 
+  */
+  function updateMinimumQuorum(uint256 minimumQuorum) external;
+  /**
+    * @dev method to update the propositionThreshold
+    * @param propositionThreshold new proposition threshold
+    **/
+  function updatePropositionThreshold(uint256 propositionThreshold) external;
+}
+
+/**
+ * @title Time Locked, Validator, Executor Contract
+ * @dev Contract
+ * - Validate Proposal creations/ cancellation
+ * - Validate Vote Quorum and Vote success on proposal
+ * - Queue, Execute, Cancel, successful proposals' transactions.
+ * @author Aave
+ **/
+contract Executor is ExecutorWithTimelock, ProposalValidator, IExecutor {
   constructor(
     address admin,
     uint256 delay,
@@ -1116,12 +1287,8 @@ contract Executor is ExecutorWithTimelock, IExecutor {
     uint256 minimumQuorum
   )
     ExecutorWithTimelock(admin, delay, gracePeriod, minimumDelay, maximumDelay)
-  {
-    PROPOSITION_THRESHOLD = propositionThreshold;
-    VOTING_DURATION = voteDuration;
-    VOTE_DIFFERENTIAL = voteDifferential;
-    MINIMUM_QUORUM = minimumQuorum;
-  }
+    ProposalValidator(propositionThreshold, voteDuration, voteDifferential, minimumQuorum)
+  {}
 
   /// @inheritdoc IExecutor
   function updateVotingDuration(uint256 votingDuration) external override onlyAdmin {
@@ -1141,108 +1308,5 @@ contract Executor is ExecutorWithTimelock, IExecutor {
   /// @inheritdoc IExecutor
   function updatePropositionThreshold(uint256 propositionThreshold) external override onlyAdmin {
     PROPOSITION_THRESHOLD = propositionThreshold;
-  }
-   
-  /// @inheritdoc IExecutor
-  function validateCreatorOfProposal(
-    IAaveGovernanceV2 governance,
-    address user,
-    uint256 blockNumber
-  ) external view override returns (bool) {
-    return isPropositionPowerEnough(governance, user, blockNumber);
-  }
-
-  /// @inheritdoc IExecutor
-  function validateProposalCancellation(
-    IAaveGovernanceV2 governance,
-    address user,
-    uint256 blockNumber
-  ) external view override returns (bool) {
-    return !isPropositionPowerEnough(governance, user, blockNumber);
-  }
-
-  /// @inheritdoc IExecutor
-  function isPropositionPowerEnough(
-    IAaveGovernanceV2 governance,
-    address user,
-    uint256 blockNumber
-  ) public view override returns (bool) {
-    IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
-      governance.getGovernanceStrategy()
-    );
-    return
-      currentGovernanceStrategy.getPropositionPowerAt(user, blockNumber) >=
-      getMinimumPropositionPowerNeeded(governance, blockNumber);
-  }
-
-  /// @inheritdoc IExecutor
-  function getMinimumPropositionPowerNeeded(IAaveGovernanceV2 governance, uint256 blockNumber)
-    public
-    view
-    override
-    returns (uint256)
-  {
-    IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
-      governance.getGovernanceStrategy()
-    );
-    return
-      currentGovernanceStrategy
-        .getTotalPropositionSupplyAt(blockNumber)
-        .mul(PROPOSITION_THRESHOLD)
-        .div(ONE_HUNDRED_WITH_PRECISION);
-  }
-
-  /// @inheritdoc IExecutor
-  function isProposalPassed(IAaveGovernanceV2 governance, uint256 proposalId)
-    external
-    view
-    override
-    returns (bool)
-  {
-    return (isQuorumValid(governance, proposalId) &&
-      isVoteDifferentialValid(governance, proposalId));
-  }
-
-  /// @inheritdoc IExecutor
-  function getMinimumVotingPowerNeeded(uint256 votingSupply)
-    public
-    view
-    override
-    returns (uint256)
-  {
-    return votingSupply.mul(MINIMUM_QUORUM).div(ONE_HUNDRED_WITH_PRECISION);
-  }
-
-  /// @inheritdoc IExecutor
-  function isQuorumValid(IAaveGovernanceV2 governance, uint256 proposalId)
-    public
-    view
-    override
-    returns (bool)
-  {
-    IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
-    uint256 votingSupply = IGovernanceStrategy(proposal.strategy).getTotalVotingSupplyAt(
-      proposal.startBlock
-    );
-
-    return proposal.forVotes >= getMinimumVotingPowerNeeded(votingSupply);
-  }
-
-  /// @inheritdoc IExecutor
-  function isVoteDifferentialValid(IAaveGovernanceV2 governance, uint256 proposalId)
-    public
-    view
-    override
-    returns (bool)
-  {
-    IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
-    uint256 votingSupply = IGovernanceStrategy(proposal.strategy).getTotalVotingSupplyAt(
-      proposal.startBlock
-    );
-
-    return (proposal.forVotes.mul(ONE_HUNDRED_WITH_PRECISION).div(votingSupply) >
-      proposal.againstVotes.mul(ONE_HUNDRED_WITH_PRECISION).div(votingSupply).add(
-        VOTE_DIFFERENTIAL
-      ));
   }
 }
