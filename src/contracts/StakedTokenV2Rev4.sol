@@ -1,11 +1,3 @@
-/**
- *Submitted for verification at Etherscan.io on 2021-05-05
-*/
-
-/**
- *Submitted for verification at Etherscan.io on 2020-12-10
- */
-
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.7.5;
 pragma experimental ABIEncoderV2;

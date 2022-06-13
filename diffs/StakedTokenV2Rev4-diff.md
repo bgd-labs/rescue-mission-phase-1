@@ -1,16 +1,16 @@
 ```diff --git a/./etherscan/StakedTokenV2Rev3/StakedTokenV2Rev3.sol b/./src/contracts/StakedTokenV2Rev4.sol
-index 893cc8c..b34161c 100644
+index 893cc8c..79db6ba 100644
 --- a/./etherscan/StakedTokenV2Rev3/StakedTokenV2Rev3.sol
 +++ b/./src/contracts/StakedTokenV2Rev4.sol
-@@ -1,3 +1,7 @@
-+/**
-+ *Submitted for verification at Etherscan.io on 2021-05-05
-+*/
-+
- /**
-  *Submitted for verification at Etherscan.io on 2020-12-10
-  */
-@@ -1446,7 +1450,7 @@ abstract contract GovernancePowerWithSnapshot is GovernancePowerDelegationERC20
+@@ -1,7 +1,3 @@
+-/**
+- *Submitted for verification at Etherscan.io on 2020-12-10
+- */
+-
+ // SPDX-License-Identifier: agpl-3.0
+ pragma solidity 0.7.5;
+ pragma experimental ABIEncoderV2;
+@@ -1446,7 +1442,7 @@ abstract contract GovernancePowerWithSnapshot is GovernancePowerDelegationERC20
   * @notice Contract to stake Aave token, tokenize the position and get rewards, inheriting from a distribution manager contract
   * @author Aave
   **/
@@ -19,7 +19,7 @@ index 893cc8c..b34161c 100644
    IStakedAave,
    GovernancePowerWithSnapshot,
    VersionedInitializable,
-@@ -1456,7 +1460,7 @@ contract StakedTokenV2Rev3 is
+@@ -1456,7 +1452,7 @@ contract StakedTokenV2Rev3 is
    using SafeERC20 for IERC20;
  
    /// @dev Start of Storage layout from StakedToken v1
@@ -28,7 +28,7 @@ index 893cc8c..b34161c 100644
  
    IERC20 public immutable STAKED_TOKEN;
    IERC20 public immutable REWARD_TOKEN;
-@@ -1497,6 +1501,7 @@ contract StakedTokenV2Rev3 is
+@@ -1497,6 +1493,7 @@ contract StakedTokenV2Rev3 is
    event RewardsClaimed(address indexed from, address indexed to, uint256 amount);
  
    event Cooldown(address indexed user);
@@ -36,7 +36,7 @@ index 893cc8c..b34161c 100644
  
    constructor(
      IERC20 stakedToken,
-@@ -1508,42 +1513,28 @@ contract StakedTokenV2Rev3 is
+@@ -1508,42 +1505,28 @@ contract StakedTokenV2Rev3 is
      uint128 distributionDuration,
      string memory name,
      string memory symbol,
