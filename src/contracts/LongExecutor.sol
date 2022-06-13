@@ -928,6 +928,23 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
 
 interface IExecutor {
   /**
+  * @dev method tu update the voting duration of the proposal
+  * @param votingDuration duration of the vote
+  */
+  function updateVotingDuration(uint256 votingDuration) external;
+
+  /**
+  * @dev method to update the vote differential needed to pass the proposal
+  * @param voteDifferential differential needed on the votes to pass the proposal
+  */
+  function updateVoteDifferential(uint256 voteDifferential) external;
+
+  /**
+  * @dev method to update the minimum quorum needed to pass the proposal
+  * @param minimumQuorum quorum needed to pass the proposal 
+  */
+  function updateMinimumQuorum(uint256 minimumQuorum) external;
+  /**
     * @dev method to update the propositionThreshold
     * @param propositionThreshold new proposition threshold
     **/
@@ -1103,6 +1120,21 @@ contract Executor is ExecutorWithTimelock, IExecutor {
     PROPOSITION_THRESHOLD = propositionThreshold;
     VOTING_DURATION = voteDuration;
     VOTE_DIFFERENTIAL = voteDifferential;
+    MINIMUM_QUORUM = minimumQuorum;
+  }
+
+  /// @inheritdoc IExecutor
+  function updateVotingDuration(uint256 votingDuration) external override onlyAdmin {
+    VOTING_DURATION = voteDuration;
+  }
+  
+  /// @inheritdoc IExecutor
+  function updateVoteDifferential(uint256 voteDifferential) external override onlyAdmin {
+    VOTE_DIFFERENTIAL = voteDifferential;
+  }
+
+  /// @inheritdoc IExecutor
+  function updateMinimumQuorum(uint256 minimumQuorum) external override onlyAdmin {
     MINIMUM_QUORUM = minimumQuorum;
   }
 

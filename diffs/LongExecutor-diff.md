@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/Executor/Executor.sol b/./src/contracts/LongExecutor.sol
-index 01c891e..060966f 100644
+index 01c891e..86e41d8 100644
 --- a/./etherscan/Executor/Executor.sol
 +++ b/./src/contracts/LongExecutor.sol
 @@ -1,3 +1,7 @@
@@ -10,12 +10,29 @@ index 01c891e..060966f 100644
  // SPDX-License-Identifier: agpl-3.0
  pragma solidity 0.7.5;
  pragma abicoder v2;
-@@ -922,7 +926,13 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -922,7 +926,30 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
    receive() external payable {}
  }
  
 -interface IProposalValidator {
 +interface IExecutor {
++  /**
++  * @dev method tu update the voting duration of the proposal
++  * @param votingDuration duration of the vote
++  */
++  function updateVotingDuration(uint256 votingDuration) external;
++
++  /**
++  * @dev method to update the vote differential needed to pass the proposal
++  * @param voteDifferential differential needed on the votes to pass the proposal
++  */
++  function updateVoteDifferential(uint256 voteDifferential) external;
++
++  /**
++  * @dev method to update the minimum quorum needed to pass the proposal
++  * @param minimumQuorum quorum needed to pass the proposal 
++  */
++  function updateMinimumQuorum(uint256 minimumQuorum) external;
 +  /**
 +    * @dev method to update the propositionThreshold
 +    * @param propositionThreshold new proposition threshold
@@ -25,7 +42,7 @@ index 01c891e..060966f 100644
    /**
     * @dev Called to validate a proposal (e.g when creating new proposal in Governance)
     * @param governance Governance Contract
-@@ -1049,26 +1059,28 @@ interface IProposalValidator {
+@@ -1049,26 +1076,28 @@ interface IProposalValidator {
  }
  
  /**
@@ -65,7 +82,7 @@ index 01c891e..060966f 100644
     * @param voteDifferential percentage of supply that `for` votes need to be over `against`
     *   in order for the proposal to pass
     * - In ONE_HUNDRED_WITH_PRECISION units
-@@ -1076,24 +1088,30 @@ contract ProposalValidator is IProposalValidator {
+@@ -1076,24 +1105,30 @@ contract ProposalValidator is IProposalValidator {
     * - In ONE_HUNDRED_WITH_PRECISION units
     **/
    constructor(
@@ -106,7 +123,7 @@ index 01c891e..060966f 100644
    function validateCreatorOfProposal(
      IAaveGovernanceV2 governance,
      address user,
-@@ -1102,14 +1120,7 @@ contract ProposalValidator is IProposalValidator {
+@@ -1102,14 +1137,7 @@ contract ProposalValidator is IProposalValidator {
      return isPropositionPowerEnough(governance, user, blockNumber);
    }
  
@@ -122,7 +139,7 @@ index 01c891e..060966f 100644
    function validateProposalCancellation(
      IAaveGovernanceV2 governance,
      address user,
-@@ -1118,13 +1129,7 @@ contract ProposalValidator is IProposalValidator {
+@@ -1118,13 +1146,7 @@ contract ProposalValidator is IProposalValidator {
      return !isPropositionPowerEnough(governance, user, blockNumber);
    }
  
@@ -137,7 +154,7 @@ index 01c891e..060966f 100644
    function isPropositionPowerEnough(
      IAaveGovernanceV2 governance,
      address user,
-@@ -1138,12 +1143,7 @@ contract ProposalValidator is IProposalValidator {
+@@ -1138,12 +1160,7 @@ contract ProposalValidator is IProposalValidator {
        getMinimumPropositionPowerNeeded(governance, blockNumber);
    }
  
@@ -151,7 +168,7 @@ index 01c891e..060966f 100644
    function getMinimumPropositionPowerNeeded(IAaveGovernanceV2 governance, uint256 blockNumber)
      public
      view
-@@ -1160,12 +1160,7 @@ contract ProposalValidator is IProposalValidator {
+@@ -1160,12 +1177,7 @@ contract ProposalValidator is IProposalValidator {
          .div(ONE_HUNDRED_WITH_PRECISION);
    }
  
@@ -165,7 +182,7 @@ index 01c891e..060966f 100644
    function isProposalPassed(IAaveGovernanceV2 governance, uint256 proposalId)
      external
      view
-@@ -1176,11 +1171,7 @@ contract ProposalValidator is IProposalValidator {
+@@ -1176,11 +1188,7 @@ contract ProposalValidator is IProposalValidator {
        isVoteDifferentialValid(governance, proposalId));
    }
  
@@ -178,7 +195,7 @@ index 01c891e..060966f 100644
    function getMinimumVotingPowerNeeded(uint256 votingSupply)
      public
      view
-@@ -1190,13 +1181,7 @@ contract ProposalValidator is IProposalValidator {
+@@ -1190,13 +1198,7 @@ contract ProposalValidator is IProposalValidator {
      return votingSupply.mul(MINIMUM_QUORUM).div(ONE_HUNDRED_WITH_PRECISION);
    }
  
@@ -193,7 +210,7 @@ index 01c891e..060966f 100644
    function isQuorumValid(IAaveGovernanceV2 governance, uint256 proposalId)
      public
      view
-@@ -1211,13 +1196,7 @@ contract ProposalValidator is IProposalValidator {
+@@ -1211,13 +1213,7 @@ contract ProposalValidator is IProposalValidator {
      return proposal.forVotes >= getMinimumVotingPowerNeeded(votingSupply);
    }
  
@@ -208,7 +225,7 @@ index 01c891e..060966f 100644
    function isVoteDifferentialValid(IAaveGovernanceV2 governance, uint256 proposalId)
      public
      view
-@@ -1235,28 +1214,3 @@ contract ProposalValidator is IProposalValidator {
+@@ -1235,28 +1231,3 @@ contract ProposalValidator is IProposalValidator {
        ));
    }
  }
