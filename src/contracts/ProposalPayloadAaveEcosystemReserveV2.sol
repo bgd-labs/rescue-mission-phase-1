@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 import { AaveEcosystemReserveV2 } from "./AaveEcosystemReserveV2.sol";
 
-contract ProposalPayloadEcosystemReserve {
+contract ProposalPayloadAaveEcosystemReserveV2 {
     address public immutable AAVE_ECOSYSTEM_RESERVE_V2_IMPL;
-    address public immutable PROPOSAL_ID;
+    uint256 public immutable PROPOSAL_ID;
     address public constant AAVE_GOVERNANCE_V2 =
         0xEC568fffba86c094cf06b22134B23074DFE2252c;
 
@@ -23,9 +23,11 @@ contract ProposalPayloadEcosystemReserve {
     function execute() external {
         ECOSYSTEM_PROXY.upgradeToAndCall(
             AAVE_ECOSYSTEM_RESERVE_V2_IMPL,
-            "initialize(uint256,address)",
-            proposalId,
-            AAVE_GOVERNANCE_V2
+            abi.encodeWithSignature(
+                "initialize(uint256,address)",
+                PROPOSAL_ID,
+                AAVE_GOVERNANCE_V2
+            )
         );
     }
 }
