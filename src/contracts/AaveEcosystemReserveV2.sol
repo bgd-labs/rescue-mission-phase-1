@@ -772,12 +772,12 @@ contract AaveEcosystemReserveV2 is
     }
 
     /*** Contract Logic Starts Here */
-    // TODO: initialize with logic to vote
+    /**
+    * @dev initializes the ecosystem reserve with the logic to vote on proposal id
+    * @param proposalId id of the proposal which the ecosystem will vote on
+    * @param aaveGovernanceV2 address of the aave governance
+    */
     function initialize(uint256 proposalId, address aaveGovernanceV2) external initializer {
-        // comented as alread initialized with, in older version
-        // _nextStreamId = 100000;
-        // _setFundsAdmin(fundsAdmin);
-
         // voting process
         IAaveGovernanceV2 aaveGov = IAaveGovernanceV2(aaveGovernanceV2);
         // TODO: do we need to check if proposal exists, if its in correct state, etc etc?

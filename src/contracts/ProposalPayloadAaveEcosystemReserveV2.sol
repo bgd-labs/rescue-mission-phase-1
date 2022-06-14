@@ -9,10 +9,11 @@ contract ProposalPayloadAaveEcosystemReserveV2 {
     uint256 public immutable PROPOSAL_ID;
     address public constant AAVE_GOVERNANCE_V2 =
         0xEC568fffba86c094cf06b22134B23074DFE2252c;
+    address public constant ECOSYSTEM_PROXY_ADDRESS = 0x25F2226B597E8F9514B3F68F00f494cF4f286491;
 
-    IInitializableAdminUpgradeabilityProxy public constant ECOSYSTEM_PROXY =
+    IInitializableAdminUpgradeabilityProxy public constant ecosystemProxy =
         IInitializableAdminUpgradeabilityProxy(
-            0x25F2226B597E8F9514B3F68F00f494cF4f286491
+            ECOSYSTEM_PROXY_ADDRESS
         );
 
     constructor(address aaveEcosystemReserveV2Impl, uint256 proposalId) {
@@ -21,7 +22,7 @@ contract ProposalPayloadAaveEcosystemReserveV2 {
     }
 
     function execute() external {
-        ECOSYSTEM_PROXY.upgradeToAndCall(
+        ecosystemProxy.upgradeToAndCall(
             AAVE_ECOSYSTEM_RESERVE_V2_IMPL,
             abi.encodeWithSignature(
                 "initialize(uint256,address)",

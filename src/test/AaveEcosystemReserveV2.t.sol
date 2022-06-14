@@ -38,7 +38,6 @@ contract AaveEcosystemReserveV2Test is Test {
 
         proposalId = _createMockProposal();
         votingPower = AAVE_TOKEN.balanceOf(ecosystemProxyAddress);
-        console.log("voting power:", votingPower);
     }
 
     function testGovernanceVote() public {
@@ -47,10 +46,7 @@ contract AaveEcosystemReserveV2Test is Test {
 
         vm.expectEmit(true, false, false, true);
         emit VoteEmitted(proposalId, ecosystemProxyAddress, true, votingPower);
-        console.log(
-            "state:",
-            uint256(AaveGovHelpers.GOV.getProposalState(proposalId))
-        );
+
         ecosystemProxy.upgradeToAndCall(
             address(aaveEcosystemReserveImpl),
             abi.encodeWithSignature(
