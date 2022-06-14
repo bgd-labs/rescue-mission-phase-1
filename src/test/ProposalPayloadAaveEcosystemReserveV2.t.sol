@@ -6,7 +6,6 @@ import { IERC20 } from "../contracts/dependencies/openZeppelin/IERC20.sol";
 import { ProposalPayloadAaveEcosystemReserveV2 } from "../contracts/ProposalPayloadAaveEcosystemReserveV2.sol";
 import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
 import { AaveEcosystemReserveV2 } from "../contracts/AaveEcosystemReserveV2.sol";
-import { ProposalPayloadLongExecutor } from "../contracts/ProposalPayloadLongExecutor.sol";
 
 contract ProposalPayloadAaveEcosystemReserveV2Test is Test {
     IERC20 constant AAVE_TOKEN =
@@ -101,12 +100,14 @@ contract ProposalPayloadAaveEcosystemReserveV2Test is Test {
                 1200
             )
         );
-        ProposalPayloadLongExecutor proposalPayload = new ProposalPayloadLongExecutor(
+        address proposalPayload = deployCode(
+            "out/ProposalPayloadLongExecutor.sol/ProposalPayloadLongExecutor.json", abi.encode(
                 longExecutor
-            );
+            )
+        );
 
         address[] memory targets = new address[](1);
-        targets[0] = address(proposalPayload);
+        targets[0] = proposalPayload;
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
         string[] memory signatures = new string[](1);

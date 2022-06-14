@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.7.5;
+
+import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+
 
 contract ProposalPayloadLongExecutor {
     address public LONG_EXECUTOR;
@@ -9,6 +12,7 @@ contract ProposalPayloadLongExecutor {
     }
 
     function execute() external {
-        // here would go the change of admins of all the contracts
+        // TODO: here would go the change of admins of all the contracts
+        // initialize with IInitializableAdminUpgradeabilityProxy and call chngeAdmin
     }
 }

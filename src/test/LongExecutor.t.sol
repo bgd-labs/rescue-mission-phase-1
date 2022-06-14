@@ -15,7 +15,7 @@ contract LongExecutorTest is Test {
   uint256 public constant VOTE_DIFFERENTIAL = 1500;
   uint256 public constant MINIMUM_QUORUM = 1200;
 
-  Executor executor;
+  Executor public executor;
 
   // events
   event VotingDurationUpdated(address indexed executor, address indexed admin, uint256 oldVotingDuration, uint256 newVotingDuration);

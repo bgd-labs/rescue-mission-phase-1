@@ -5,7 +5,6 @@ import "forge-std/Test.sol";
 import { AaveEcosystemReserveV2 } from "../contracts/AaveEcosystemReserveV2.sol";
 import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
 import { IInitializableAdminUpgradeabilityProxy } from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import { ProposalPayloadLongExecutor } from "../contracts/ProposalPayloadLongExecutor.sol";
 import { IERC20 } from "../contracts/dependencies/openZeppelin/IERC20.sol";
 
 contract AaveEcosystemReserveV2Test is Test {
@@ -74,12 +73,14 @@ contract AaveEcosystemReserveV2Test is Test {
                 1200
             )
         );
-        ProposalPayloadLongExecutor proposalPayload = new ProposalPayloadLongExecutor(
+        address proposalPayload = deployCode(
+            "out/ProposalPayloadLongExecutor.sol/ProposalPayloadLongExecutor.json", abi.encode(
                 longExecutor
-            );
+            )
+        );
 
         address[] memory targets = new address[](1);
-        targets[0] = address(proposalPayload);
+        targets[0] = proposalPayload;
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
         string[] memory signatures = new string[](1);
