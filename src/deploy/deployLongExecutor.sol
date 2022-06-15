@@ -6,7 +6,7 @@ import { Executor } from "../contracts/LongExecutor.sol";
 import { ProposalPayloadLongExecutor } from "../contracts/ProposalPayloadLongExecutor.sol";
 
 contract DeployEcosystemReserve is Test {
-    address public constant ADMIN = address(1234);
+    address public constant ADMIN = 0xEC568fffba86c094cf06b22134B23074DFE2252c; // Aave Governance
     uint256 public constant DELAY = 604800;
     uint256 public constant GRACE_PERIOD = 432000;
     uint256 public constant MINIMUM_DELAY = 604800;

@@ -93,8 +93,10 @@ For the long executor quorum to be changed we created two proposals:
 - [ProposalPayloadLongExecutor](/src/contracts/ProposalPayloadLongExecutor.sol): This proposal payload will deploy a new executor with same settings as the current long executor, but with a lesser MINIMUM_QUORUM of 12%. This proposal will also update proxy admin to the new executor of all the contracts using the currently deployed [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7).
   <details>
     <summary>TODO: List of contracts that will be updated:</summary>
-      - [Contract 1]()
-      - [Contract 1]()
+      - [AAVE](https://etherscan.io/address/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9)
+      - [ABPT](https://etherscan.io/address/0x41a08648c3766f9f9d85598ff102a08f4ef84f84#code)
+      - [stkAAVE](https://etherscan.io/address/0x4da27a545c0c5b758a6ba100e3a049001de870f5#code)
+      - [stkABPT](https://etherscan.io/address/0xa1116930326d21fb917d5a27f1e9943a9595fb47)
   </details>
 - [ProposalPayloadAaveEcosystemReserveV2](/src/contracts/ProposalPayloadAaveEcosystemReserveV2.sol): This proposal payload will deploy the new ecosystem reserve. It needs to be deployed after the ProposalPayloadLongExecutor has been created, as we need to deploy it with its ID. The ecosystem reserve proposal will make it so the ecosystem votes on the proposal id from the Long executor proposal.
 
