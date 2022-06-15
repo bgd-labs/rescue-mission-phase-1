@@ -4,7 +4,7 @@ pragma solidity 0.7.5;
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 
 contract ProposalPayloadLongExecutor {
-    address public LONG_EXECUTOR;
+    address public immutable LONG_EXECUTOR;
 
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address public constant ABPT = 0x41A08648C3766F9F9d85598fF102a08f4ef84F84;
