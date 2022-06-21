@@ -13,30 +13,27 @@ contract ProposalPayloadLongExecutor {
     address public constant stkABPT =
         0xa1116930326D21fB917d5A27F1E9943A9595fb47;
 
+    // contracts
+    IInitializableAdminUpgradeabilityProxy aaveProxy =
+        IInitializableAdminUpgradeabilityProxy(AAVE);
+    IInitializableAdminUpgradeabilityProxy abptProxy =
+        IInitializableAdminUpgradeabilityProxy(ABPT);
+    IInitializableAdminUpgradeabilityProxy stkAaveProxy =
+        IInitializableAdminUpgradeabilityProxy(stkAAVE);
+    IInitializableAdminUpgradeabilityProxy stkAbptProxy =
+        IInitializableAdminUpgradeabilityProxy(stkABPT);
+
     constructor(address longExecutor) {
         LONG_EXECUTOR = longExecutor;
     }
 
     function execute() external {
-        // TODO: here would go the change of admins of all the contracts
-        IInitializableAdminUpgradeabilityProxy aaveProxy = IInitializableAdminUpgradeabilityProxy(
-                AAVE
-            );
         aaveProxy.changeAdmin(LONG_EXECUTOR);
 
-        IInitializableAdminUpgradeabilityProxy abptProxy = IInitializableAdminUpgradeabilityProxy(
-                ABPT
-            );
         abptProxy.changeAdmin(LONG_EXECUTOR);
 
-        IInitializableAdminUpgradeabilityProxy stkAaveProxy = IInitializableAdminUpgradeabilityProxy(
-                stkAAVE
-            );
         stkAaveProxy.changeAdmin(LONG_EXECUTOR);
 
-        IInitializableAdminUpgradeabilityProxy stkAbptProxy = IInitializableAdminUpgradeabilityProxy(
-                stkABPT
-            );
         stkAbptProxy.changeAdmin(LONG_EXECUTOR);
     }
 }
