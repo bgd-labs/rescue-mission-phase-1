@@ -923,6 +923,15 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
 }
 
 interface IProposalValidator {
+  // event triggered when voting duration gets updated by the admin
+  event VotingDurationUpdated(uint256 newVotingDuration);
+  // event triggered when vote differential gets updated by the admin
+  event VoteDifferentialUpdated(uint256 newVoteDifferential);
+  // event triggered when minimum quorum gets updated by the admin
+  event MinimumQuorumUpdated(uint256 newMinimumQuorum);
+  // event triggered when proposition threshold gets updated by the admin
+  event PropositionThresholdUpdated(uint256 newPropositionThreshold);
+  
   /**
    * @dev Called to validate a proposal (e.g when creating new proposal in Governance)
    * @param governance Governance Contract
@@ -1081,10 +1090,10 @@ contract ProposalValidator is IProposalValidator {
     uint256 voteDifferential,
     uint256 minimumQuorum
   ) {
-    PROPOSITION_THRESHOLD = propositionThreshold;
-    VOTING_DURATION = votingDuration;
-    VOTE_DIFFERENTIAL = voteDifferential;
-    MINIMUM_QUORUM = minimumQuorum;
+    _updateVotingDuration(votingDuration);
+    _updateVoteDifferential(voteDifferential);
+    _updateMinimumQuorum(minimumQuorum);
+    _updatePropositionThreshold(propositionThreshold);
   }
 
   /**
@@ -1234,6 +1243,30 @@ contract ProposalValidator is IProposalValidator {
         VOTE_DIFFERENTIAL
       ));
   }
+
+  /// updates voting duration
+  function _updateVotingDuration(uint256 votingDuration) internal {
+    VOTING_DURATION = votingDuration;
+    emit VotingDurationUpdated(VOTING_DURATION);
+  }
+
+  /// updates vote differential
+  function _updateVoteDifferential(uint256 voteDifferential) internal {
+    VOTE_DIFFERENTIAL = voteDifferential;
+    emit VoteDifferentialUpdated(VOTE_DIFFERENTIAL);
+  }
+
+  /// updates minimum quorum
+  function _updateMinimumQuorum(uint256 minimumQuorum) internal {
+    MINIMUM_QUORUM = minimumQuorum;
+    emit MinimumQuorumUpdated(MINIMUM_QUORUM);
+  }
+
+  /// updates proposition threshold
+  function _updatePropositionThreshold(uint256 propositionThreshold) internal {
+    PROPOSITION_THRESHOLD = propositionThreshold;
+    emit PropositionThresholdUpdated(PROPOSITION_THRESHOLD);
+  }
 }
 
 
@@ -1260,15 +1293,6 @@ interface IExecutor {
     * @param propositionThreshold new proposition threshold
     **/
   function updatePropositionThreshold(uint256 propositionThreshold) external;
-
-  // event triggered when voting duration gets updated by the admin
-  event VotingDurationUpdated(address indexed executor, address indexed admin, uint256 newVotingDuration);
-  // event triggered when vote differential gets updated by the admin
-  event VoteDifferentialUpdated(address indexed executor, address indexed admin, uint256 newVoteDifferential);
-  // event triggered when minimum quorum gets updated by the admin
-  event MinimumQuorumUpdated(address indexed executor, address indexed admin, uint256 newMinimumQuorum);
-  // event triggered when proposition threshold gets updated by the admin
-  event PropositionThresholdUpdated(address indexed executor, address indexed admin, uint256 newPropositionThreshold);
 }
 
 /**
@@ -1297,25 +1321,21 @@ contract Executor is ExecutorWithTimelock, ProposalValidator, IExecutor {
 
   /// @inheritdoc IExecutor
   function updateVotingDuration(uint256 votingDuration) external override onlyAdmin {
-    VOTING_DURATION = votingDuration;
-    emit VotingDurationUpdated(address(this), getAdmin(), VOTING_DURATION);
+    _updateVotingDuration(votingDuration);
   }
   
   /// @inheritdoc IExecutor
   function updateVoteDifferential(uint256 voteDifferential) external override onlyAdmin {
-    VOTE_DIFFERENTIAL = voteDifferential;
-    emit VoteDifferentialUpdated(address(this), getAdmin(), VOTE_DIFFERENTIAL);
+    _updateVoteDifferential(voteDifferential);
   }
 
   /// @inheritdoc IExecutor
   function updateMinimumQuorum(uint256 minimumQuorum) external override onlyAdmin {
-    MINIMUM_QUORUM = minimumQuorum;
-    emit MinimumQuorumUpdated(address(this), getAdmin(), MINIMUM_QUORUM);
+    _updateMinimumQuorum(minimumQuorum);
   }
 
   /// @inheritdoc IExecutor
   function updatePropositionThreshold(uint256 propositionThreshold) external override onlyAdmin {
-    PROPOSITION_THRESHOLD = propositionThreshold;
-    emit PropositionThresholdUpdated(address(this), getAdmin(), PROPOSITION_THRESHOLD);
+    _updatePropositionThreshold(propositionThreshold);
   }
 }
