@@ -32,6 +32,15 @@ contract ProposalPayloadLongExecutorTest is Test {
     Executor public longExecutor;
     ProposalPayloadLongExecutor public payloadLongExecutor;
 
+    IInitializableAdminUpgradeabilityProxy aaveProxy =
+        IInitializableAdminUpgradeabilityProxy(AAVE);
+    IInitializableAdminUpgradeabilityProxy abptProxy =
+        IInitializableAdminUpgradeabilityProxy(ABPT);
+    IInitializableAdminUpgradeabilityProxy stkAaveProxy =
+        IInitializableAdminUpgradeabilityProxy(stkAAVE);
+    IInitializableAdminUpgradeabilityProxy stkAbptProxy =
+        IInitializableAdminUpgradeabilityProxy(stkABPT);
+
     function setUp() public {
         _prepareWhale();
 
@@ -82,27 +91,15 @@ contract ProposalPayloadLongExecutorTest is Test {
         _validateAdminsChanged();
     }
 
-    // TODO: update with new contracts to check
     function _validateAdminsChanged() internal {
         vm.startPrank(address(longExecutor));
-        IInitializableAdminUpgradeabilityProxy aaveProxy = IInitializableAdminUpgradeabilityProxy(
-                AAVE
-            );
+
         assertEq(aaveProxy.admin(), address(longExecutor));
 
-        IInitializableAdminUpgradeabilityProxy abptProxy = IInitializableAdminUpgradeabilityProxy(
-                ABPT
-            );
         assertEq(abptProxy.admin(), address(longExecutor));
 
-        IInitializableAdminUpgradeabilityProxy stkAaveProxy = IInitializableAdminUpgradeabilityProxy(
-                stkAAVE
-            );
         assertEq(stkAaveProxy.admin(), address(longExecutor));
 
-        IInitializableAdminUpgradeabilityProxy stkAbptProxy = IInitializableAdminUpgradeabilityProxy(
-                stkABPT
-            );
         assertEq(stkAbptProxy.admin(), address(longExecutor));
         vm.stopPrank();
     }

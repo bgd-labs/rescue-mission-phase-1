@@ -1262,13 +1262,13 @@ interface IExecutor {
   function updatePropositionThreshold(uint256 propositionThreshold) external;
 
   // event triggered when voting duration gets updated by the admin
-  event VotingDurationUpdated(address indexed executor, address indexed admin, uint256 oldVotingDuration, uint256 newVotingDuration);
+  event VotingDurationUpdated(address indexed executor, address indexed admin, uint256 newVotingDuration);
   // event triggered when vote differential gets updated by the admin
-  event VoteDifferentialUpdated(address indexed executor, address indexed admin, uint256 oldVoteDifferential, uint256 newVoteDifferential);
+  event VoteDifferentialUpdated(address indexed executor, address indexed admin, uint256 newVoteDifferential);
   // event triggered when minimum quorum gets updated by the admin
-  event MinimumQuorumUpdated(address indexed executor, address indexed admin, uint256 oldMinimumQuorum, uint256 newMinimumQuorum);
+  event MinimumQuorumUpdated(address indexed executor, address indexed admin, uint256 newMinimumQuorum);
   // event triggered when proposition threshold gets updated by the admin
-  event PropositionThresholdUpdated(address indexed executor, address indexed admin, uint256 oldPropositionThreshold, uint256 newPropositionThreshold);
+  event PropositionThresholdUpdated(address indexed executor, address indexed admin, uint256 newPropositionThreshold);
 }
 
 /**
@@ -1297,29 +1297,25 @@ contract Executor is ExecutorWithTimelock, ProposalValidator, IExecutor {
 
   /// @inheritdoc IExecutor
   function updateVotingDuration(uint256 votingDuration) external override onlyAdmin {
-    uint256 oldVotingDuration = VOTING_DURATION;
     VOTING_DURATION = votingDuration;
-    emit VotingDurationUpdated(address(this), getAdmin(), oldVotingDuration, VOTING_DURATION);
+    emit VotingDurationUpdated(address(this), getAdmin(), VOTING_DURATION);
   }
   
   /// @inheritdoc IExecutor
   function updateVoteDifferential(uint256 voteDifferential) external override onlyAdmin {
-    uint256 oldVoteDifferential = VOTE_DIFFERENTIAL;
     VOTE_DIFFERENTIAL = voteDifferential;
-    emit VoteDifferentialUpdated(address(this), getAdmin(), oldVoteDifferential, VOTE_DIFFERENTIAL);
+    emit VoteDifferentialUpdated(address(this), getAdmin(), VOTE_DIFFERENTIAL);
   }
 
   /// @inheritdoc IExecutor
   function updateMinimumQuorum(uint256 minimumQuorum) external override onlyAdmin {
-    uint256 oldMinimumQuorum = MINIMUM_QUORUM;
     MINIMUM_QUORUM = minimumQuorum;
-    emit MinimumQuorumUpdated(address(this), getAdmin(), oldMinimumQuorum, MINIMUM_QUORUM);
+    emit MinimumQuorumUpdated(address(this), getAdmin(), MINIMUM_QUORUM);
   }
 
   /// @inheritdoc IExecutor
   function updatePropositionThreshold(uint256 propositionThreshold) external override onlyAdmin {
-    uint256 oldPropositionThreshold = PROPOSITION_THRESHOLD;
     PROPOSITION_THRESHOLD = propositionThreshold;
-    emit PropositionThresholdUpdated(address(this), getAdmin(), oldPropositionThreshold, PROPOSITION_THRESHOLD);
+    emit PropositionThresholdUpdated(address(this), getAdmin(), PROPOSITION_THRESHOLD);
   }
 }

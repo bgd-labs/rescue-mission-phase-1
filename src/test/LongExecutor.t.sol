@@ -18,10 +18,10 @@ contract LongExecutorTest is Test {
   Executor public executor;
 
   // events
-  event VotingDurationUpdated(address indexed executor, address indexed admin, uint256 oldVotingDuration, uint256 newVotingDuration);
-  event VoteDifferentialUpdated(address indexed executor, address indexed admin, uint256 oldVoteDifferential, uint256 newVoteDifferential);
-  event MinimumQuorumUpdated(address indexed executor, address indexed admin, uint256 oldMinimumQuorum, uint256 newMinimumQuorum);
-  event PropositionThresholdUpdated(address indexed executor, address indexed admin, uint256 oldPropositionThreshold, uint256 newPropositionThreshold);
+  event VotingDurationUpdated(address indexed executor, address indexed admin, uint256 newVotingDuration);
+  event VoteDifferentialUpdated(address indexed executor, address indexed admin, uint256 newVoteDifferential);
+  event MinimumQuorumUpdated(address indexed executor, address indexed admin, uint256 newMinimumQuorum);
+  event PropositionThresholdUpdated(address indexed executor, address indexed admin, uint256 newPropositionThreshold);
   
   function setUp() public {
     executor = new Executor(
@@ -54,7 +54,7 @@ contract LongExecutorTest is Test {
     uint256 newVotingDuration = 54000;
 
     vm.expectEmit(true, true, false, true);
-    emit VotingDurationUpdated(address(executor), ADMIN, VOTING_DURATION, newVotingDuration);
+    emit VotingDurationUpdated(address(executor), ADMIN, newVotingDuration);
 
     executor.updateVotingDuration(newVotingDuration);
 
@@ -73,7 +73,7 @@ contract LongExecutorTest is Test {
     uint256 newVoteDifferential = 2000;
 
     vm.expectEmit(true, true, false, true);
-    emit VoteDifferentialUpdated(address(executor), ADMIN, VOTE_DIFFERENTIAL, newVoteDifferential);
+    emit VoteDifferentialUpdated(address(executor), ADMIN, newVoteDifferential);
 
     executor.updateVoteDifferential(newVoteDifferential);
     assertEq(newVoteDifferential, executor.VOTE_DIFFERENTIAL());
@@ -90,7 +90,7 @@ contract LongExecutorTest is Test {
     uint256 newMinimumQuorum = 4000;
 
     vm.expectEmit(true, true, false, true);
-    emit MinimumQuorumUpdated(address(executor), ADMIN, MINIMUM_QUORUM, newMinimumQuorum);
+    emit MinimumQuorumUpdated(address(executor), ADMIN, newMinimumQuorum);
 
     executor.updateMinimumQuorum(newMinimumQuorum);
     assertEq(newMinimumQuorum, executor.MINIMUM_QUORUM());
@@ -107,7 +107,7 @@ contract LongExecutorTest is Test {
     uint256 newMinimumPropositionThreshold = 300;
 
     vm.expectEmit(true, true, false, true);
-    emit PropositionThresholdUpdated(address(executor), ADMIN, PROPOSITION_THRESHOLD, newMinimumPropositionThreshold);
+    emit PropositionThresholdUpdated(address(executor), ADMIN, newMinimumPropositionThreshold);
 
     executor.updatePropositionThreshold(newMinimumPropositionThreshold);
     assertEq(newMinimumPropositionThreshold, executor.PROPOSITION_THRESHOLD());

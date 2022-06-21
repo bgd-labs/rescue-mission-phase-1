@@ -14,13 +14,13 @@ contract ProposalPayloadLongExecutor {
         0xa1116930326D21fB917d5A27F1E9943A9595fb47;
 
     // contracts
-    IInitializableAdminUpgradeabilityProxy aaveProxy =
+    IInitializableAdminUpgradeabilityProxy constant aaveProxy =
         IInitializableAdminUpgradeabilityProxy(AAVE);
-    IInitializableAdminUpgradeabilityProxy abptProxy =
+    IInitializableAdminUpgradeabilityProxy constant abptProxy =
         IInitializableAdminUpgradeabilityProxy(ABPT);
-    IInitializableAdminUpgradeabilityProxy stkAaveProxy =
+    IInitializableAdminUpgradeabilityProxy constant stkAaveProxy =
         IInitializableAdminUpgradeabilityProxy(stkAAVE);
-    IInitializableAdminUpgradeabilityProxy stkAbptProxy =
+    IInitializableAdminUpgradeabilityProxy constant stkAbptProxy =
         IInitializableAdminUpgradeabilityProxy(stkABPT);
 
     constructor(address longExecutor) {
