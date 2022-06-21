@@ -90,7 +90,7 @@ For the token rescue to be executed, there has been a need to create two Proposa
 
 For the long executor quorum to be changed we created two proposals:
 
-- [ProposalPayloadLongExecutor](/src/contracts/ProposalPayloadLongExecutor.sol): This proposal payload will deploy a new executor with same settings as the current long executor, but with a lesser MINIMUM_QUORUM of 12%. This proposal will also update proxy admin to the new executor of all the contracts using the currently deployed [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7).
+- [ProposalPayloadLongExecutor](/src/contracts/ProposalPayloadLongExecutor.sol): This proposal payload will set a new executor with same settings as the current long executor, but with a lesser MINIMUM_QUORUM of 12% as the new proxy admin of all the contracts using the currently deployed [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7).
   <details>
     <summary>TODO: List of contracts that will be updated:</summary>
       - [AAVE](https://etherscan.io/address/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9)
