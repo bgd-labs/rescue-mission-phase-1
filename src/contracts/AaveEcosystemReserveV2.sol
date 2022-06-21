@@ -780,8 +780,6 @@ contract AaveEcosystemReserveV2 is
     function initialize(uint256 proposalId, address aaveGovernanceV2) external initializer {
         // voting process
         IAaveGovernanceV2 aaveGov = IAaveGovernanceV2(aaveGovernanceV2);
-        // TODO: do we need to check if proposal exists, if its in correct state, etc etc?
-        // or just let it fail if not?
         aaveGov.submitVote(proposalId, true);
     }
 

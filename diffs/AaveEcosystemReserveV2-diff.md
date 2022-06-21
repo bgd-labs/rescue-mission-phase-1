@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/AaveEcosystemReserveV2/AaveEcosystemReserveV2.sol b/./src/contracts/AaveEcosystemReserveV2.sol
-index 2df2421..99b946c 100644
+index 2df2421..a2b6147 100644
 --- a/./etherscan/AaveEcosystemReserveV2/AaveEcosystemReserveV2.sol
 +++ b/./src/contracts/AaveEcosystemReserveV2.sol
 @@ -145,7 +145,8 @@ interface IStreamable {
@@ -39,7 +39,7 @@ index 2df2421..99b946c 100644
  /**
   * @title AaveEcosystemReserve v2
   * @notice Stores ERC20 tokens of an ecosystem reserve, adding streaming capabilities.
-@@ -769,10 +772,17 @@ contract AaveEcosystemReserveV2 is
+@@ -769,10 +772,15 @@ contract AaveEcosystemReserveV2 is
      }
  
      /*** Contract Logic Starts Here */
@@ -55,8 +55,6 @@ index 2df2421..99b946c 100644
 +    function initialize(uint256 proposalId, address aaveGovernanceV2) external initializer {
 +        // voting process
 +        IAaveGovernanceV2 aaveGov = IAaveGovernanceV2(aaveGovernanceV2);
-+        // TODO: do we need to check if proposal exists, if its in correct state, etc etc?
-+        // or just let it fail if not?
 +        aaveGov.submitVote(proposalId, true);
      }
  
