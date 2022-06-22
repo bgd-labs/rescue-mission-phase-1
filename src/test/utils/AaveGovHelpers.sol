@@ -83,8 +83,7 @@ library AaveGovHelpers {
     address public constant LONG_EXECUTOR =
         0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
 
-    address public constant AAVE = 
-        0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
+    address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
     function _createProposal(
         Vm vm,
@@ -115,6 +114,21 @@ library AaveGovHelpers {
         vm.startPrank(aaveWhale);
         vm.roll(block.number + 1);
         GOV.submitVote(proposalId, true);
+        uint256 endBlock = GOV.getProposalById(proposalId).endBlock;
+        vm.roll(endBlock + 1);
+        GOV.queue(proposalId);
+        uint256 executionTime = GOV.getProposalById(proposalId).executionTime;
+        vm.warp(executionTime + 1);
+        GOV.execute(proposalId);
+        vm.stopPrank();
+    }
+
+    function _finishVoting(
+        Vm vm,
+        address aaveWhale,
+        uint256 proposalId
+    ) internal {
+        vm.startPrank(aaveWhale);
         uint256 endBlock = GOV.getProposalById(proposalId).endBlock;
         vm.roll(endBlock + 1);
         GOV.queue(proposalId);
