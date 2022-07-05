@@ -5,6 +5,8 @@ import { ChainId } from '@aave/contract-helpers';
 import { PromisePool } from '@supercharge/promise-pool';
 import { fetchLabel } from './label-map';
 
+const amountsFilePath = `./scripts/maps/amountsByContract.txt`;
+
 const JSON_RPC_PROVIDER = {
   [ChainId.mainnet]: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
 };
@@ -114,9 +116,8 @@ async function fetchTxns(
   });
 
   // write total amount on txt
-  const path = `./scripts/maps/amountsByContract.txt`;
   fs.appendFileSync(
-    path,
+    amountsFilePath,
     `total amount for ${name} in wei: ${totalValue} ${symbol}\r\n`,
   );
 
@@ -267,7 +268,12 @@ async function generateUsdtMap() {
 }
 
 // Phase 1
-generateAaveMap().then(() => console.log('all-finished'));
-generateStkAaveMap().then(() => console.log('all-finished'));
-generateUniMap().then(() => console.log('all-finished'));
-generateUsdtMap().then(() => console.log('all-finished'));
+async function phase1() {
+  fs.writeFileSync(amountsFilePath, '');
+  await generateAaveMap();
+  await generateStkAaveMap();
+  await generateUniMap();
+  await generateUsdtMap();
+}
+
+phase1().then(() => console.log('all finished'));
