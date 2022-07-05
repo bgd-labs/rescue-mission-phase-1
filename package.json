@@ -11,6 +11,7 @@
     "generate-json": "env-cmd ts-node ./scripts/generate-address-value-maps.ts",
     "generate-json-formatted": "env-cmd ts-node ./scripts/format.ts",
     "generate-tree": "ts-node ./scripts/generate-merkle-root.ts",
+    "generate-labels": "ts-node ./scripts/label-map.ts",
     "aaveToken:current": "env-cmd cast etherscan-source -d etherscan 0xC13eac3B4F9EED480045113B7af00F7B5655Ece8",
     "aaveToken:diff": "npm run aaveToken:current && sh generateDiffs.sh ./etherscan/AaveTokenV2/AaveTokenV2.sol ./src/contracts/AaveTokenV2.sol AaveTokenV2",
     "aaveStakeToken:current": "env-cmd cast etherscan-source -d etherscan 0xe42F02713aEC989132C1755117F768DBEa523d2f",
@@ -49,14 +50,16 @@
     "@supercharge/promise-pool": "^2.1.0",
     "@types/node": "^17.0.34",
     "bignumber.js": "^9.0.2",
+    "cheerio": "^1.0.0-rc.12",
     "env-cmd": "^10.1.0",
     "ethereumjs-util": "^7.1.4",
     "ethers": "^5.6.6",
+    "isomorphic-unfetch": "^3.1.0",
     "npm": "^8.10.0",
     "prettier": "^2.6.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
     "ts-node": "^10.7.0",
     "tslib": "^2.4.0",
-    "typescript": "^4.6.4",
-    "prettier-plugin-solidity": "^1.0.0-beta.19"
+    "typescript": "^4.6.4"
   }
 }
