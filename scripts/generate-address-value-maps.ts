@@ -131,7 +131,8 @@ async function retryTillSuccess(
   try {
     return fn(event);
   } catch (e) {
-    wait(0.5);
+    await wait(0.3);
+    console.log('retrying');
     return retryTillSuccess(event, fn);
   }
 }
@@ -165,23 +166,24 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
 
 async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
   console.log('validate stk events: ', events.length);
+
+  async function validate(event: Event) {
+    const receipt = await event.getTransactionReceipt();
+    if (
+      !receipt.logs.some((log) =>
+        log.topics.includes(
+          '0x5dac0c1b1112564a045ba943c9d50270893e8e826c49be8e7073adc713ab7bd7',
+        ),
+      )
+    ) {
+      return event;
+    }
+  }
+
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
     .process(async (event) => {
-      try {
-        const receipt = await event.getTransactionReceipt();
-        if (
-          !receipt.logs.some((log) =>
-            log.topics.includes(
-              '0x5dac0c1b1112564a045ba943c9d50270893e8e826c49be8e7073adc713ab7bd7',
-            ),
-          )
-        ) {
-          return event;
-        }
-      } catch (e) {
-        console.log('failed for', event);
-      }
+      return retryTillSuccess(event, validate);
     });
 
   const validTxns: Event[] = results.filter((r) => r !== undefined) as Event[];
