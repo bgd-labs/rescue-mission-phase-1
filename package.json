@@ -11,7 +11,6 @@
     "generate-json": "env-cmd ts-node ./scripts/generate-address-value-maps.ts",
     "generate-json-formatted": "env-cmd ts-node ./scripts/format.ts",
     "generate-tree": "ts-node ./scripts/generate-merkle-root.ts",
-    "generate-labels": "ts-node ./scripts/label-map.ts",
     "aaveToken:current": "env-cmd cast etherscan-source -d etherscan 0xC13eac3B4F9EED480045113B7af00F7B5655Ece8",
     "aaveToken:diff": "npm run aaveToken:current && sh generateDiffs.sh ./etherscan/AaveTokenV2/AaveTokenV2.sol ./src/contracts/AaveTokenV2.sol AaveTokenV2",
     "aaveStakeToken:current": "env-cmd cast etherscan-source -d etherscan 0xe42F02713aEC989132C1755117F768DBEa523d2f",

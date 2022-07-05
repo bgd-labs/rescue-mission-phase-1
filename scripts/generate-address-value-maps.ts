@@ -3,6 +3,7 @@ import { IERC20__factory } from './typechain/IERC20__factory';
 import fs from 'fs';
 import { ChainId } from '@aave/contract-helpers';
 import { PromisePool } from '@supercharge/promise-pool';
+import { fetchLabel } from './label-map';
 
 const JSON_RPC_PROVIDER = {
   [ChainId.mainnet]: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
@@ -43,7 +44,7 @@ async function fetchTxns(
         return events;
       } catch (error) {
         // @ts-expect-error
-        if (error.error.message.indexOf('[') > -1) {
+        if (error.error?.message?.indexOf('[') > -1) {
           // alchemy specific solution, that optimizes, taking into account
           // alchemy error information
           // @ts-expect-error
@@ -174,28 +175,39 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
   return validTxns;
 }
 
-function generateAndSaveMap(
+async function generateAndSaveMap(
   mappedContracts: Record<string, string>[],
   name: string,
-): void {
-  const aggregatedMapping: Record<string, string> = {};
-  mappedContracts.forEach((mappedContract) => {
-    Object.keys(mappedContract).forEach((address: string) => {
+): Promise<void> {
+  const aggregatedMapping: Record<
+    string,
+    { amount: string; txns: number; label?: string }
+  > = {};
+  const labels = require('./labels/labels.json');
+  for (let mappedContract of mappedContracts) {
+    for (let address of Object.keys(mappedContract)) {
       if (aggregatedMapping[address]) {
         const aggregatedValue = BigNumber.from(
           mappedContract[address].toString(),
         )
-          .add(aggregatedMapping[address])
+          .add(aggregatedMapping[address].amount)
           .toString();
-        aggregatedMapping[address] = aggregatedValue;
+        aggregatedMapping[address].amount = aggregatedValue;
+        aggregatedMapping[address].txns += 1;
       } else {
-        aggregatedMapping[address] = mappedContract[address].toString();
+        aggregatedMapping[address] = {} as any;
+        aggregatedMapping[address].amount = mappedContract[address].toString();
+        aggregatedMapping[address].txns = 1;
+        const label = await fetchLabel(address, labels);
+        if (label) {
+          aggregatedMapping[address].label = label;
+        }
       }
-    });
-  });
+    }
+  }
 
   const path = `./scripts/maps/${name}RescueMap.json`;
-  fs.writeFileSync(path, JSON.stringify(aggregatedMapping));
+  fs.writeFileSync(path, JSON.stringify(aggregatedMapping, null, 2));
 }
 
 async function generateAaveMap() {
@@ -223,7 +235,7 @@ async function generateAaveMap() {
     ),
   ]);
 
-  generateAndSaveMap(mappedContracts, 'aave');
+  return generateAndSaveMap(mappedContracts, 'aave');
 }
 
 async function generateStkAaveMap() {
@@ -231,7 +243,7 @@ async function generateStkAaveMap() {
     fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet, 'STKAAVE-STKAAVE'),
   ]);
 
-  generateAndSaveMap(mappedContracts, 'stkAave');
+  return generateAndSaveMap(mappedContracts, 'stkAave');
 }
 
 async function generateUniMap() {
@@ -241,7 +253,7 @@ async function generateUniMap() {
     fetchTxns('UNI', TOKENS.AAVE, ChainId.mainnet, 'UNI-AAVE'),
   ]);
 
-  generateAndSaveMap(mapedContracts, 'uni');
+  return generateAndSaveMap(mapedContracts, 'uni');
 }
 
 async function generateUsdtMap() {
@@ -251,7 +263,7 @@ async function generateUsdtMap() {
     fetchTxns('USDT', TOKENS.AAVE, ChainId.mainnet, 'USDT-AAVE'),
   ]);
 
-  generateAndSaveMap(mapedContracts, 'usdt');
+  return generateAndSaveMap(mapedContracts, 'usdt');
 }
 
 // Phase 1
