@@ -36,10 +36,13 @@ async function enhanceMapWithLabel(fileName: string) {
       console.log(`error fetching label for ${key}`);
     }
   }
-  fs.writeFileSync('./scripts/labels/labels.json', JSON.stringify(labels));
+  fs.writeFileSync(
+    './scripts/labels/labels.json',
+    JSON.stringify(labels, null, 2),
+  );
   fs.writeFileSync(
     `./scripts/labels/labeled_${fileName}`,
-    JSON.stringify(newMap),
+    JSON.stringify(newMap, null, 2),
   );
 }
 
