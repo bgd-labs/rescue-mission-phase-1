@@ -3,7 +3,7 @@ import { IERC20__factory } from './typechain/IERC20__factory';
 import fs from 'fs';
 import { ChainId } from '@aave/contract-helpers';
 import { PromisePool } from '@supercharge/promise-pool';
-import { fetchLabel } from './label-map';
+import { fetchLabel, wait } from './label-map';
 
 const amountsFilePath = `./scripts/maps/amountsByContract.txt`;
 
@@ -124,25 +124,38 @@ async function fetchTxns(
   return addressValueMap;
 }
 
+async function retryTillSuccess(
+  event: Event,
+  fn: (event: Event) => Promise<Event | undefined>,
+) {
+  try {
+    return fn(event);
+  } catch (e) {
+    wait(0.5);
+    retryTillSuccess(event, fn);
+  }
+}
+
 async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
   console.log('validate migration events: ', events.length);
+
+  async function validate(event: Event) {
+    const receipt = await event.getTransactionReceipt();
+    if (
+      !receipt.logs.some((log) =>
+        log.topics.includes(
+          '0x5c5c7a8e729fa9bfdd1ecad2e8f7f3db1d29acf43c1e6036f34fd68621d15c81',
+        ),
+      )
+    ) {
+      return event;
+    }
+  }
+
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
     .process(async (event) => {
-      try {
-        const receipt = await event.getTransactionReceipt();
-        if (
-          !receipt.logs.some((log) =>
-            log.topics.includes(
-              '0x5c5c7a8e729fa9bfdd1ecad2e8f7f3db1d29acf43c1e6036f34fd68621d15c81',
-            ),
-          )
-        ) {
-          return event;
-        }
-      } catch (e) {
-        console.log('failed for', event);
-      }
+      return retryTillSuccess(event, validate);
     });
 
   const validTxns: Event[] = results.filter((r) => r !== undefined) as Event[];

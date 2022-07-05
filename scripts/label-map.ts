@@ -1,7 +1,7 @@
 import { load } from 'cheerio';
 import fetch from 'isomorphic-unfetch';
 
-const wait = (seconds: number) =>
+export const wait = (seconds: number) =>
   new Promise((resolve) => setTimeout(() => resolve(true), seconds * 1000));
 
 export async function fetchLabel(
