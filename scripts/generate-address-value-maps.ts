@@ -127,12 +127,12 @@ async function fetchTxns(
 async function retryTillSuccess(
   event: Event,
   fn: (event: Event) => Promise<Event | undefined>,
-) {
+): Promise<Event | undefined> {
   try {
     return fn(event);
   } catch (e) {
     wait(0.5);
-    retryTillSuccess(event, fn);
+    return retryTillSuccess(event, fn);
   }
 }
 
