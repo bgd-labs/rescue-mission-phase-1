@@ -182,7 +182,8 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
 
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
-    .process(async (event) => {
+    .process(async (event, ix) => {
+      console.log(`validating ${ix}`);
       return retryTillSuccess(event, validate);
     });
 

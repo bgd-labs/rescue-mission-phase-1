@@ -20,6 +20,6 @@ export async function fetchLabel(
     const text = $(node).text();
     tags.push(text);
   });
-  labels[address] = tags.join(',');
+  labels[address] = tags.join(',').trim();
   return labels[address];
 }
