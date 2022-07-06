@@ -25,7 +25,9 @@ interface MerkleDistributorInfo {
   };
 }
 
-type OldFormat = { [account: string]: number | string };
+type OldFormat = {
+  [account: string]: { amount: string; label?: string; txns: number };
+};
 type NewFormat = { address: string; earnings: string; reasons: string };
 
 export function parseBalanceMap(
@@ -39,7 +41,7 @@ export function parseBalanceMap(
     : Object.keys(balances).map(
         (account): NewFormat => ({
           address: account,
-          earnings: balances[account].toString(), //`0x${balances[account].toString(16)}`,
+          earnings: balances[account].amount.toString(), //`0x${balances[account].toString(16)}`,
           reasons: '',
         }),
       );

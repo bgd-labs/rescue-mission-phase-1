@@ -3,6 +3,9 @@ import { IERC20__factory } from './typechain/IERC20__factory';
 import fs from 'fs';
 import { ChainId } from '@aave/contract-helpers';
 import { PromisePool } from '@supercharge/promise-pool';
+import { fetchLabel, wait } from './label-map';
+
+const amountsFilePath = `./scripts/maps/amountsByContract.txt`;
 
 const JSON_RPC_PROVIDER = {
   [ChainId.mainnet]: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
@@ -43,7 +46,7 @@ async function fetchTxns(
         return events;
       } catch (error) {
         // @ts-expect-error
-        if (error.error.message.indexOf('[') > -1) {
+        if (error.error?.message?.indexOf('[') > -1) {
           // alchemy specific solution, that optimizes, taking into account
           // alchemy error information
           // @ts-expect-error
@@ -113,34 +116,47 @@ async function fetchTxns(
   });
 
   // write total amount on txt
-  const path = `./scripts/maps/amountsByContract.txt`;
   fs.appendFileSync(
-    path,
+    amountsFilePath,
     `total amount for ${name} in wei: ${totalValue} ${symbol}\r\n`,
   );
 
   return addressValueMap;
 }
 
+async function retryTillSuccess(
+  event: Event,
+  fn: (event: Event) => Promise<Event | undefined>,
+): Promise<Event | undefined> {
+  try {
+    return fn(event);
+  } catch (e) {
+    await wait(0.3);
+    console.log('retrying');
+    return retryTillSuccess(event, fn);
+  }
+}
+
 async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
   console.log('validate migration events: ', events.length);
+
+  async function validate(event: Event) {
+    const receipt = await event.getTransactionReceipt();
+    if (
+      !receipt.logs.some((log) =>
+        log.topics.includes(
+          '0x5c5c7a8e729fa9bfdd1ecad2e8f7f3db1d29acf43c1e6036f34fd68621d15c81',
+        ),
+      )
+    ) {
+      return event;
+    }
+  }
+
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
     .process(async (event) => {
-      try {
-        const receipt = await event.getTransactionReceipt();
-        if (
-          !receipt.logs.some((log) =>
-            log.topics.includes(
-              '0x5c5c7a8e729fa9bfdd1ecad2e8f7f3db1d29acf43c1e6036f34fd68621d15c81',
-            ),
-          )
-        ) {
-          return event;
-        }
-      } catch (e) {
-        console.log('failed for', event);
-      }
+      return retryTillSuccess(event, validate);
     });
 
   const validTxns: Event[] = results.filter((r) => r !== undefined) as Event[];
@@ -150,23 +166,25 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
 
 async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
   console.log('validate stk events: ', events.length);
+
+  async function validate(event: Event) {
+    const receipt = await event.getTransactionReceipt();
+    if (
+      !receipt.logs.some((log) =>
+        log.topics.includes(
+          '0x5dac0c1b1112564a045ba943c9d50270893e8e826c49be8e7073adc713ab7bd7',
+        ),
+      )
+    ) {
+      return event;
+    }
+  }
+
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
-    .process(async (event) => {
-      try {
-        const receipt = await event.getTransactionReceipt();
-        if (
-          !receipt.logs.some((log) =>
-            log.topics.includes(
-              '0x5dac0c1b1112564a045ba943c9d50270893e8e826c49be8e7073adc713ab7bd7',
-            ),
-          )
-        ) {
-          return event;
-        }
-      } catch (e) {
-        console.log('failed for', event);
-      }
+    .process(async (event, ix) => {
+      console.log(`validating ${ix}`);
+      return retryTillSuccess(event, validate);
     });
 
   const validTxns: Event[] = results.filter((r) => r !== undefined) as Event[];
@@ -174,28 +192,39 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
   return validTxns;
 }
 
-function generateAndSaveMap(
+async function generateAndSaveMap(
   mappedContracts: Record<string, string>[],
   name: string,
-): void {
-  const aggregatedMapping: Record<string, string> = {};
-  mappedContracts.forEach((mappedContract) => {
-    Object.keys(mappedContract).forEach((address: string) => {
+): Promise<void> {
+  const aggregatedMapping: Record<
+    string,
+    { amount: string; txns: number; label?: string }
+  > = {};
+  const labels = require('./labels/labels.json');
+  for (let mappedContract of mappedContracts) {
+    for (let address of Object.keys(mappedContract)) {
       if (aggregatedMapping[address]) {
         const aggregatedValue = BigNumber.from(
           mappedContract[address].toString(),
         )
-          .add(aggregatedMapping[address])
+          .add(aggregatedMapping[address].amount)
           .toString();
-        aggregatedMapping[address] = aggregatedValue;
+        aggregatedMapping[address].amount = aggregatedValue;
+        aggregatedMapping[address].txns += 1;
       } else {
-        aggregatedMapping[address] = mappedContract[address].toString();
+        aggregatedMapping[address] = {} as any;
+        aggregatedMapping[address].amount = mappedContract[address].toString();
+        aggregatedMapping[address].txns = 1;
+        const label = await fetchLabel(address, labels);
+        if (label) {
+          aggregatedMapping[address].label = label;
+        }
       }
-    });
-  });
+    }
+  }
 
   const path = `./scripts/maps/${name}RescueMap.json`;
-  fs.writeFileSync(path, JSON.stringify(aggregatedMapping));
+  fs.writeFileSync(path, JSON.stringify(aggregatedMapping, null, 2));
 }
 
 async function generateAaveMap() {
@@ -223,7 +252,7 @@ async function generateAaveMap() {
     ),
   ]);
 
-  generateAndSaveMap(mappedContracts, 'aave');
+  return generateAndSaveMap(mappedContracts, 'aave');
 }
 
 async function generateStkAaveMap() {
@@ -231,7 +260,7 @@ async function generateStkAaveMap() {
     fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet, 'STKAAVE-STKAAVE'),
   ]);
 
-  generateAndSaveMap(mappedContracts, 'stkAave');
+  return generateAndSaveMap(mappedContracts, 'stkAave');
 }
 
 async function generateUniMap() {
@@ -241,7 +270,7 @@ async function generateUniMap() {
     fetchTxns('UNI', TOKENS.AAVE, ChainId.mainnet, 'UNI-AAVE'),
   ]);
 
-  generateAndSaveMap(mapedContracts, 'uni');
+  return generateAndSaveMap(mapedContracts, 'uni');
 }
 
 async function generateUsdtMap() {
@@ -251,11 +280,16 @@ async function generateUsdtMap() {
     fetchTxns('USDT', TOKENS.AAVE, ChainId.mainnet, 'USDT-AAVE'),
   ]);
 
-  generateAndSaveMap(mapedContracts, 'usdt');
+  return generateAndSaveMap(mapedContracts, 'usdt');
 }
 
 // Phase 1
-generateAaveMap().then(() => console.log('all-finished'));
-generateStkAaveMap().then(() => console.log('all-finished'));
-generateUniMap().then(() => console.log('all-finished'));
-generateUsdtMap().then(() => console.log('all-finished'));
+async function phase1() {
+  fs.writeFileSync(amountsFilePath, '');
+  await generateAaveMap();
+  await generateStkAaveMap();
+  await generateUniMap();
+  await generateUsdtMap();
+}
+
+phase1().then(() => console.log('all finished'));
