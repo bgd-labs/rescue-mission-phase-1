@@ -10,7 +10,7 @@ contract AaveTokenV2Test is Test {
 
 	address public constant AAVE_MERKLE_DISTRIBUTOR = address(1653);
 	address public constant AAVE_PROXY_ADMIN =
-		0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
+	0x79426A1c24B2978D90d7A5070a46C65B07bC4299;
 
 	address public constant AAVE_TOKEN =
 		0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;

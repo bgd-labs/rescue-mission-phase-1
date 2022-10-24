@@ -11,7 +11,7 @@ contract StakedTokenV2Rev4Test is Test {
     using SafeMath for uint256;
 
     address public constant AAVE_MERKLE_DISTRIBUTOR = address(124312);
-    address public constant AAVE_LONG_EXECUTOR = 0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
+    address public constant AAVE_LONG_EXECUTOR = 0x79426A1c24B2978D90d7A5070a46C65B07bC4299;
     
     address public constant AAVE_TOKEN = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     uint256 public constant AAVE_RESCUE_AMOUNT = 372671398516378775101;
