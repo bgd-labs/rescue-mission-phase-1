@@ -14,7 +14,7 @@ contract AaveTokenV2Test is Test {
 
 	address public constant AAVE_TOKEN =
 		0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-	uint256 public constant AAVE_RESCUE_AMOUNT = 28317484543674044370842;
+	uint256 public constant AAVE_RESCUE_AMOUNT = 28337476447194044370842;
 	address public constant USDT_TOKEN =
 		0xdAC17F958D2ee523a2206206994597C13D831ec7;
 	uint256 public constant USDT_RESCUE_AMOUNT = 15631946764;
@@ -27,7 +27,7 @@ contract AaveTokenV2Test is Test {
 		IInitializableAdminUpgradeabilityProxy(AAVE_TOKEN);
 	AaveTokenV2 aaveTokenImpl;
 
-	uint256 public oldRevision = aaveProxy.REVISION();
+	uint256 public oldRevision;
 
 	event TokensRescued(
 		address indexed tokenRescued,
@@ -36,17 +36,13 @@ contract AaveTokenV2Test is Test {
 	);
 
 	function setUp() public {
-		console.log('---------------------');
 		vm.createSelectFork(vm.rpcUrl("ethereum"), 15816860);
+		oldRevision = aaveProxy.REVISION();
 
-		console.log('---------------------');
 		aaveTokenImpl = new AaveTokenV2();
-
-		console.log('---------------------');
 	}
 
 	function testInitialize() public {
-		console.log('---------------------');
 		address[] memory tokens = new address[](3);
 		tokens[0] = AAVE_TOKEN;
 		tokens[1] = USDT_TOKEN;
