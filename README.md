@@ -29,24 +29,24 @@ To install and execute the project locally, you need:
 ## Merkle Trees
 
 For wallets to be able to claim the tokens they sent to the contracts specified on Phase 1, we have created a different MerkleTree for every claimable token (AAVE, stkAAVE, UNI, USDT).
-You can find the merkle tree generator script here: [MerkleTree Generator](./scripts/generate-address-value-maps.ts)
+You can find the merkle tree generator script here: [MerkleTree Generator](js-scripts/generate-address-value-maps.ts)
 
-On the [maps](./scripts/maps) folder you will find the JSON files containing:
+On the [maps](js-scripts/maps) folder you will find the JSON files containing:
 
 - ...RescueMap.json : list of address:value(in WEI) that will be used to create the rescue merkle tree for the specified token.
 - ...RescueMerkleTree.json : list indicating for every address able to claim the rescued tokens, the amount, the index, and the merkle proof, needed for claiming the specified token.
 
-This folder also contains a [resume](./scripts/maps/amountsByContract.txt) indicating the amount to rescue for every token sent on the contracts specified on phase 1.
+This folder also contains a [resume](js-scripts/maps/amountsByContract.txt) indicating the amount to rescue for every token sent on the contracts specified on phase 1.
 
 ### Merkle Trees calculations
 
-- AAVE merkle tree => [map](/scripts/maps/aaveRescueMap.json) | [tree](/scripts/maps/aaveRescueMerkleTree.json): The Aave merkle tree is formed by:
+- AAVE merkle tree => [map](/js-scripts/maps/aaveRescueMap.json) | [tree](/js-scripts/maps/aaveRescueMerkleTree.json): The Aave merkle tree is formed by:
   - The AAVE tokens sent to the AAVE contract, the LEND sent to LEND contract, LEND to AAVE contract, AAVE sent to stkAAVE contract. These are accounted by getting all transfers of these tokens to these contracts.
   - The LEND sent to the LendToAaveMigrator contract. In this case when we get the transfers of LEND to the contract, we need to remove the transfers that where done as part of calling the migration method. We do this by ruling out the transfer transactions that have the LendMigrated event topic on the tx receipt, as this event would be emitted on the same transaction.
   - The AAVE sent to the stkAAVE contract. In this case we need to rule out the transfers of AAVE that are done when staking. For this we remove the transfer transactions that have the event Staked topic on the tx receipt, as this event is emitted when staking.
-- UNI merkle tree => [map](/scripts/maps/uniRescueMap.json) | [tree](/scripts/maps/uniRescueMerkleTree.json): This tree is formed by getting the transfer transactions of UNI to the AAVE contract.
-- USDT => [map](/scripts/maps/usdtRescueMap.json) | [tree](/scripts/maps/usdtRescueMerkleTree.json): This tree is formed by getting the transfer transactions of USDT to the AAVE contract.
-- stkAAVE => [map](/scripts/maps/stkAaveRescueMap.json) | [tree](/scripts/maps/stkAaveRescueMerkleTree.json): This tree is formed by getting the transfer transactions of stkAAVE to the stkAAVE contract.
+- UNI merkle tree => [map](/js-scripts/maps/uniRescueMap.json) | [tree](/js-scripts/maps/uniRescueMerkleTree.json): This tree is formed by getting the transfer transactions of UNI to the AAVE contract.
+- USDT => [map](/js-scripts/maps/usdtRescueMap.json) | [tree](/js-scripts/maps/usdtRescueMerkleTree.json): This tree is formed by getting the transfer transactions of USDT to the AAVE contract.
+- stkAAVE => [map](/js-scripts/maps/stkAaveRescueMap.json) | [tree](/js-scripts/maps/stkAaveRescueMerkleTree.json): This tree is formed by getting the transfer transactions of stkAAVE to the stkAAVE contract.
 
 ## Contracts
 
@@ -85,7 +85,7 @@ For the token rescue to be executed, there has been a need to create two Proposa
 We have used foundry to create this solidity project, so to run the tests you will need to run ```forge test```. But as we are using already deployed contracts, the tests need to be run in a fork environment. For this you will need to execute this command:
 
 ```
-➜ forge test --fork-url https://rpc.flashbots.net -vvvv --fork-block-number <latest block number>
+➜ forge test
 ```
 
 To test deployment you can run ```npm run deploy:test``` which will give out possible deployed addresses and will output gas estimation. For this you will need to add these on your .env file:

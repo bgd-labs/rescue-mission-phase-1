@@ -11,4 +11,4 @@ node_modules/
 
 etherscan/
 broadcast/
-scripts/maps/*Formatted.json
+js-scripts/maps/*Formatted.json

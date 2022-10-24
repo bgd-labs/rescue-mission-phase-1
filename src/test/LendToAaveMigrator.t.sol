@@ -28,6 +28,8 @@ contract LendToAaveMigratorTest is Test {
     event LendMigrated(address indexed sender, uint256 indexed amount);
 
     function setUp() public {
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 15816860);
+
         aaveMerkleDistributor = new AaveMerkleDistributor();
         migratorImpl = new LendToAaveMigrator(AAVE, LEND, LEND_AAVE_RATIO);
         migratorProxy = IInitializableAdminUpgradeabilityProxy(migratorProxyAddress);

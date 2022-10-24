@@ -38,6 +38,8 @@ contract AaveMerkleDistributorTest is Test {
     event DistributionAdded(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
 
     function setUp() public {
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 15816860);
+
         aaveMerkleDistributor = new AaveMerkleDistributor();
 
         // add funds to distributor contract
