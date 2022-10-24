@@ -12,9 +12,6 @@ This initial phase will affect the following:
 
 The LEND sent to the specified contracts will be claimed already as AAVE tokens with the transformation LEND to AAVE already taken into account (1 AAVE = 100 LEND)
 
-
-In this repository we have also added the Proposal payloads necessary to change the MINIMUM_QUORUM of the long executor from 20% to 12%, so its easier to pass proposals from the long executor (which is needed to pass the rescue mission). This proposals need to be passed before the rescue ones. This way the rescue proposal that needs the long executor will be easier to pass as it will not need 20% of the supply to pass.
-
 ## About
 
 This repository is divided in two parts:
@@ -66,12 +63,6 @@ The following contracts are updates on the current deployed implementations, to 
 
 - [AaveMerkleDistributor](/src/contracts/AaveMerkleDistributor.sol): This contract has the logic for the users to be able to claim the rescued tokens, according to the generated merkle trees. To enable a rescue of a determined token, the addDistributions method needs to be called with the arrays of tokens and merkleRoots, indication the pairs token:merkleRoot (indicated in the token specific merkle tree rescue json [files](#merkle-trees)). Once a distribution is added. A user can claim the tokens by passing the index, account and amount also indicated [here](#merkle-trees).
 
-We can also find the necessary contracts to change the long executor quorum:
-
-- [Executor](/src/contracts/LongExecutor.sol): This contract has the same logic as the current [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7) but with a decrese on the MINIMUM_QUORUM, to make the proposals executed by the long executor not as hard to pass. It also contains methods to update the settings, so as in the future there is no need to deploy new long executors.
-- [AaveEcosystemReserveV2](/src/contracts/AaveEcosystemReserveV2.sol): This contract has the logic to vote on a specific proposal with the ecosystem Aave token balance. This will be executed on initialize. This is done so we will be able to more easiliy pass the proposal that deploys the new long executor as that will require 20% of the token distribution, and the ecosystem reserve has 10% of it aprox.
-
-
 ### Governance Payloads
 
 For the token rescue to be executed, there has been a need to create two Proposal payloads. One to be executed by the Aave Governance [short executor](https://etherscan.io/address/0xEE56e2B3D491590B5b31738cC34d5232F378a8D5), and the other one for the [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7)
@@ -88,18 +79,6 @@ For the token rescue to be executed, there has been a need to create two Proposa
   - StakedTokenV2Rev4: from this new implementation the following tokens will be rescued:
     - AAVE: 372671398516378775101 AAVE in WEI.
     - stkAAVE: 107412975567454603565 stkAAVE in WEI.
-
-For the long executor quorum to be changed we created two proposals:
-
-- [ProposalPayloadLongExecutor](/src/contracts/ProposalPayloadLongExecutor.sol): This proposal payload will set a new executor with same settings as the current long executor, but with a lesser MINIMUM_QUORUM of 12% as the new proxy admin of all the contracts using the currently deployed [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7).
-  <details>
-    <summary>TODO: List of contracts that will be updated:</summary>
-      - [AAVE](https://etherscan.io/address/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9)
-      - [ABPT](https://etherscan.io/address/0x41a08648c3766f9f9d85598ff102a08f4ef84f84#code)
-      - [stkAAVE](https://etherscan.io/address/0x4da27a545c0c5b758a6ba100e3a049001de870f5#code)
-      - [stkABPT](https://etherscan.io/address/0xa1116930326d21fb917d5a27f1e9943a9595fb47)
-  </details>
-- [ProposalPayloadAaveEcosystemReserveV2](/src/contracts/ProposalPayloadAaveEcosystemReserveV2.sol): This proposal payload will deploy the new ecosystem reserve. It needs to be deployed after the ProposalPayloadLongExecutor has been created, as we need to deploy it with its ID. The ecosystem reserve proposal will make it so the ecosystem votes on the proposal id from the Long executor proposal.
 
 ### Tests
 

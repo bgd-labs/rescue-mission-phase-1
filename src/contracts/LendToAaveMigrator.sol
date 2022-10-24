@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
 
-import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
+import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
 import {VersionedInitializable} from "./dependencies/upgradeability/VersionedInitializable.sol";
 
 /**
