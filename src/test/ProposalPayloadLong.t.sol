@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.5;
+pragma abicoder v2;
 
 import "forge-std/Test.sol";
 import { StakedTokenV2Rev4, IERC20 as STKIERC20 } from "../contracts/StakedTokenV2Rev4.sol";
 import { IERC20, SafeMath, AaveTokenV2 } from "../contracts/AaveTokenV2.sol";
 import { ProposalPayloadLong } from "../contracts/ProposalPayloadLong.sol";
-import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
+import { GovHelpers, IAaveGovernanceV2 } from "aave-helpers/GovHelpers.sol";
 
 contract ProposalPayloadLongTest is Test {
     using SafeMath for uint256;
@@ -90,11 +91,10 @@ contract ProposalPayloadLongTest is Test {
         bool[] memory withDelegatecalls = new bool[](1);
         withDelegatecalls[0] = true;
 
-        uint256 proposalId = AaveGovHelpers._createProposal(
+        uint256 proposalId = GovHelpers.createProposal(
             vm,
-            AAVE_WHALE,
-            IAaveGov.SPropCreateParams({
-                executor: AaveGovHelpers.LONG_EXECUTOR,
+            GovHelpers.SPropCreateParams({
+                executor: GovHelpers.LONG_EXECUTOR,
                 targets: targets,
                 values: values,
                 signatures: signatures,
@@ -104,14 +104,14 @@ contract ProposalPayloadLongTest is Test {
             })
         );
 
-        AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
+        GovHelpers.passVoteAndExecute(vm, proposalId);
         _validateAaveContractTokensRescued(proposalId);
         _validateStkAaveContractTokensRescued(proposalId);
     }
 
     function _validateAaveContractTokensRescued(uint256 proposalId) internal {
-        IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
-            ._getProposalById(proposalId);
+        IAaveGovernanceV2.ProposalWithoutVotes memory proposalData = GovHelpers
+            .getProposalById(proposalId);
         // Generally, there is no reason to have more than 1 payload if using the DELEGATECALL pattern
         address payload = proposalData.targets[0];
 
@@ -159,8 +159,8 @@ contract ProposalPayloadLongTest is Test {
     function _validateStkAaveContractTokensRescued(uint256 proposalId)
         internal
     {
-        IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
-            ._getProposalById(proposalId);
+        IAaveGovernanceV2.ProposalWithoutVotes memory proposalData = GovHelpers
+            .getProposalById(proposalId);
         // Generally, there is no reason to have more than 1 payload if using the DELEGATECALL pattern
         address payload = proposalData.targets[0];
 

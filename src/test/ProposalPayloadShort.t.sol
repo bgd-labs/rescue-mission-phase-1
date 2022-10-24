@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+pragma abicoder v2;
 
 import "forge-std/Test.sol";
 import { IERC20 } from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
-import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
+import { GovHelpers, IAaveGovernanceV2 } from "aave-helpers/GovHelpers.sol";
 import { ProposalPayloadShort } from "../contracts/ProposalPayloadShort.sol";
 import { AaveMerkleDistributor } from "../contracts/AaveMerkleDistributor.sol";
 import { IAaveMerkleDistributor } from "../contracts/interfaces/IAaveMerkleDistributor.sol";
@@ -29,7 +30,7 @@ contract ProposalPayloadShortTest is Test {
         AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
 
         // give ownership of distributor to short executor
-        aaveMerkleDistributor.transferOwnership(AaveGovHelpers.SHORT_EXECUTOR);
+        aaveMerkleDistributor.transferOwnership(GovHelpers.SHORT_EXECUTOR);
 
         // Deploy new LendToAaveMigrator implementation and rescue LEND
         LendToAaveMigrator lendToAaveMigratorImpl = new LendToAaveMigrator(
@@ -61,11 +62,10 @@ contract ProposalPayloadShortTest is Test {
         bool[] memory withDelegatecalls = new bool[](1);
         withDelegatecalls[0] = true;
 
-        uint256 proposalId = AaveGovHelpers._createProposal(
+        uint256 proposalId = GovHelpers.createProposal(
             vm,
-            AAVE_WHALE,
-            IAaveGov.SPropCreateParams({
-                executor: AaveGovHelpers.SHORT_EXECUTOR,
+            GovHelpers.SPropCreateParams({
+                executor: GovHelpers.SHORT_EXECUTOR,
                 targets: targets,
                 values: values,
                 signatures: signatures,
@@ -75,15 +75,15 @@ contract ProposalPayloadShortTest is Test {
             })
         );
 
-        AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
+        GovHelpers.passVoteAndExecute(vm, proposalId);
 
         _validateAaveMerkleDistribution(proposalId);
         _validateTokenRescue(proposalId);
     }
 
     function _validateAaveMerkleDistribution(uint256 proposalId) internal {
-        IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
-            ._getProposalById(proposalId);
+        IAaveGovernanceV2.ProposalWithoutVotes memory proposalData = GovHelpers
+            .getProposalById(proposalId);
         // Generally, there is no reason to have more than 1 payload if using the DELEGATECALL pattern
         address payload = proposalData.targets[0];
 
@@ -114,12 +114,12 @@ contract ProposalPayloadShortTest is Test {
         assertEq(distribution.token, proposalPayload.UNI_TOKEN());
         assertEq(distribution.merkleRoot, proposalPayload.UNI_MERKLE_ROOT());
 
-        assertEq(aaveMerkleDistributor.owner(), AaveGovHelpers.SHORT_EXECUTOR);
+        assertEq(aaveMerkleDistributor.owner(), GovHelpers.SHORT_EXECUTOR);
     }
 
     function _validateTokenRescue(uint256 proposalId) internal {
-        IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
-            ._getProposalById(proposalId);
+        IAaveGovernanceV2.ProposalWithoutVotes memory proposalData = GovHelpers
+            .getProposalById(proposalId);
         address payload = proposalData.targets[0];
         ProposalPayloadShort proposalPayload = ProposalPayloadShort(payload);
 
