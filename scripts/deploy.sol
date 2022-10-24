@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import { LendToAaveMigrator } from "../contracts/LendToAaveMigrator.sol";
-import { AaveMerkleDistributor } from "../contracts/AaveMerkleDistributor.sol";
+import { LendToAaveMigrator } from "../src/contracts/LendToAaveMigrator.sol";
+import { AaveMerkleDistributor } from "../src/contracts/AaveMerkleDistributor.sol";
 import { IERC20 } from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
-import { ProposalPayloadShort } from "../contracts/ProposalPayloadShort.sol";
+import { ProposalPayloadShort } from "../src/contracts/ProposalPayloadShort.sol";
 
 // artifacts
 string constant aaveTokenV2Artifact = "out/AaveTokenV2.sol/AaveTokenV2.json";

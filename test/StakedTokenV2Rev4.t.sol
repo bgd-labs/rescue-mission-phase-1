@@ -2,8 +2,8 @@
 pragma solidity 0.7.5;
 
 import "forge-std/Test.sol";
-import {IInitializableAdminUpgradeabilityProxy} from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import {StakedTokenV2Rev4, IERC20, SafeERC20, SafeMath} from "../contracts/StakedTokenV2Rev4.sol";
+import {IInitializableAdminUpgradeabilityProxy} from "../src/contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import {StakedTokenV2Rev4, IERC20, SafeERC20, SafeMath} from "../src/contracts/StakedTokenV2Rev4.sol";
   
 
 contract StakedTokenV2Rev4Test is Test {

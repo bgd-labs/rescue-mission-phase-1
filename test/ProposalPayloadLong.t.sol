@@ -3,9 +3,9 @@ pragma solidity ^0.7.5;
 pragma abicoder v2;
 
 import "forge-std/Test.sol";
-import { StakedTokenV2Rev4, IERC20 as STKIERC20 } from "../contracts/StakedTokenV2Rev4.sol";
-import { IERC20, SafeMath, AaveTokenV2 } from "../contracts/AaveTokenV2.sol";
-import { ProposalPayloadLong } from "../contracts/ProposalPayloadLong.sol";
+import { StakedTokenV2Rev4, IERC20 as STKIERC20 } from "../src/contracts/StakedTokenV2Rev4.sol";
+import { IERC20, SafeMath, AaveTokenV2 } from "../src/contracts/AaveTokenV2.sol";
+import { ProposalPayloadLong } from "../src/contracts/ProposalPayloadLong.sol";
 import { GovHelpers, IAaveGovernanceV2 } from "aave-helpers/GovHelpers.sol";
 
 contract ProposalPayloadLongTest is Test {

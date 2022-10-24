@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 import 'forge-std/Test.sol';
 
 import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
-import {IAaveMerkleDistributor} from "../contracts/interfaces/IAaveMerkleDistributor.sol";
-import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
+import {IAaveMerkleDistributor} from "../src/contracts/interfaces/IAaveMerkleDistributor.sol";
+import {AaveMerkleDistributor} from "../src/contracts/AaveMerkleDistributor.sol";
 
 contract AaveMerkleDistributorTest is Test {
     using stdStorage for StdStorage;

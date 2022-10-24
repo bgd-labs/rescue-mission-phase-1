@@ -5,10 +5,10 @@ pragma abicoder v2;
 import "forge-std/Test.sol";
 import { IERC20 } from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
 import { GovHelpers, IAaveGovernanceV2 } from "aave-helpers/GovHelpers.sol";
-import { ProposalPayloadShort } from "../contracts/ProposalPayloadShort.sol";
-import { AaveMerkleDistributor } from "../contracts/AaveMerkleDistributor.sol";
-import { IAaveMerkleDistributor } from "../contracts/interfaces/IAaveMerkleDistributor.sol";
-import { LendToAaveMigrator } from "../contracts/LendToAaveMigrator.sol";
+import { ProposalPayloadShort } from "../src/contracts/ProposalPayloadShort.sol";
+import { AaveMerkleDistributor } from "../src/contracts/AaveMerkleDistributor.sol";
+import { IAaveMerkleDistributor } from "../src/contracts/interfaces/IAaveMerkleDistributor.sol";
+import { LendToAaveMigrator } from "../src/contracts/LendToAaveMigrator.sol";
 
 contract ProposalPayloadShortTest is Test {
     IERC20 public constant AAVE =

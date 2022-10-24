@@ -2,8 +2,8 @@
 pragma solidity ^0.7.5;
 
 import "forge-std/Test.sol";
-import { IInitializableAdminUpgradeabilityProxy } from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import { AaveTokenV2, IERC20, SafeMath } from "../contracts/AaveTokenV2.sol";
+import { IInitializableAdminUpgradeabilityProxy } from "../src/contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import { AaveTokenV2, IERC20, SafeMath } from "../src/contracts/AaveTokenV2.sol";
 
 contract AaveTokenV2Test is Test {
 	using SafeMath for uint256;
