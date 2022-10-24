@@ -10,7 +10,7 @@ contract AaveTokenV2Test is Test {
 
 	address public constant AAVE_MERKLE_DISTRIBUTOR = address(1653);
 	address public constant AAVE_PROXY_ADMIN =
-	0x79426A1c24B2978D90d7A5070a46C65B07bC4299;
+		0x79426A1c24B2978D90d7A5070a46C65B07bC4299;
 
 	address public constant AAVE_TOKEN =
 		0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
@@ -36,12 +36,17 @@ contract AaveTokenV2Test is Test {
 	);
 
 	function setUp() public {
+		console.log('---------------------');
 		vm.createSelectFork(vm.rpcUrl("ethereum"), 15816860);
 
+		console.log('---------------------');
 		aaveTokenImpl = new AaveTokenV2();
+
+		console.log('---------------------');
 	}
 
 	function testInitialize() public {
+		console.log('---------------------');
 		address[] memory tokens = new address[](3);
 		tokens[0] = AAVE_TOKEN;
 		tokens[1] = USDT_TOKEN;

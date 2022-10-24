@@ -20,7 +20,7 @@ contract Deploy is Test {
         0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
 
     address public constant LONG_EXECUTOR =
-        0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
+        0x79426A1c24B2978D90d7A5070a46C65B07bC4299;
 
     uint256 public constant LEND_AAVE_RATIO = 100;
 
