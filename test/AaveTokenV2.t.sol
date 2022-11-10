@@ -36,7 +36,7 @@ contract AaveTokenV2Test is Test {
 	);
 
 	function setUp() public {
-		vm.createSelectFork(vm.rpcUrl("ethereum"), 15816860);
+		vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
 		oldRevision = aaveProxy.REVISION();
 
 		aaveTokenImpl = new AaveTokenV2();

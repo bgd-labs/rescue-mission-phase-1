@@ -25,7 +25,7 @@ contract ProposalPayloadShortTest is Test {
         IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("ethereum"), 15816860);
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
 
         AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
 
