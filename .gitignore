@@ -2,7 +2,7 @@
 .idea
 .vscode
 .env
-
+.DS_Store
 # Foundry
 out/
 cache/
