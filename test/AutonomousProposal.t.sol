@@ -275,128 +275,101 @@ contract AutonomousProposalTest is Test {
         autonomous.createProposals();
     }
 
-        function testCreateTimestampBiggerGracePeriod() public {
-            uint256 time = block.timestamp + 10;
-            AutonomousProposal autonomous = new AutonomousProposal(
-                address(shortPayload),
-                    address(longPayload),
-                    SHORT_IPFS_HASH,
-                    LONG_IPFS_HASH,
-                    time
-                );
+    function testCreateTimestampBiggerGracePeriod() public {
+        uint256 time = block.timestamp + 10;
+        AutonomousProposal autonomous = new AutonomousProposal(
+            address(shortPayload),
+            address(longPayload),
+            SHORT_IPFS_HASH,
+            LONG_IPFS_HASH,
+            time
+        );
 
-            skip(PROPOSAL_GRACE_PERIOD + 12);
-            vm.expectRevert((bytes("TIMESTAMP_BIGGER_THAN_GRACE_PERIOD")));
-            autonomous.createProposals();
-        }
+        skip(PROPOSAL_GRACE_PERIOD + 12);
+        vm.expectRevert((bytes("TIMESTAMP_BIGGER_THAN_GRACE_PERIOD")));
+        autonomous.createProposals();
+    }
 
-        function testVoteOnProposals() public {
-            _createProposals();
+    function testVoteOnProposals() public {
+        _delegateVotingPower();
+        _createProposals();
 
-            _delegateVotingPower();
-            autonomousProposal.voteOnProposals();
+        uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
 
-            uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
-            uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE)
-                .getPowerCurrent(
-                    address(autonomousProposal),
-                    IGovernancePowerDelegationToken.DelegationType.VOTING_POWER
-                );
-            IAaveGovernanceV2.ProposalWithoutVotes memory shortProposal = GovHelpers
-                .getProposalById(proposalsCount - 1);
-            assertEq(shortProposal.forVotes, currentPower);
+        vm.roll(block.number + AaveGovernanceV2.GOV.getVotingDelay() + 1);
 
-            IAaveGovernanceV2.ProposalWithoutVotes memory longProposal = GovHelpers
-                .getProposalById(proposalsCount - 2);
-            assertEq(longProposal.forVotes, currentPower);
-        }
-    //
-    //    function testVotingAndExecution() public {
-    //        hoax(GovHelpers.AAVE_WHALE);
-    //        IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(
-    //            address(autonomousProposal),
-    //            IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER
-    //        );
-    //
-    //        vm.roll(block.number + 10);
-    //
-    //        autonomousProposal.createProposals();
-    //
-    //        // vote on ecosystem proposal
-    //        uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
-    //
-    //        GovHelpers.passVoteAndExecute(vm, proposalsCount - 1);
-    //
-    //        IAaveGovernanceV2.ProposalWithoutVotes memory longProposal = GovHelpers
-    //            .getProposalById(proposalsCount - 2);
-    //        uint256 votingPower = AAVE_TOKEN.balanceOf(
-    //            address(shortPayload.AAVE_ECOSYSTEM_RESERVE_PROXY())
-    //        );
-    //        assertEq(longProposal.forVotes, votingPower);
-    //    }
-    //
-    //    function testVotingWhenProposalsNotCreated() public {
-    //        vm.expectRevert((bytes("PROPOSALS_NOT_CREATED")));
-    //        autonomousProposal.voteOnProposals();
-    //    }
-    //
-        function testEmergencyTokenTransfer() public {
-            hoax(GovHelpers.AAVE_WHALE);
-            IERC20(AAVE).transfer(address(autonomousProposal), 3 ether);
+        autonomousProposal.voteOnProposals();
 
-            assertEq(
-                IERC20(AAVE).balanceOf(address(autonomousProposal)),
-                3 ether
-            );
-
-            address recipient = address(1230123519);
-
-            hoax(GovHelpers.SHORT_EXECUTOR);
-            autonomousProposal.emergencyTokenTransfer(
-                address(AAVE),
-                recipient,
-                3 ether
-            );
-
-            assertEq(IERC20(AAVE).balanceOf(address(autonomousProposal)), 0);
-            assertEq(IERC20(AAVE).balanceOf(address(recipient)), 3 ether);
-        }
-
-        function testEmergencyTokenTransferWhenNotShortExecutor() public {
-            hoax(GovHelpers.AAVE_WHALE);
-            IERC20(AAVE).transfer(address(autonomousProposal), 3 ether);
-
-            assertEq(
-                IERC20(AAVE).balanceOf(address(autonomousProposal)),
-                3 ether
-            );
-
-            address recipient = address(1230123519);
-
-            vm.expectRevert((bytes("CALLER_NOT_EXECUTOR")));
-            autonomousProposal.emergencyTokenTransfer(
-                address(AAVE),
-                recipient,
-                3 ether
-            );
-        }
-
-        function _createProposals() internal {
-            hoax(GovHelpers.AAVE_WHALE);
-            IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(
-                address(autonomousProposal),
-                IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER
-            );
-            vm.roll(block.number + 1);
-            autonomousProposal.createProposals();
-        }
-
-        function _delegateVotingPower() internal {
-            hoax(GovHelpers.AAVE_WHALE);
-            IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(
+        uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE)
+            .getPowerCurrent(
                 address(autonomousProposal),
                 IGovernancePowerDelegationToken.DelegationType.VOTING_POWER
             );
-            vm.roll(block.number + 1);
-        }
+        IAaveGovernanceV2.ProposalWithoutVotes memory shortProposal = GovHelpers
+            .getProposalById(proposalsCount - 1);
+        assertEq(shortProposal.forVotes, currentPower);
+
+        IAaveGovernanceV2.ProposalWithoutVotes memory longProposal = GovHelpers
+            .getProposalById(proposalsCount - 2);
+        assertEq(longProposal.forVotes, currentPower);
+    }
+
+    function testVotingWhenProposalsNotCreated() public {
+        vm.expectRevert((bytes("PROPOSALS_NOT_CREATED")));
+        autonomousProposal.voteOnProposals();
+    }
+
+    function testEmergencyTokenTransfer() public {
+        hoax(GovHelpers.AAVE_WHALE);
+        IERC20(AAVE).transfer(address(autonomousProposal), 3 ether);
+
+        assertEq(IERC20(AAVE).balanceOf(address(autonomousProposal)), 3 ether);
+
+        address recipient = address(1230123519);
+
+        hoax(GovHelpers.SHORT_EXECUTOR);
+        autonomousProposal.emergencyTokenTransfer(
+            address(AAVE),
+            recipient,
+            3 ether
+        );
+
+        assertEq(IERC20(AAVE).balanceOf(address(autonomousProposal)), 0);
+        assertEq(IERC20(AAVE).balanceOf(address(recipient)), 3 ether);
+    }
+
+    function testEmergencyTokenTransferWhenNotShortExecutor() public {
+        hoax(GovHelpers.AAVE_WHALE);
+        IERC20(AAVE).transfer(address(autonomousProposal), 3 ether);
+
+        assertEq(IERC20(AAVE).balanceOf(address(autonomousProposal)), 3 ether);
+
+        address recipient = address(1230123519);
+
+        vm.expectRevert((bytes("CALLER_NOT_EXECUTOR")));
+        autonomousProposal.emergencyTokenTransfer(
+            address(AAVE),
+            recipient,
+            3 ether
+        );
+    }
+
+    function _createProposals() internal {
+        hoax(GovHelpers.AAVE_WHALE);
+        IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(
+            address(autonomousProposal),
+            IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER
+        );
+        vm.roll(block.number + 1);
+        autonomousProposal.createProposals();
+    }
+
+    function _delegateVotingPower() internal {
+        hoax(GovHelpers.AAVE_WHALE);
+        IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(
+            address(autonomousProposal),
+            IGovernancePowerDelegationToken.DelegationType.VOTING_POWER
+        );
+        vm.roll(block.number + 1);
+    }
 }
