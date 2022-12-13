@@ -17,7 +17,7 @@ const format = (
     }`;
   });
 
-  const path = `./scripts/maps/${name}RescueMapFormatted.json`;
+  const path = `./js-scripts/maps/${name}RescueMapFormatted.json`;
   fs.writeFileSync(path, JSON.stringify(newObj, null, 2));
 };
 

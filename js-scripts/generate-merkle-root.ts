@@ -6,25 +6,25 @@ import { parseBalanceMap } from './parse-balance-map';
 import fs from 'fs';
 
 // phase 1
-const aavePath = `./scripts/maps/aaveRescueMerkleTree.json`;
+const aavePath = `./js-scripts/maps/aaveRescueMerkleTree.json`;
 fs.writeFileSync(
   aavePath,
   JSON.stringify(parseBalanceMap(aaveRescueMap, 18, 'AAVE')),
 );
 
-const stkAavePath = `./scripts/maps/stkAaveRescueMerkleTree.json`;
+const stkAavePath = `./js-scripts/maps/stkAaveRescueMerkleTree.json`;
 fs.writeFileSync(
   stkAavePath,
   JSON.stringify(parseBalanceMap(stkAaveRescueMap, 18, 'stkAAVE')),
 );
 
-const uniPath = `./scripts/maps/uniRescueMerkleTree.json`;
+const uniPath = `./js-scripts/maps/uniRescueMerkleTree.json`;
 fs.writeFileSync(
   uniPath,
   JSON.stringify(parseBalanceMap(uniRescueMap, 18, 'UNI')),
 );
 
-const usdtPath = `./scripts/maps/usdtRescueMerkleTree.json`;
+const usdtPath = `./js-scripts/maps/usdtRescueMerkleTree.json`;
 fs.writeFileSync(
   usdtPath,
   JSON.stringify(parseBalanceMap(usdtRescueMap, 6, 'USDT')),
