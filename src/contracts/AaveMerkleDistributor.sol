@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
-import {SafeERC20} from "./dependencies/openZeppelin/SafeERC20.sol";
-import {Ownable} from "./dependencies/openZeppelin/Ownable.sol";
+import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
+import {SafeERC20} from "solidity-utils/contracts/oz-common/SafeERC20.sol";
+import {Ownable} from "solidity-utils/contracts/oz-common/Ownable.sol";
 import {MerkleProof} from "./dependencies/openZeppelin/MerkleProof.sol";
 import {IAaveMerkleDistributor} from "./interfaces/IAaveMerkleDistributor.sol";
 

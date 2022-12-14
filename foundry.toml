@@ -1,6 +1,16 @@
-[default]
+[profile.default]
 src = 'src'
 out = 'out'
+script = 'scripts'
 libs = ['lib']
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
+
+[rpc_endpoints]
+ethereum="${RPC_ETHEREUM}"
+optimism = "${RPC_OPTIMISM}"
+avalanche = "${RPC_AVALANCHE}"
+polygon = "${RPC_POLYGON}"
+arbitrum = "${RPC_ARBITRUM}"
+fantom = "${RPC_FANTOM}"
+harmony = "${RPC_HARMONY}"

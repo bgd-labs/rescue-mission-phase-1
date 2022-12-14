@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
 
-import {IERC20} from "../contracts/dependencies/openZeppelin/IERC20.sol";
-import {IAaveMerkleDistributor} from "../contracts/interfaces/IAaveMerkleDistributor.sol";
-import {AaveMerkleDistributor} from "../contracts/AaveMerkleDistributor.sol";
+import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
+import {IAaveMerkleDistributor} from "../src/contracts/interfaces/IAaveMerkleDistributor.sol";
+import {AaveMerkleDistributor} from "../src/contracts/AaveMerkleDistributor.sol";
 
 contract AaveMerkleDistributorTest is Test {
     using stdStorage for StdStorage;
@@ -13,21 +13,21 @@ contract AaveMerkleDistributorTest is Test {
     IERC20 constant AAVE_TOKEN =
         IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
     IERC20 constant USDT_TOKEN = IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
-    bytes32 constant MERKLE_ROOT = 0xf74baa72f09a47203396b068236f1ee54b083ba040a239d1f919ba65320ff051;
+    bytes32 constant MERKLE_ROOT = 0xb1387c99c4e21e9f8c1a5349bc92af699a6ccba8dd5c00c871241501a9c1192e;
 
     // test claimer constants
     address constant claimer = 0x00Af54516A94D1aC9eed55721215C8DE9970CdeE;
     uint8 constant claimerIndex = 0;
     uint256 constant claimerAmount = 34157400000000000000;
     bytes32[] claimerMerkleProof = [
-        bytes32(0x5cab84e781cb21e9e612670a3209ee46b46eeedd05c8f3827a02706640c00d0e),
-        0x87c3cd5f477aa9a351ac3f1c92aa754f3b921ce67dbc9741839df8ec7f9d3adc,
-        0xda3bb12f686ce9a30cd31079bea5a32dc7346c52e7a95e0bfa2473d64f2c5515,
-        0x650fa5951c13eea5ff7a619a1ecbd0d467175a9c9e79a1a2a1cad593c9e9303a,
-        0xedb5bb1a272e30d48c9cfb0c90a6b186dcd2f40953cdc0330e0618f022861899,
-        0x217700aed927fc638ee009792320ef2b91180ee46224e0cd590cfe195a113e74,
-        0x694a6361584b6e85a014e938137ca62dbd02f0cbebd4ae031b83dcd46cff198f,
-        0xabac4ea1cf5aa9795204d1e77c91d9f8109abc6edd6f44587051aed82e698713
+        bytes32(0x5d3f5031b7a12c61a27255ba4f28addcb58a4a52cfe3dc9cfa2bd8b72a9798ad),
+        0x3480667479ec8091db8cd3f10e037e07f761efa9580e4952a6dd2e0065f4295a,
+        0x6423c097e6d93843258fca3216ce104a705490ef917fc297f87d76d7df58a805,
+        0x1d8befa5bcb4105b992a8d4d55bcf3f160824b57e168a2258ef7a4c4676ddeda,
+        0x1ac38ea4776ade72e4b68abbfc438244d5435a6f5814b315091d93333498c326,
+        0x5b94efa083648f7612026576eb41872941ab6f178cf57b3012b33b81b3eb946e,
+        0x231624c674be90e54107e9b882b325e0187466d7bcf5f71c7d3f7e97083294dd,
+        0xd8d0e77191ba5b51cba9d7d695d09ab4c25c955dd2937489a2818bb72747a073
       ];
 
     IAaveMerkleDistributor aaveMerkleDistributor;
@@ -38,6 +38,8 @@ contract AaveMerkleDistributorTest is Test {
     event DistributionAdded(address indexed token, bytes32 indexed merkleRoot, uint256 indexed distributionId);
 
     function setUp() public {
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
+
         aaveMerkleDistributor = new AaveMerkleDistributor();
 
         // add funds to distributor contract

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import { LendToAaveMigrator } from "../contracts/LendToAaveMigrator.sol";
-import { AaveMerkleDistributor } from "../contracts/AaveMerkleDistributor.sol";
-import { IERC20 } from "../contracts/dependencies/openZeppelin/IERC20.sol";
-import { ProposalPayloadShort } from "../contracts/ProposalPayloadShort.sol";
+import { LendToAaveMigrator } from "../src/contracts/LendToAaveMigrator.sol";
+import { AaveMerkleDistributor } from "../src/contracts/AaveMerkleDistributor.sol";
+import { IERC20 } from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
+import { ProposalPayloadShort } from "../src/contracts/ProposalPayloadShort.sol";
 
 // artifacts
 string constant aaveTokenV2Artifact = "out/AaveTokenV2.sol/AaveTokenV2.json";
@@ -20,7 +20,7 @@ contract Deploy is Test {
         0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
 
     address public constant LONG_EXECUTOR =
-        0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
+        0x79426A1c24B2978D90d7A5070a46C65B07bC4299;
 
     uint256 public constant LEND_AAVE_RATIO = 100;
 

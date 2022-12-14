@@ -2,19 +2,19 @@
 pragma solidity ^0.7.5;
 
 import "forge-std/Test.sol";
-import { IInitializableAdminUpgradeabilityProxy } from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import { AaveTokenV2, IERC20, SafeMath } from "../contracts/AaveTokenV2.sol";
+import { IInitializableAdminUpgradeabilityProxy } from "../src/contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import { AaveTokenV2, IERC20, SafeMath } from "../src/contracts/AaveTokenV2.sol";
 
 contract AaveTokenV2Test is Test {
 	using SafeMath for uint256;
 
 	address public constant AAVE_MERKLE_DISTRIBUTOR = address(1653);
 	address public constant AAVE_PROXY_ADMIN =
-		0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7;
+		0x79426A1c24B2978D90d7A5070a46C65B07bC4299;
 
 	address public constant AAVE_TOKEN =
 		0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-	uint256 public constant AAVE_RESCUE_AMOUNT = 28317484543674044370842;
+	uint256 public constant AAVE_RESCUE_AMOUNT = 28337476447194044370842;
 	address public constant USDT_TOKEN =
 		0xdAC17F958D2ee523a2206206994597C13D831ec7;
 	uint256 public constant USDT_RESCUE_AMOUNT = 15631946764;
@@ -27,7 +27,7 @@ contract AaveTokenV2Test is Test {
 		IInitializableAdminUpgradeabilityProxy(AAVE_TOKEN);
 	AaveTokenV2 aaveTokenImpl;
 
-	uint256 public oldRevision = aaveProxy.REVISION();
+	uint256 public oldRevision;
 
 	event TokensRescued(
 		address indexed tokenRescued,
@@ -36,6 +36,9 @@ contract AaveTokenV2Test is Test {
 	);
 
 	function setUp() public {
+		vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
+		oldRevision = aaveProxy.REVISION();
+
 		aaveTokenImpl = new AaveTokenV2();
 	}
 

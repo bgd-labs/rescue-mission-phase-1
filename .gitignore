@@ -2,7 +2,7 @@
 .idea
 .vscode
 .env
-
+.DS_Store
 # Foundry
 out/
 cache/
@@ -11,4 +11,4 @@ node_modules/
 
 etherscan/
 broadcast/
-scripts/maps/*Formatted.json
+js-scripts/maps/*Formatted.json
