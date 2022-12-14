@@ -1,6 +1,6 @@
-```diff --git a/./etherscan/StakedTokenV2Rev3/StakedTokenV2Rev3.sol b/./src/contracts/StakedTokenV2Rev4.sol
+```diff --git a/./etherscan/StakedTokenV2Rev3/Contract.sol b/./src/contracts/StakedTokenV2Rev4.sol
 index 893cc8c..79db6ba 100644
---- a/./etherscan/StakedTokenV2Rev3/StakedTokenV2Rev3.sol
+--- a/./etherscan/StakedTokenV2Rev3/Contract.sol
 +++ b/./src/contracts/StakedTokenV2Rev4.sol
 @@ -1,7 +1,3 @@
 -/**
