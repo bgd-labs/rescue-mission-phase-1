@@ -62,7 +62,7 @@ The following contracts are updates on the current deployed implementations, to 
   The code differential between the new implementation and the current deployed one can be found [here](/diffs/LendToAaveMigrator-diff.md).
 
 - [AaveMerkleDistributor](/src/contracts/AaveMerkleDistributor.sol): This contract has the logic for the users to be able to claim the rescued tokens, according to the generated merkle trees. To enable a rescue of a determined token, the addDistributions method needs to be called with the arrays of tokens and merkleRoots, indication the pairs token:merkleRoot (indicated in the token specific merkle tree rescue json [files](#merkle-trees)). Once a distribution is added. A user can claim the tokens by passing the index, account and amount also indicated [here](#merkle-trees).
-
+- [AutonomousProposal](/src/contracts/AutonomousProposal.sol): This contract has the logic to create both proposals (for short and long executor) when power is delegated to it. It can also vote on them if some voting power is delegated by mistake.
 ### Governance Payloads
 
 For the token rescue to be executed, there has been a need to create two Proposal payloads. One to be executed by the Aave Governance [short executor](https://etherscan.io/address/0xEE56e2B3D491590B5b31738cC34d5232F378a8D5), and the other one for the [long executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7)
