@@ -1,6 +1,6 @@
-```diff --git a/./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
-index e316261..ba5cd00 100644
---- a/./etherscan/LendToAaveMigrator//contracts/token/LendToAaveMigrator.sol
+```diff --git a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
+index e316261..d55cba5 100644
+--- a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol
 +++ b/./src/contracts/LendToAaveMigrator.sol
 @@ -1,10 +1,8 @@
  // SPDX-License-Identifier: agpl-3.0
@@ -11,7 +11,7 @@ index e316261..ba5cd00 100644
 -import {VersionedInitializable} from "../utils/VersionedInitializable.sol";
 +pragma solidity ^0.8.0;
  
-+import {IERC20} from "./dependencies/openZeppelin/IERC20.sol";
++import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
 +import {VersionedInitializable} from "./dependencies/upgradeability/VersionedInitializable.sol";
  
  /**
