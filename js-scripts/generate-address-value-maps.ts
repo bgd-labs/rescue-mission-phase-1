@@ -5,7 +5,7 @@ import { ChainId } from '@aave/contract-helpers';
 import { PromisePool } from '@supercharge/promise-pool';
 import { fetchLabel, wait } from './label-map';
 
-const amountsFilePath = `./scripts/maps/amountsByContract.txt`;
+const amountsFilePath = `./js-scripts/maps/amountsByContract.txt`;
 
 const JSON_RPC_PROVIDER = {
   [ChainId.mainnet]: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
@@ -223,7 +223,7 @@ async function generateAndSaveMap(
     }
   }
 
-  const path = `./scripts/maps/${name}RescueMap.json`;
+  const path = `./js-scripts/maps/${name}RescueMap.json`;
   fs.writeFileSync(path, JSON.stringify(aggregatedMapping, null, 2));
 }
 
