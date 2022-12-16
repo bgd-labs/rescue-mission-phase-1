@@ -2,21 +2,15 @@
 pragma solidity ^0.8.0;
 
 import { AaveGovernanceV2, IExecutorWithTimelock, IGovernanceStrategy } from "aave-address-book/AaveGovernanceV2.sol";
-import { IERC20 } from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
-import { SafeERC20 } from "solidity-utils/contracts/oz-common/SafeERC20.sol";
+import { AutonomousProposal } from "aave-autonomous-proposal/contracts/AutonomousProposal.sol";
+import { IAutonomousProposal } from "aave-autonomous-proposal/contracts/interfaces/IAutonomousProposal.sol";
 
-contract AutonomousProposal {
-    using SafeERC20 for IERC20;
-
-    uint256 public constant GRACE_PERIOD = 5 days;
-
+contract RescueAutonomousProposal is AutonomousProposal {
     address public immutable PAYLOAD_SHORT;
     address public immutable PAYLOAD_LONG;
 
     bytes32 public immutable SHORT_PAYLOAD_IPFS;
     bytes32 public immutable LONG_PAYLOAD_IPFS;
-
-    uint256 public immutable PROPOSALS_CREATION_TIMESTAMP;
 
     uint256 public longExecutorProposalId;
     uint256 public shortExecutorProposalId;
@@ -37,7 +31,7 @@ contract AutonomousProposal {
         bytes32 payloadShortIpfs,
         bytes32 payloadLongIpfs,
         uint256 creationTimestamp
-    ) {
+    ) AutonomousProposal(creationTimestamp) {
         require(payloadShort != address(0), "SHORT_PAYLOAD_ADDRESS_0");
         require(
             payloadShortIpfs != bytes32(0),
@@ -48,42 +42,48 @@ contract AutonomousProposal {
             payloadLongIpfs != bytes32(0),
             "LONG_PAYLOAD_IPFS_HASH_BYTES32_0"
         );
-        require(
-            creationTimestamp > block.timestamp,
-            "CREATION_TIMESTAMP_TO_EARLY"
-        );
 
         PAYLOAD_LONG = payloadLong;
         PAYLOAD_SHORT = payloadShort;
         SHORT_PAYLOAD_IPFS = payloadShortIpfs;
         LONG_PAYLOAD_IPFS = payloadLongIpfs;
-        PROPOSALS_CREATION_TIMESTAMP = creationTimestamp;
     }
 
-    function createProposals() external {
+    function create() external override inCreationWindow {
         require(
             longExecutorProposalId == 0 && shortExecutorProposalId == 0,
             "PROPOSALS_ALREADY_CREATED"
         );
-        require(
-            block.timestamp > PROPOSALS_CREATION_TIMESTAMP,
-            "CREATION_TIMESTAMP_NOT_YET_REACHED"
-        );
-        require(
-            block.timestamp < PROPOSALS_CREATION_TIMESTAMP + GRACE_PERIOD,
-            "TIMESTAMP_BIGGER_THAN_GRACE_PERIOD"
-        );
+
+        IAutonomousProposal.ProposalParams[]
+            memory longParams = new IAutonomousProposal.ProposalParams[](1);
+        IAutonomousProposal.ProposalParams[]
+            memory shortParams = new IAutonomousProposal.ProposalParams[](1);
+        longParams[0] = IAutonomousProposal.ProposalParams({
+            target: PAYLOAD_LONG,
+            withDelegateCall: true,
+            value: 0,
+            callData: "",
+            signature: "execute()"
+        });
+        shortParams[0] = IAutonomousProposal.ProposalParams({
+            target: PAYLOAD_SHORT,
+            withDelegateCall: true,
+            value: 0,
+            callData: "",
+            signature: "execute()"
+        });
 
         longExecutorProposalId = _createProposal(
-            PAYLOAD_LONG,
+            AaveGovernanceV2.LONG_EXECUTOR,
             LONG_PAYLOAD_IPFS,
-            AaveGovernanceV2.LONG_EXECUTOR
+            longParams
         );
 
         shortExecutorProposalId = _createProposal(
-            PAYLOAD_SHORT,
+            AaveGovernanceV2.SHORT_EXECUTOR,
             SHORT_PAYLOAD_IPFS,
-            AaveGovernanceV2.SHORT_EXECUTOR
+            shortParams
         );
 
         emit ProposalsCreated(
@@ -99,52 +99,12 @@ contract AutonomousProposal {
 
     /// @dev method to vote on the governance proposals, in case there is some
     /// voting power delegation by error
-    function voteOnProposals() external {
+    function vote() external override {
         require(
             longExecutorProposalId != 0 && shortExecutorProposalId != 0,
             "PROPOSALS_NOT_CREATED"
         );
         AaveGovernanceV2.GOV.submitVote(longExecutorProposalId, true);
         AaveGovernanceV2.GOV.submitVote(shortExecutorProposalId, true);
-    }
-
-    function emergencyTokenTransfer(
-        address erc20Token,
-        address to,
-        uint256 amount
-    ) external {
-        require(
-            msg.sender == AaveGovernanceV2.SHORT_EXECUTOR,
-            "CALLER_NOT_EXECUTOR"
-        );
-        IERC20(erc20Token).safeTransfer(to, amount);
-    }
-
-    function _createProposal(
-        address payload,
-        bytes32 ipfsHash,
-        address executor
-    ) internal returns (uint256) {
-        address[] memory targets = new address[](1);
-        targets[0] = payload;
-        uint256[] memory values = new uint256[](1);
-        values[0] = 0;
-        string[] memory signatures = new string[](1);
-        signatures[0] = "execute()";
-        bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = "";
-        bool[] memory withDelegatecalls = new bool[](1);
-        withDelegatecalls[0] = true;
-
-        return
-            AaveGovernanceV2.GOV.create(
-                IExecutorWithTimelock(executor),
-                targets,
-                values,
-                signatures,
-                calldatas,
-                withDelegatecalls,
-                ipfsHash
-            );
     }
 }
