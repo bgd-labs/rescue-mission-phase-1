@@ -18,7 +18,7 @@ contract ProposalPayloadShort {
         0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
     bytes32 public constant AAVE_MERKLE_ROOT =
-        0xb1387c99c4e21e9f8c1a5349bc92af699a6ccba8dd5c00c871241501a9c1192e;
+        0x0ef2bf07cb8d6ddde75d4d2f2c29f4c1607844a8d9ac3323205093765e6c27e3;
 
     // stkAAVE distribution
     address public constant stkAAVE_TOKEN =
