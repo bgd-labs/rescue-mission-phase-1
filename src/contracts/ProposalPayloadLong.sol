@@ -11,7 +11,7 @@ contract ProposalPayloadLong {
     // tokens and amounts to rescue
     address public constant AAVE_TOKEN =
         0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-    uint256 public constant AAVE_RESCUE_AMOUNT = 28337476447194044370842;
+    uint256 public constant AAVE_RESCUE_AMOUNT = 28352749671364044370842;
     address public constant USDT_TOKEN =
         0xdAC17F958D2ee523a2206206994597C13D831ec7;
     uint256 public constant USDT_RESCUE_AMOUNT = 15631946764;
@@ -20,7 +20,7 @@ contract ProposalPayloadLong {
     uint256 public constant UNI_RESCUE_AMOUNT = 110947986090000000000;
 
     // stk rescue
-    uint256 public constant AAVE_STK_RESCUE_AMOUNT = 767671398516378775101;
+    uint256 public constant AAVE_STK_RESCUE_AMOUNT = 768271398516378775101;
     address public constant STK_AAVE_TOKEN =
         0x4da27a545c0c5B758a6BA100e3a049001de870f5;
     uint256 public constant STK_AAVE_RESCUE_AMOUNT = 107412975567454603565;
