@@ -1527,6 +1527,8 @@ contract StakedTokenV2Rev4 is
 
       emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
     }
+
+    require(IERC20(address(this)).totalSupply() == STAKED_TOKEN.balanceOf(address(this)), 'DES_COLLATERALIZED_STK_AAVE');
   }
 
   function stake(address onBehalfOf, uint256 amount) external override {

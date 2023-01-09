@@ -14,7 +14,7 @@ contract StakedTokenV2Rev4Test is Test {
     address public constant AAVE_LONG_EXECUTOR = 0x79426A1c24B2978D90d7A5070a46C65B07bC4299;
     
     address public constant AAVE_TOKEN = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-    uint256 public constant AAVE_RESCUE_AMOUNT = 372671398516378775101;
+    uint256 public constant AAVE_RESCUE_AMOUNT = 768271398516378775101;
     address public constant STK_AAVE_TOKEN = 0x4da27a545c0c5B758a6BA100e3a049001de870f5;
     uint256 public constant STK_AAVE_RESCUE_AMOUNT = 107412975567454603565;
     
@@ -37,7 +37,7 @@ contract StakedTokenV2Rev4Test is Test {
     uint256 public oldRevision;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 16369355);
 
         proxyStake = IInitializableAdminUpgradeabilityProxy(STK_AAVE_TOKEN);
         oldRevision = proxyStake.REVISION();
@@ -98,5 +98,34 @@ contract StakedTokenV2Rev4Test is Test {
 
         assertEq(IERC20(AAVE_TOKEN).balanceOf(AAVE_MERKLE_DISTRIBUTOR), AAVE_RESCUE_AMOUNT);
         assertEq(IERC20(STK_AAVE_TOKEN).balanceOf(AAVE_MERKLE_DISTRIBUTOR), STK_AAVE_RESCUE_AMOUNT);
+    }
+
+    function testInitializeWhenToBigAmountOfAave() public {
+        address[] memory tokens = new address[](2);
+        tokens[0] = AAVE_TOKEN;
+        tokens[1] = STK_AAVE_TOKEN;
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = AAVE_RESCUE_AMOUNT + 10 ether;
+        amounts[1] = STK_AAVE_RESCUE_AMOUNT;
+
+        vm.expectEmit(true, true, false, true);
+        emit TokensRescued(tokens[0], AAVE_MERKLE_DISTRIBUTOR, amounts[0]);
+        vm.expectEmit(true, true, false, true);
+        emit TokensRescued(tokens[1], AAVE_MERKLE_DISTRIBUTOR, amounts[1]);
+
+        vm.prank(AAVE_LONG_EXECUTOR);
+        // @dev we expect empty revert as DES_COLLATERALIZED_STK_AAVE does not get passed up
+        vm.expectRevert(bytes(''));
+        proxyStake.upgradeToAndCall(
+            address(stkAaveImpl),
+            abi.encodeWithSignature(
+                "initialize(address[],uint256[],address)",
+                tokens,
+                amounts,
+                AAVE_MERKLE_DISTRIBUTOR
+            )
+        );
+
     }
 }

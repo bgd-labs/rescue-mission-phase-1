@@ -51,6 +51,8 @@ contract LendToAaveMigrator is VersionedInitializable {
     * @param lendAmount amount of lend that need to be rescued
     */
     function initialize(address aaveMerkleDistributor, uint256 lendAmount) public initializer {
+//        require(lendAmount / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)), '');
+
         // account for the LEND sent to the contract for the total migration
         _totalLendMigrated = _totalLendMigrated + lendAmount;
 
