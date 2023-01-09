@@ -4,6 +4,10 @@ out = 'out'
 script = 'scripts'
 libs = ['lib']
 
+
+remappings = [
+    'aave-autonomous-proposal/=lib/aave-autonomous-proposal/src'
+]
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
 
 [rpc_endpoints]
