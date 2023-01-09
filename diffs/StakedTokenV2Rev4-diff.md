@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/StakedTokenV2Rev3/Contract.sol b/./src/contracts/StakedTokenV2Rev4.sol
-index 893cc8c..7f0fb1a 100644
+index 893cc8c..a71d79d 100644
 --- a/./etherscan/StakedTokenV2Rev3/Contract.sol
 +++ b/./src/contracts/StakedTokenV2Rev4.sol
 @@ -1,7 +1,3 @@
@@ -84,7 +84,7 @@ index 893cc8c..7f0fb1a 100644
 -    // Update lastUpdateTimestamp of stkAave to reward users since the end of the prior staking period
 -    AssetData storage assetData = assets[address(this)];
 -    assetData.lastUpdateTimestamp = 1620594720;
-+    require(IERC20(address(this)).totalSupply() == STAKED_TOKEN.balanceOf(address(this)), 'DES_COLLATERALIZED_STK_AAVE');
++    require(totalSupply() == STAKED_TOKEN.balanceOf(address(this)), 'DES_COLLATERALIZED_STK_AAVE');
    }
  
    function stake(address onBehalfOf, uint256 amount) external override {
