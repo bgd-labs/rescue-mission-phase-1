@@ -51,8 +51,6 @@ contract LendToAaveMigrator is VersionedInitializable {
     * @param lendAmount amount of lend that need to be rescued
     */
     function initialize(address aaveMerkleDistributor, uint256 lendAmount) public initializer {
-//        require(lendAmount / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)), '');
-
         // account for the LEND sent to the contract for the total migration
         _totalLendMigrated = _totalLendMigrated + lendAmount;
 
@@ -65,6 +63,11 @@ contract LendToAaveMigrator is VersionedInitializable {
 
         emit LendMigrated(address(this), lendAmount);
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
+
+        // checks that the amount of Aave not migrated is less or equal than the amount Aave disposable for migration
+        require((LEND.totalSupply() - LEND.balanceOf(address(this)) - LEND.balanceOf(address(LEND)) ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
+            'INCORRECT_BALANCE_RESCUED'
+        );
     }
 
     /**

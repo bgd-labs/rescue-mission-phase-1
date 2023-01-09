@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
-index e316261..d55cba5 100644
+index e316261..6e6a51a 100644
 --- a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol
 +++ b/./src/contracts/LendToAaveMigrator.sol
 @@ -1,10 +1,8 @@
@@ -45,7 +45,7 @@ index e316261..d55cba5 100644
      /**
      * @param aave the address of the AAVE token
      * @param lend the address of the LEND token
-@@ -40,9 +44,25 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -40,9 +44,30 @@ contract LendToAaveMigrator is VersionedInitializable {
      }
  
      /**
@@ -70,10 +70,15 @@ index e316261..d55cba5 100644
 +
 +        emit LendMigrated(address(this), lendAmount);
 +        emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
++
++        // checks that the amount of Aave not migrated is less or equal than the amount Aave disposable for migration
++        require((LEND.totalSupply() - LEND.balanceOf(address(this)) - LEND.balanceOf(address(LEND)) ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
++            'INCORRECT_BALANCE_RESCUED'
++        );
      }
  
      /**
-@@ -52,18 +72,21 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -52,18 +77,21 @@ contract LendToAaveMigrator is VersionedInitializable {
          return lastInitializedRevision != 0;
      }
  
@@ -98,7 +103,7 @@ index e316261..d55cba5 100644
          emit LendMigrated(msg.sender, amount);
      }
  
-@@ -74,5 +97,4 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -74,5 +102,4 @@ contract LendToAaveMigrator is VersionedInitializable {
      function getRevision() internal pure override returns (uint256) {
          return REVISION;
      }
