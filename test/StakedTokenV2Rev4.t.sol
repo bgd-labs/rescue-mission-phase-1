@@ -115,7 +115,7 @@ contract StakedTokenV2Rev4Test is Test {
         emit TokensRescued(tokens[1], AAVE_MERKLE_DISTRIBUTOR, amounts[1]);
 
         vm.prank(AAVE_LONG_EXECUTOR);
-        // we expect empty revert as DES_COLLATERALIZED_STK_AAVE does not get passed up
+        // we expect empty revert as INVALID_COLLATERALIZATION does not get passed up
         vm.expectRevert(bytes(''));
         proxyStake.upgradeToAndCall(
             address(stkAaveImpl),
