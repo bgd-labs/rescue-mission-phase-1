@@ -1527,6 +1527,8 @@ contract StakedTokenV2Rev4 is
 
       emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
     }
+
+    require(totalSupply() <= STAKED_TOKEN.balanceOf(address(this)), 'INVALID_COLLATERALIZATION');
   }
 
   function stake(address onBehalfOf, uint256 amount) external override {
