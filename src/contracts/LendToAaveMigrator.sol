@@ -65,7 +65,7 @@ contract LendToAaveMigrator is VersionedInitializable {
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 
         // checks that the amount of AAVE not migrated is less or equal than the amount AAVE disposable for migration
-        require((LEND.totalSupply() - LEND.balanceOf(address(this)) - LEND.balanceOf(address(LEND)) ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
+        require((LEND.totalSupply() - LEND.balanceOf(address(this)) - LEND.balanceOf(address(LEND)) - LEND.balanceOf(address(AAVE)) ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
             'INCORRECT_BALANCE_RESCUED'
         );
     }

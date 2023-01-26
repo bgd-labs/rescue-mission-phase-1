@@ -129,7 +129,7 @@ contract ProposalPayloadShortTest is Test {
 
         uint256 totalLendAmountToRescue = proposalPayload
             .LEND_TO_MIGRATOR_RESCUE_AMOUNT() +
-            proposalPayload.LEND_TO_LEND_RESCUE_AMOUNT();
+            proposalPayload.LEND_TO_LEND_RESCUE_AMOUNT() + proposalPayload.LEND_TO_AAVE_RESCUE_AMOUNT();
 
         assertEq(
             AAVE.balanceOf(address(proposalPayload.AAVE_MERKLE_DISTRIBUTOR())),

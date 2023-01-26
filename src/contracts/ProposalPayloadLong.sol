@@ -8,6 +8,8 @@ contract ProposalPayloadLong {
     address public immutable AAVE_TOKEN_IMPL;
     address public immutable STK_AAVE_IMPL;
 
+    address public constant LEND = 0x80fB784B7eD66730e8b1DBd9820aFD29931aab03;
+
     // tokens and amounts to rescue
     address public constant AAVE_TOKEN =
         0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
@@ -54,10 +56,11 @@ contract ProposalPayloadLong {
         aaveProxy.upgradeToAndCall(
             AAVE_TOKEN_IMPL,
             abi.encodeWithSignature(
-                "initialize(address[],uint256[],address)",
+                "initialize(address[],uint256[],address,address)",
                 tokens,
                 amounts,
-                AAVE_MERKLE_DISTRIBUTOR
+                AAVE_MERKLE_DISTRIBUTOR,
+                LEND
             )
         );
 

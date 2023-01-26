@@ -11,6 +11,7 @@ import { GovHelpers, IAaveGovernanceV2 } from "aave-helpers/GovHelpers.sol";
 contract ProposalPayloadLongTest is Test {
     using SafeMath for uint256;
 
+    address public constant LEND = 0x80fB784B7eD66730e8b1DBd9820aFD29931aab03;
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address public constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
     address public constant UNI = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
@@ -154,6 +155,7 @@ contract ProposalPayloadLongTest is Test {
             aaveToken.balanceOf(UNI),
             beforeUniBalance - proposalPayload.UNI_RESCUE_AMOUNT()
         );
+        assertEq(IERC20(LEND).balanceOf(AAVE), 0);
     }
 
     function _validateStkAaveContractTokensRescued(uint256 proposalId)
