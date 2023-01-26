@@ -14,7 +14,7 @@ contract AaveMerkleDistributorTest is Test {
     IERC20 constant USDT_TOKEN =
         IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
     bytes32 constant MERKLE_ROOT =
-        0x0ef2bf07cb8d6ddde75d4d2f2c29f4c1607844a8d9ac3323205093765e6c27e3;
+        0xbdc6d4494ce5e7be1159836917a57eff00a025b7064210f3f011567a14ef5c59;
 
     // test claimer constants
     address constant claimer = 0x00Af54516A94D1aC9eed55721215C8DE9970CdeE;
@@ -22,15 +22,15 @@ contract AaveMerkleDistributorTest is Test {
     uint256 constant claimerAmount = 34157400000000000000;
     bytes32[] claimerMerkleProof = [
         bytes32(
-            0x60629b3865ea6bfe90bed01fac620f9551df3b9f5b6071cdfafb7dc5f25b16c8
+            0x5c9f2109f2d7c2fa9117625521ca73e3cacad26ac5ec1db1bc6cb118321a7116
         ),
-        0x694eb9355e44cde6d40789671493c9a1ccc83b41143accc2ecd185d369f5cfa2,
-        0x6c8efa842d467bd3cb5418776f71ee97e5b521f88c08637478f8d7b6b2e976d4,
-        0x89c692eed93b21d26dd98fd91dfe594343e9e7aac3f6da36c8d3f1ef42a4f2db,
-        0xc26fe29daa07c6f803d81db43eea4106f3e096aed8e42b4d270c8b1ef7b07f06,
-        0xfcc4a177604d4c133181d6a9ab07f01ad4fcf21f33e871101f765ad538f45278,
-        0x707a8f4a22b043d27d54fcce3360e8e44e652806a1ec1f750b5444c0b292ce5e,
-        0xa3a37899fff5decab3cf55749cfda24c1c3f7dac9b7c526079cfe160fde5c4e5
+        0x895d27f5710471ac73a49381afb2bda42175ee45e3917ba6cf9cd40d0c15c26a,
+        0x4ad6c2226cd74e826b23480f6a3ddc0d6ac3b28901e8b7fb42891b80ac29c979,
+        0x877cb4c2016c215e977781388c3b186ea68f02dda7c16f6ebcb80dc38ef9e1ad,
+        0x9ae4762db2d1570c6575cde35b1d7a35e209d5ddf51b47f2a3b4cd8051e3c8d2,
+        0x5563d6d2d467009e4460116ec2be772960606104845ff627dcf1f834422efcfb,
+        0x5214e0f65a072e81fe6cbaafe2612bcc5bd6b24f179b312e262eebc693b7a04b,
+        0x9dd565bf91f9b233c159889ea84c319c1f399ef388d8c9990484a6d8a5c8352e
     ];
 
     IAaveMerkleDistributor aaveMerkleDistributor;
@@ -50,7 +50,7 @@ contract AaveMerkleDistributorTest is Test {
     );
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 16491051);
 
         aaveMerkleDistributor = new AaveMerkleDistributor();
 

@@ -62,7 +62,7 @@ contract RescueAutonomousProposalTest is Test {
     uint8 public constant decimals = 18;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 16491051);
         beforeProposalCount = GovHelpers.GOV.getProposalsCount();
 
         // deploy aave merkle distributor

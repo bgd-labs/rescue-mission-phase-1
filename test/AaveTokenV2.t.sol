@@ -14,7 +14,7 @@ contract AaveTokenV2Test is Test {
 
 	address public constant AAVE_TOKEN =
 		0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-	uint256 public constant AAVE_RESCUE_AMOUNT = 28337476447194044370842;
+	uint256 public constant AAVE_RESCUE_AMOUNT = 28373848471364044370842;
 	address public constant USDT_TOKEN =
 		0xdAC17F958D2ee523a2206206994597C13D831ec7;
 	uint256 public constant USDT_RESCUE_AMOUNT = 15631946764;
@@ -36,7 +36,7 @@ contract AaveTokenV2Test is Test {
 	);
 
 	function setUp() public {
-		vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
+		vm.createSelectFork(vm.rpcUrl("ethereum"), 16491051);
 		oldRevision = aaveProxy.REVISION();
 
 		aaveTokenImpl = new AaveTokenV2();
