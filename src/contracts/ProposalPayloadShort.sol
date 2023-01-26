@@ -54,6 +54,9 @@ contract ProposalPayloadShort {
     uint256 public constant LEND_TO_LEND_RESCUE_AMOUNT =
         841600717506653731350931;
 
+    uint256 public constant LEND_TO_AAVE_RESCUE_AMOUNT =
+        19845132947543342156792;
+
     constructor(
         AaveMerkleDistributor aaveMerkleDistributor,
         address lendToAaveMigratorImpl
@@ -80,7 +83,8 @@ contract ProposalPayloadShort {
 
         // Deploy new LendToAaveMigrator implementation and rescue LEND
         uint256 totalLendAmountToRescue = LEND_TO_MIGRATOR_RESCUE_AMOUNT +
-            LEND_TO_LEND_RESCUE_AMOUNT;
+            LEND_TO_LEND_RESCUE_AMOUNT +
+            LEND_TO_AAVE_RESCUE_AMOUNT;
         MIGRATOR_PROXY_ADDRESS.upgradeToAndCall(
             LEND_TO_AAVE_MIGRATOR_IMPL,
             abi.encodeWithSignature(
