@@ -64,13 +64,9 @@ interface IAaveMerkleDistributor {
 
     /**
     * @dev Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
-    * @param index index of the account that wants to claim
-    * @param account address that wants to claim, and where the amount of tokens will be sent to
-    * @param amount the amount that will be claimed
-    * @param merkleProof proof that the account with index and amount is on the merkleTree, and can claim
-    * @param distributionId id of the token distribution
+    * @param claim array of the information of the tokens to claim
     */
-    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 distributionId) external;
+    function claim(TokenClaim[] calldata claim) external;
 
     /**
     * @dev adds the pair of token and merkleRoot as new distributions

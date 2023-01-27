@@ -56,7 +56,7 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
 
             // Verify the merkle proof.
             bytes32 node = keccak256(abi.encodePacked(claim[i].index, claim[i].account, claim[i].amount));
-            require(MerkleProof.verify(merkleProof, _distributions[claim[i].distributionId].merkleRoot, node), 'MerkleDistributor: Invalid proof.');
+            require(MerkleProof.verify(claim[i].merkleProof, _distributions[claim[i].distributionId].merkleRoot, node), 'MerkleDistributor: Invalid proof.');
 
             // Mark it claimed and send the token.
             _setClaimed(claim[i].index, claim[i].distributionId);

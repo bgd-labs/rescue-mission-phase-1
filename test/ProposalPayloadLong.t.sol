@@ -3,14 +3,14 @@ pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import "forge-std/Test.sol";
-import { StakedTokenV2Rev4, IERC20 as STKIERC20 } from "../src/contracts/StakedTokenV2Rev4.sol";
-import { IERC20, SafeMath, AaveTokenV2 } from "../src/contracts/AaveTokenV2.sol";
 import { ProposalPayloadLong } from "../src/contracts/ProposalPayloadLong.sol";
 import { GovHelpers, IAaveGovernanceV2 } from "aave-helpers/GovHelpers.sol";
+import { IERC20 } from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
+
+string constant stakedTokenV2Rev4Artifact = "out/StakedTokenV2Rev4.sol/StakedTokenV2Rev4.json";
+string constant aaveTokenV2Artifact = "out/AaveTokenV2.sol/AaveTokenV2.json";
 
 contract ProposalPayloadLongTest is Test {
-    using SafeMath for uint256;
-
     address public constant LEND = 0x80fB784B7eD66730e8b1DBd9820aFD29931aab03;
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address public constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
@@ -19,8 +19,8 @@ contract ProposalPayloadLongTest is Test {
         0x4da27a545c0c5B758a6BA100e3a049001de870f5;
 
     // stk token constructor params
-    STKIERC20 public constant stakedToken = STKIERC20(AAVE);
-    STKIERC20 public constant rewardToken = STKIERC20(AAVE);
+    address public constant stakedToken = AAVE;
+    address public constant rewardToken = AAVE;
     uint256 public constant cooldownSeconds = 864000;
     uint256 public constant unstakeWindow = 172800;
     address public constant rewardsVault =
@@ -59,24 +59,28 @@ contract ProposalPayloadLongTest is Test {
         beforeStkAaveBalance = stkAaveToken.balanceOf(STK_AAVE);
         beforeAaveOnStkAaveBalance = aaveToken.balanceOf(STK_AAVE);
 
-        StakedTokenV2Rev4 stkAaveImpl = new StakedTokenV2Rev4(
-            stakedToken,
-            rewardToken,
-            cooldownSeconds,
-            unstakeWindow,
-            rewardsVault,
-            emissionManager,
-            distributionDuration,
-            name,
-            symbol,
-            decimals
+        address stkAaveImpl = deployCode(
+            stakedTokenV2Rev4Artifact,
+            abi.encode(
+                stakedToken,
+                rewardToken,
+                cooldownSeconds,
+                unstakeWindow,
+                rewardsVault,
+                emissionManager,
+                distributionDuration,
+                name,
+                symbol,
+                decimals
+            )
         );
-        AaveTokenV2 aaveTokenV2Impl = new AaveTokenV2();
+
+        address aaveTokenV2Impl = deployCode(aaveTokenV2Artifact);
 
         proposalPayload = new ProposalPayloadLong(
             AAVE_MERKLE_DISTRIBUTOR,
-            address(aaveTokenV2Impl),
-            address(stkAaveImpl)
+            aaveTokenV2Impl,
+            stkAaveImpl
         );
     }
 
@@ -127,7 +131,7 @@ contract ProposalPayloadLongTest is Test {
             IERC20(proposalPayload.AAVE_TOKEN()).balanceOf(
                 aaveMerkleDistributor
             ),
-            proposalPayload.AAVE_RESCUE_AMOUNT().add(
+            proposalPayload.AAVE_RESCUE_AMOUNT() + (
                 proposalPayload.AAVE_STK_RESCUE_AMOUNT()
             )
         );
