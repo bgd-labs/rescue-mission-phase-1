@@ -1,6 +1,6 @@
 import { BigNumber, ethers, providers, utils } from 'ethers';
 
-import GovernanceV2 from '../../out/AaveGovernanceV2.sol/AaveGovernanceV2.json';
+import govV2Abi from './abis/govV2.json';
 import * as AaveGovernanceV2 from '../../lib/aave-address-book/src/ts/AaveGovernanceV2';
 
 interface DefaultInterface {
@@ -19,7 +19,7 @@ export async function passAndExecuteProposal({
 }: PassAndExecuteProposal) {
   const governance = new ethers.Contract(
     AaveGovernanceV2.GOV,
-    GovernanceV2.abi,
+    govV2Abi,
     provider.getSigner(AAVE_WHALE),
   );
   const currentProposalState = await governance.getProposalState(proposalId);

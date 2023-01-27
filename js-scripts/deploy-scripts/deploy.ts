@@ -1,6 +1,7 @@
 import 'dotenv/config';
-import { ethers, providers } from 'ethers';
+import { BigNumber, ethers, providers } from 'ethers';
 
+import govV2Abi from './abis/govV2.json';
 import * as AaveGovernanceV2 from '../../lib/aave-address-book/src/ts/AaveGovernanceV2';
 import AutonomousProposal from '../../out/RescueAutonomousProposal.sol/RescueAutonomousProposal.json';
 import ShortPayload from '../../out/ProposalPayloadShort.sol/ProposalPayloadShort.json';
@@ -194,7 +195,7 @@ const deploy = async () => {
   await powerDelegationTx.wait();
 
   // forward time to create window
-  let currentBlockNumber = provider.getBlockNumber();
+  let currentBlockNumber = await provider.getBlockNumber();
   let currentBlock = await provider.getBlock(currentBlockNumber);
   await provider.send('evm_increaseTime', [
     ethers.BigNumber.from(creationTimestamp)
@@ -215,88 +216,113 @@ const deploy = async () => {
     LongProposalId: ${longProposalId}
   `);
 
-  await passAndExecuteProposal({ provider, proposalId: shortProposalId });
-  await passAndExecuteProposal({ provider, proposalId: longProposalId });
+  // await passAndExecuteProposal({ provider, proposalId: shortProposalId });
+  // await passAndExecuteProposal({ provider, proposalId: longProposalId });
 
   // // forward time for voting
-  // const govContractAaveWhale = new ethers.Contract(
-  //   AaveGovernanceV2.GOV,
-  //   GovernanceV2.abi,
-  //   provider.getSigner(AAVE_WHALE),
-  // );
-  //
-  // // get proposals
-  // const shortProposal = await govContractAaveWhale.getProposalById(
-  //   shortProposalId,
-  // );
-  // const longProposal = await govContractAaveWhale.getProposalById(
-  //   longProposalId,
-  // );
-  //
-  // const votingDelay = await govContractAaveWhale.getVotingDelay();
-  //
-  // currentBlockNumber = provider.getBlockNumber();
-  // currentBlock = await provider.getBlock(currentBlockNumber);
-  // await provider.send('evm_increaseTime', [
-  //   ethers.BigNumber.from(creationTimestamp + votingDelay) // creation time + 2 days
-  //     .sub(currentBlock.timestamp)
-  //     .add(1)
-  //     .toNumber(),
-  // ]);
-  //
-  // // vote on proposals
-  // const voteShortTx = await govContractAaveWhale.submitVote(
-  //   shortProposalId,
-  //   true,
-  // );
-  // await voteShortTx.wait();
-  // const voteLongTx = await govContractAaveWhale.submitVote(
-  //   longProposalId,
-  //   true,
-  // );
-  // await voteLongTx.wait();
-  // const govContractAaveWhale2 = new ethers.Contract(
-  //   AaveGovernanceV2.GOV,
-  //   GovernanceV2.abi,
-  //   provider.getSigner(AAVE_WHALE_2),
-  // );
-  // const voteLongTx2 = await govContractAaveWhale2.submitVote(
-  //   longProposalId,
-  //   true,
-  // );
-  // await voteLongTx2.wait();
-  //
-  // // forward time to end of vote for short proposal
-  //
-  // // queue short proposal
-  // const queueShortTx = await govContractAaveWhale.queue(shortProposalId);
-  // await queueShortTx.wait();
-  //
-  // // forward time for short proposal execution
-  // currentBlockNumber = provider.getBlockNumber();
-  // currentBlock = await provider.getBlock(currentBlockNumber);
-  // await provider.send('evm_increaseTime', [
-  //   ethers.BigNumber.from(creationTimestamp + 60 * 60 * 24 * 2) // creation time + 2 days
-  //     .sub(currentBlock.timestamp)
-  //     .add(1)
-  //     .toNumber(),
-  // ]);
-  //
-  // // execute short proposal
-  // const executeShortTx = await govContractAaveWhale.execute(shortProposalId);
-  // await executeShortTx.wait();
-  //
-  // // forward time to end of vote for short proposal
-  //
-  // // queue long proposal
-  // const queueLongTx = await govContractAaveWhale.queue(longProposalId);
-  // await queueLongTx.wait();
-  //
-  // // forward time for long proposal execution
-  //
-  // // execute long proposal
-  // const executeLongTx = await govContractAaveWhale.execute(longProposalId);
-  // await executeLongTx.wait();
+  const govContractAaveWhale = new ethers.Contract(
+    AaveGovernanceV2.GOV,
+    govV2Abi,
+    provider.getSigner(AAVE_WHALE),
+  );
+
+  // get proposals
+  const shortProposal = await govContractAaveWhale.getProposalById(
+    shortProposalId,
+  );
+  const longProposal = await govContractAaveWhale.getProposalById(
+    longProposalId,
+  );
+
+  const votingDelay = await govContractAaveWhale.getVotingDelay();
+
+  currentBlockNumber = await provider.getBlockNumber();
+  currentBlock = await provider.getBlock(currentBlockNumber);
+  await provider.send('evm_increaseBlocks', [
+    BigNumber.from(votingDelay).add(1).toHexString(),
+  ]);
+
+  // vote on proposals
+  const voteShortTx = await govContractAaveWhale.submitVote(
+    shortProposalId,
+    true,
+  );
+  await voteShortTx.wait();
+  const voteLongTx = await govContractAaveWhale.submitVote(
+    longProposalId,
+    true,
+  );
+  await voteLongTx.wait();
+  const govContractAaveWhale2 = new ethers.Contract(
+    AaveGovernanceV2.GOV,
+    govV2Abi,
+    provider.getSigner(AAVE_WHALE_2),
+  );
+  const voteLongTx2 = await govContractAaveWhale2.submitVote(
+    longProposalId,
+    true,
+  );
+  await voteLongTx2.wait();
+
+  // forward time to end of vote for short proposal
+  await provider.send('evm_increaseBlocks', [
+    BigNumber.from(shortProposal.endBlock)
+      .sub(BigNumber.from(shortProposal.startBlock))
+      .add(1)
+      .toHexString(),
+  ]);
+
+  // queue short proposal
+  const queueShortTx = await govContractAaveWhale.queue(shortProposalId);
+  await queueShortTx.wait();
+  // forward time for short proposal execution
+  const shortQueuedProposal = await govContractAaveWhale.getProposalById(
+    shortProposalId,
+  );
+  currentBlockNumber = await provider.getBlockNumber();
+  currentBlock = await provider.getBlock(currentBlockNumber);
+  await provider.send('evm_increaseTime', [
+    BigNumber.from(shortQueuedProposal.executionTime)
+      .sub(currentBlock.timestamp)
+      .add(1)
+      .toNumber(),
+  ]);
+
+  // execute short proposal
+  const executeShortTx = await govContractAaveWhale.execute(shortProposalId);
+  await executeShortTx.wait();
+
+  // forward time to end of vote for long proposal
+  currentBlockNumber = await provider.getBlockNumber();
+
+  if (longProposal.endBlock > currentBlockNumber) {
+    await provider.send('evm_increaseBlocks', [
+      BigNumber.from(longProposal.endBlock)
+        .sub(BigNumber.from(currentBlockNumber))
+        .add(1)
+        .toHexString(),
+    ]);
+  }
+  // queue long proposal
+  const queueLongTx = await govContractAaveWhale.queue(longProposalId);
+  await queueLongTx.wait();
+
+  // forward time for long proposal execution
+  const longQueuedProposal = await govContractAaveWhale.getProposalById(
+    longProposalId,
+  );
+  currentBlockNumber = await provider.getBlockNumber();
+  currentBlock = await provider.getBlock(currentBlockNumber);
+  await provider.send('evm_increaseTime', [
+    BigNumber.from(longQueuedProposal.executionTime)
+      .sub(currentBlock.timestamp)
+      .add(1)
+      .toNumber(),
+  ]);
+
+  // execute long proposal
+  const executeLongTx = await govContractAaveWhale.execute(longProposalId);
+  await executeLongTx.wait();
 };
 
 deploy().then().catch();
