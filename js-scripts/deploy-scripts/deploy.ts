@@ -11,8 +11,6 @@ import AaveTokenV2 from '../../out/AaveTokenV2.sol/AaveTokenV2.json';
 import StkAaveTokenV2Rev4 from '../../out/StakedTokenV2Rev4.sol/StakedTokenV2Rev4.json';
 import LendToAaveMigrator from '../../out/LendToAaveMigrator.sol/LendToAaveMigrator.json';
 import IGovernancePowerDelegationToken from '../../out/IGovernancePowerDelegationToken.sol/IGovernancePowerDelegationToken.json';
-import GovernanceV2 from '../../out/AaveGovernanceV2.sol/AaveGovernanceV2.json';
-import { passAndExecuteProposal } from './govHelpers';
 
 const TENDERLY_FORK_URL = process.env.TENDERLY_FORK_URL;
 
@@ -215,9 +213,6 @@ const deploy = async () => {
     ShortProposalId: ${shortProposalId}
     LongProposalId: ${longProposalId}
   `);
-
-  // await passAndExecuteProposal({ provider, proposalId: shortProposalId });
-  // await passAndExecuteProposal({ provider, proposalId: longProposalId });
 
   // // forward time for voting
   const govContractAaveWhale = new ethers.Contract(
