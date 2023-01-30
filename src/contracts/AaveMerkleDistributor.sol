@@ -20,13 +20,13 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     /// @inheritdoc IAaveMerkleDistributor
     function getDistribution(uint256 distributionId) external view override returns (DistributionWithoutClaimed memory) {
         require(distributionId < _nextDistributionId, 'MerkleDistributor: Distribution dont exist');
-                
+
         return DistributionWithoutClaimed({token: _distributions[distributionId].token, merkleRoot: _distributions[distributionId].merkleRoot});
     }
 
     /// @inheritdoc IAaveMerkleDistributor
     function addDistributions(address[] memory tokens, bytes32[] memory merkleRoots) external onlyOwner override {
-        require(tokens.length == merkleRoots.length, 'MerkleDistributor: tokens not the same length as merkleRoots'); 
+        require(tokens.length == merkleRoots.length, 'MerkleDistributor: tokens not the same length as merkleRoots');
         for(uint i = 0; i < tokens.length; i++) {
             uint256 currentDistributionId = _nextDistributionId;
             _distributions[currentDistributionId].token = tokens[i];
@@ -49,19 +49,21 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     }
 
     /// @inheritdoc IAaveMerkleDistributor
-    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 distributionId) external override {
-        require(distributionId < _nextDistributionId, 'MerkleDistributor: Distribution dont exist');
-        require(!isClaimed(index, distributionId), 'MerkleDistributor: Drop already claimed.');
+    function claim(TokenClaim[] calldata claim) external override {
+        for (uint256 i = 0; i < claim.length; i++) {
+            require(claim[i].distributionId < _nextDistributionId, 'MerkleDistributor: Distribution dont exist');
+            require(!isClaimed(claim[i].index, claim[i].distributionId), 'MerkleDistributor: Drop already claimed.');
 
-        // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
-        require(MerkleProof.verify(merkleProof, _distributions[distributionId].merkleRoot, node), 'MerkleDistributor: Invalid proof.');
+            // Verify the merkle proof.
+            bytes32 node = keccak256(abi.encodePacked(claim[i].index, claim[i].account, claim[i].amount));
+            require(MerkleProof.verify(claim[i].merkleProof, _distributions[claim[i].distributionId].merkleRoot, node), 'MerkleDistributor: Invalid proof.');
 
-        // Mark it claimed and send the token.
-        _setClaimed(index, distributionId);
-        IERC20(_distributions[distributionId].token).safeTransfer(account, amount);
+            // Mark it claimed and send the token.
+            _setClaimed(claim[i].index, claim[i].distributionId);
+            IERC20(_distributions[claim[i].distributionId].token).safeTransfer(claim[i].account, claim[i].amount);
 
-        emit Claimed(index, account, amount, distributionId);
+            emit Claimed(claim[i].index, claim[i].account, claim[i].amount, claim[i].distributionId);
+        }
     }
 
     /// @inheritdoc IAaveMerkleDistributor
@@ -77,7 +79,7 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     function emergencyEtherTransfer(address to, uint256 amount) external override onlyOwner {
         _safeTransferETH(to, amount);
     }
-    
+
     /**
     * @dev set claimed as true for index on distributionId
     * @param index indicating which node of the tree needs to be set as true
@@ -86,7 +88,7 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
     function _setClaimed(uint256 index, uint256 distributionId) private {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        _distributions[distributionId].claimedBitMap[claimedWordIndex] = 
+        _distributions[distributionId].claimedBitMap[claimedWordIndex] =
             _distributions[distributionId].claimedBitMap[claimedWordIndex] | (1 << claimedBitIndex);
     }
 

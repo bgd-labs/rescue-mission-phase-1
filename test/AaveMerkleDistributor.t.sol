@@ -156,13 +156,16 @@ contract AaveMerkleDistributorTest is Test {
 
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
 
-        aaveMerkleDistributor.claim(
-            claimerIndex,
-            claimer,
-            claimerAmount,
-            claimerMerkleProof,
-            0
-        );
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](1);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+             index: claimerIndex,
+             account: claimer,
+             amount: claimerAmount,
+             merkleProof: claimerMerkleProof,
+             distributionId: 0
+        });
+
+        aaveMerkleDistributor.claim(claimTokens);
 
         assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
     }
@@ -206,16 +209,62 @@ contract AaveMerkleDistributorTest is Test {
         vm.expectEmit(true, true, false, true);
         emit Claimed(claimerIndex, claimer, claimerAmount, 0);
 
-        // The event we get
-        aaveMerkleDistributor.claim(
-            claimerIndex,
-            claimer,
-            claimerAmount,
-            claimerMerkleProof,
-            0
-        );
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](1);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+            index: claimerIndex,
+            account: claimer,
+            amount: claimerAmount,
+            merkleProof: claimerMerkleProof,
+            distributionId: 0
+        });
+
+        aaveMerkleDistributor.claim(claimTokens);
 
         assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
+    }
+
+    function testClaimMultipleTokens() public {
+        address UNI_TOKEN = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
+        deal(
+            address(UNI_TOKEN),
+            address(aaveMerkleDistributor),
+            10000000 ether
+        );
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = address(AAVE_TOKEN);
+        tokens[1] = address(UNI_TOKEN);
+
+
+        bytes32[] memory merkleRoots = new bytes32[](2);
+        merkleRoots[0] = MERKLE_ROOT;
+        merkleRoots[1] = 0x0d02ecdaab34b26ed6ffa029ffa15bc377852ba0dc0e2ce18927d554ea3d939e;
+
+        aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
+
+        bytes32[] memory uniProof = new bytes32[](1);
+        uniProof[0] = 0x8322a9d9320f2f820f1b48c292758ab0295b0ded2f5ac8d5b04d9babe1b3d628;
+
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](2);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+            index: claimerIndex,
+            account: claimer,
+            amount: claimerAmount,
+            merkleProof: claimerMerkleProof,
+            distributionId: 0
+        });
+        claimTokens[1] = IAaveMerkleDistributor.TokenClaim({
+            index: 2,
+            account: 0xFBb1b73C4f0BDa4f67dcA266ce6Ef42f520fBB98,
+            amount: 10915644380000000000,
+            merkleProof: uniProof,
+            distributionId: 1
+        });
+
+        aaveMerkleDistributor.claim(claimTokens);
+
+        assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
+        assertEq(aaveMerkleDistributor.isClaimed(2, 1), true);
     }
 
     function testClaimWhenRootIsASingleNodeTree() public {
@@ -243,14 +292,16 @@ contract AaveMerkleDistributorTest is Test {
         vm.expectEmit(true, true, false, true);
         emit Claimed(usdtIndex, usdtClaimer, usdtAmount, 0);
 
-        // The event we get
-        aaveMerkleDistributor.claim(
-            usdtIndex,
-            usdtClaimer,
-            usdtAmount,
-            usdtProof,
-            0
-        );
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](1);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+            index: usdtIndex,
+            account: usdtClaimer,
+            amount: usdtAmount,
+            merkleProof: usdtProof,
+            distributionId: 0
+        });
+
+        aaveMerkleDistributor.claim(claimTokens);
 
         assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
     }
@@ -265,25 +316,30 @@ contract AaveMerkleDistributorTest is Test {
         aaveMerkleDistributor.addDistributions(tokens, merkleRoots);
 
         vm.expectRevert(bytes("MerkleDistributor: Distribution dont exist"));
-        aaveMerkleDistributor.claim(
-            claimerIndex,
-            claimer,
-            claimerAmount,
-            claimerMerkleProof,
-            1
-        );
+
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](1);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+            index: claimerIndex,
+            account: claimer,
+            amount: claimerAmount,
+            merkleProof: claimerMerkleProof,
+            distributionId: 1
+        });
+        aaveMerkleDistributor.claim(claimTokens);
     }
 
     function testWhenClaimingWithoutInitializing() public {
         vm.expectRevert(bytes("MerkleDistributor: Distribution dont exist"));
 
-        aaveMerkleDistributor.claim(
-            claimerIndex,
-            claimer,
-            claimerAmount,
-            claimerMerkleProof,
-            0
-        );
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](1);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+            index: claimerIndex,
+            account: claimer,
+            amount: claimerAmount,
+            merkleProof: claimerMerkleProof,
+            distributionId: 0
+        });
+        aaveMerkleDistributor.claim(claimTokens);
     }
 
     function testWhenAlreadyClaimed() public {
@@ -299,27 +355,22 @@ contract AaveMerkleDistributorTest is Test {
         vm.expectEmit(true, true, false, true);
         emit Claimed(claimerIndex, claimer, claimerAmount, 0);
 
-        // The event we get
-        aaveMerkleDistributor.claim(
-            claimerIndex,
-            claimer,
-            claimerAmount,
-            claimerMerkleProof,
-            0
-        );
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](1);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+            index: claimerIndex,
+            account: claimer,
+            amount: claimerAmount,
+            merkleProof: claimerMerkleProof,
+            distributionId: 0
+        });
+        aaveMerkleDistributor.claim(claimTokens);
 
         assertEq(aaveMerkleDistributor.isClaimed(0, 0), true);
 
         // vm.expectRevert(aaveMerkleDistributor.DropAlreadyClaimed.selector);
         vm.expectRevert(bytes("MerkleDistributor: Drop already claimed."));
 
-        aaveMerkleDistributor.claim(
-            claimerIndex,
-            claimer,
-            claimerAmount,
-            claimerMerkleProof,
-            0
-        );
+        aaveMerkleDistributor.claim(claimTokens);
     }
 
     function testWhenInvalidProof() public {
@@ -338,13 +389,16 @@ contract AaveMerkleDistributorTest is Test {
             0
         ] = 0x5cab84e781cb21e9e612670a3209ee46b46eeedd05c8f3827a02706640c00d0e;
 
-        aaveMerkleDistributor.claim(
-            claimerIndex,
-            claimer,
-            claimerAmount,
-            wrongProof,
-            0
-        );
+
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](1);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+            index: claimerIndex,
+            account: claimer,
+            amount: claimerAmount,
+            merkleProof: wrongProof,
+            distributionId: 0
+        });
+        aaveMerkleDistributor.claim(claimTokens);
     }
 
     function testWhenNotEnoughFunds() public {
@@ -365,13 +419,16 @@ contract AaveMerkleDistributorTest is Test {
 
         vm.expectRevert(bytes("SafeMath: subtraction overflow"));
 
-        aaveMerkleDistributor.claim(
-            claimerIndex,
-            claimer,
-            claimerAmount,
-            claimerMerkleProof,
-            0
-        );
+
+        IAaveMerkleDistributor.TokenClaim[] memory claimTokens = new IAaveMerkleDistributor.TokenClaim[](1);
+        claimTokens[0] = IAaveMerkleDistributor.TokenClaim({
+            index: claimerIndex,
+            account: claimer,
+            amount: claimerAmount,
+            merkleProof: claimerMerkleProof,
+            distributionId: 0
+        });
+        aaveMerkleDistributor.claim(claimTokens);
     }
 
     function testEmergencyTokenTransfer() public {
