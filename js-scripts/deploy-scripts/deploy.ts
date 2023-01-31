@@ -17,7 +17,7 @@ const TENDERLY_FORK_URL = process.env.TENDERLY_FORK_URL;
 if (!TENDERLY_FORK_URL)
   throw new Error('you have to set a GOV_CHAIN_TENDERLY_FORK_URL');
 
-const provider = new providers.StaticJsonRpcProvider(TENDERLY_FORK_URL);
+export const provider = new providers.StaticJsonRpcProvider(TENDERLY_FORK_URL);
 
 const AAVE_WHALE = '0x25F2226B597E8F9514B3F68F00f494cF4f286491';
 const AAVE_WHALE_2 = '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9';
@@ -45,7 +45,7 @@ const SHORT_IPFS =
 const LONG_IPFS =
   '0xd0b98a12db1859322818b5943127735ca545d437d09dc0aa7dbcf9e66ac01569';
 
-const giveEthToWhales = async () => {
+export const giveEthToWhales = async () => {
   const WALLETS = [AAVE_WHALE, AAVE_WHALE_2];
 
   await provider.send('tenderly_addBalance', [
@@ -57,7 +57,7 @@ const giveEthToWhales = async () => {
   ]);
 };
 
-const deploy = async () => {
+export const deploy = async () => {
   await giveEthToWhales();
   //--------------------------------------------------------------------------------------------------------------------
   //                                            DEPLOY DEPENDENCY CONTRACTS
@@ -318,6 +318,15 @@ const deploy = async () => {
   // execute long proposal
   const executeLongTx = await govContractAaveWhale.execute(longProposalId);
   await executeLongTx.wait();
+
+  return {
+    provider,
+    aaveMerkleDistributorAddress: aaveMerkleDistributorContract.address,
+  };
 };
 
-deploy().then().catch();
+const deployContracts = async () => {
+  await deploy();
+};
+
+deployContracts().then().catch();

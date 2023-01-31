@@ -8,6 +8,7 @@
     "test": "test"
   },
   "scripts": {
+    "deploy:tenderly:test": "env-cmd ts-node js-scripts/deploy-scripts/testAllClaims.ts",
     "deploy:tenderly": "env-cmd ts-node js-scripts/deploy-scripts/deploy.ts",
     "generate:users-json": "ts-node js-scripts/users-resume.ts",
     "generate-json": "env-cmd ts-node js-scripts/generate-address-value-maps.ts",
