@@ -6,7 +6,6 @@ interface IAaveMerkleDistributor {
     /**
     * @dev input object with the information to claim a token
     * @param index position inside the merkle tree
-    * @param account address of the owner of the token
     * @param amount quantity to rescue
     * @param merkleProof array of proofs to demonstrate the ownership of the token by account inside the merkletree
     * @param distributionId id indicating the distribution of the token inside the merkle distributor (this indicates
@@ -14,7 +13,6 @@ interface IAaveMerkleDistributor {
     **/
     struct TokenClaim {
         uint256 index;
-        address account;
         uint256 amount;
         bytes32[] merkleProof;
         uint256 distributionId;
