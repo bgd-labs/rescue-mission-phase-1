@@ -55,14 +55,14 @@ contract AaveMerkleDistributor is Ownable, IAaveMerkleDistributor {
             require(!isClaimed(claim[i].index, claim[i].distributionId), 'MerkleDistributor: Drop already claimed.');
 
             // Verify the merkle proof.
-            bytes32 node = keccak256(abi.encodePacked(claim[i].index, claim[i].account, claim[i].amount));
+            bytes32 node = keccak256(abi.encodePacked(claim[i].index, msg.sender, claim[i].amount));
             require(MerkleProof.verify(claim[i].merkleProof, _distributions[claim[i].distributionId].merkleRoot, node), 'MerkleDistributor: Invalid proof.');
 
             // Mark it claimed and send the token.
             _setClaimed(claim[i].index, claim[i].distributionId);
-            IERC20(_distributions[claim[i].distributionId].token).safeTransfer(claim[i].account, claim[i].amount);
+            IERC20(_distributions[claim[i].distributionId].token).safeTransfer(msg.sender, claim[i].amount);
 
-            emit Claimed(claim[i].index, claim[i].account, claim[i].amount, claim[i].distributionId);
+            emit Claimed(claim[i].index, msg.sender, claim[i].amount, claim[i].distributionId);
         }
     }
 
