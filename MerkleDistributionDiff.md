@@ -2,7 +2,7 @@ The [AaveMerkleDistributor](./src/contracts/AaveMerkleDistributor.sol) contract 
 
 The logic has not changed, and both use [OpenZeppelin MerkleProof](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/MerkleProof.sol) libs.
 
-The main differences between the two then is the addition of:
+The main difference between the two then is the addition of:
 
 - Token rescue methods:
 ```
