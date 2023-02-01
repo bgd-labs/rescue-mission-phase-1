@@ -18,7 +18,7 @@ contract ProposalPayloadShort {
         0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
     bytes32 public constant AAVE_MERKLE_ROOT =
-        0x0ef2bf07cb8d6ddde75d4d2f2c29f4c1607844a8d9ac3323205093765e6c27e3;
+        0xbdc6d4494ce5e7be1159836917a57eff00a025b7064210f3f011567a14ef5c59;
 
     // stkAAVE distribution
     address public constant stkAAVE_TOKEN =
@@ -54,6 +54,9 @@ contract ProposalPayloadShort {
     uint256 public constant LEND_TO_LEND_RESCUE_AMOUNT =
         841600717506653731350931;
 
+    uint256 public constant LEND_TO_AAVE_RESCUE_AMOUNT =
+        19845132947543342156792;
+
     constructor(
         AaveMerkleDistributor aaveMerkleDistributor,
         address lendToAaveMigratorImpl
@@ -80,7 +83,8 @@ contract ProposalPayloadShort {
 
         // Deploy new LendToAaveMigrator implementation and rescue LEND
         uint256 totalLendAmountToRescue = LEND_TO_MIGRATOR_RESCUE_AMOUNT +
-            LEND_TO_LEND_RESCUE_AMOUNT;
+            LEND_TO_LEND_RESCUE_AMOUNT +
+            LEND_TO_AAVE_RESCUE_AMOUNT;
         MIGRATOR_PROXY_ADDRESS.upgradeToAndCall(
             LEND_TO_AAVE_MIGRATOR_IMPL,
             abi.encodeWithSignature(

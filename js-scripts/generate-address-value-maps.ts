@@ -1,4 +1,4 @@
-import { BigNumber, Event, providers } from 'ethers';
+import {BigNumber, Event, providers} from 'ethers';
 import { IERC20__factory } from './typechain/IERC20__factory';
 import fs from 'fs';
 import { ChainId } from '@aave/contract-helpers';
@@ -92,10 +92,15 @@ async function fetchTxns(
   // Write events map of address value to json
   const addressValueMap: Record<string, string> = {};
   let totalValue = BigNumber.from(0);
+  let latestBlockNumber = 0;
   events.forEach((e: Event) => {
     if (e.args) {
       let value = BigNumber.from(e.args.value.toString());
       if (value.gt(0)) {
+        if (e.blockNumber >= latestBlockNumber) {
+          latestBlockNumber = e.blockNumber;
+        }
+
         totalValue = totalValue.add(value);
         // if we are looking at LEND token rescue
         // we need to divide by 100 as users will get the rescue amount
@@ -118,30 +123,30 @@ async function fetchTxns(
   // write total amount on txt
   fs.appendFileSync(
     amountsFilePath,
-    `total amount for ${name} in wei: ${totalValue} ${symbol}\r\n`,
+    `total amount for ${name} in wei: ${totalValue} ${symbol} latestBlock: ${latestBlockNumber}\r\n`,
   );
 
   return addressValueMap;
 }
 
-async function retryTillSuccess(
+async function retryTillSuccess(provider: providers.Provider,
   event: Event,
-  fn: (event: Event) => Promise<Event | undefined>,
+  fn: (event: Event, provider: providers.Provider) => Promise<Event | undefined>,
 ): Promise<Event | undefined> {
   try {
-    return fn(event);
+    return fn(event, provider);
   } catch (e) {
     await wait(0.3);
     console.log('retrying');
-    return retryTillSuccess(event, fn);
+    return retryTillSuccess(provider, event, fn);
   }
 }
 
 async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
   console.log('validate migration events: ', events.length);
-
-  async function validate(event: Event) {
-    const receipt = await event.getTransactionReceipt();
+  async function validate(event: Event, provider: providers.Provider) {
+    const txHash = event.transactionHash;
+    const receipt = await provider.getTransactionReceipt(txHash);
     if (
       !receipt.logs.some((log) =>
         log.topics.includes(
@@ -153,10 +158,12 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
     }
   }
 
+  const provider = new providers.StaticJsonRpcProvider(process.env.RPC_MAINNET);
+
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
     .process(async (event) => {
-      return retryTillSuccess(event, validate);
+      return retryTillSuccess(provider, event, validate);
     });
 
   const validTxns: Event[] = results.filter((r) => r !== undefined) as Event[];
@@ -168,7 +175,8 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
   console.log('validate stk events: ', events.length);
 
   async function validate(event: Event) {
-    const receipt = await event.getTransactionReceipt();
+    const txHash = event.transactionHash;
+    const receipt = await provider.getTransactionReceipt(txHash);
     if (
       !receipt.logs.some((log) =>
         log.topics.includes(
@@ -180,11 +188,12 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
     }
   }
 
+  const provider = new providers.StaticJsonRpcProvider(process.env.RPC_MAINNET);
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
     .process(async (event, ix) => {
       console.log(`validating ${ix}`);
-      return retryTillSuccess(event, validate);
+      return retryTillSuccess(provider, event, validate);
     });
 
   const validTxns: Event[] = results.filter((r) => r !== undefined) as Event[];

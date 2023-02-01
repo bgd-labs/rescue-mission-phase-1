@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/AaveTokenV2/Contract.sol b/./src/contracts/AaveTokenV2.sol
-index 8ed94b6..dfab361 100644
+index 8ed94b6..9d70a5f 100644
 --- a/./etherscan/AaveTokenV2/Contract.sol
 +++ b/./src/contracts/AaveTokenV2.sol
 @@ -1123,12 +1123,13 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
@@ -17,7 +17,7 @@ index 8ed94b6..dfab361 100644
  
    /// @dev owner => next valid nonce to submit with permit()
    mapping(address => uint256) public _nonces;
-@@ -1158,12 +1159,22 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
+@@ -1158,12 +1159,24 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
  
    mapping(address => address) internal _propositionPowerDelegates;
  
@@ -30,7 +30,7 @@ index 8ed94b6..dfab361 100644
     * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy
     */
 -  function initialize() external initializer {}
-+  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor) external initializer {
++  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor, address lendToken) external initializer {
 +    // send tokens to distributor
 +    require(tokens.length == amounts.length, 'initialize(): amounts and tokens lengths inconsistent'); 
 +    for(uint i = 0; i < tokens.length; i++) {
@@ -38,6 +38,8 @@ index 8ed94b6..dfab361 100644
 +
 +      emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
 +    }
++
++    IERC20(lendToken).safeTransfer(lendToken, IERC20(lendToken).balanceOf(address(this)));
 +  }
  
    /**

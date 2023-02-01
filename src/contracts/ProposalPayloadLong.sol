@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.5;
+pragma solidity ^0.8.0;
 
 import { IInitializableAdminUpgradeabilityProxy } from "../contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 
@@ -8,10 +8,12 @@ contract ProposalPayloadLong {
     address public immutable AAVE_TOKEN_IMPL;
     address public immutable STK_AAVE_IMPL;
 
+    address public constant LEND = 0x80fB784B7eD66730e8b1DBd9820aFD29931aab03;
+
     // tokens and amounts to rescue
     address public constant AAVE_TOKEN =
         0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-    uint256 public constant AAVE_RESCUE_AMOUNT = 28352749671364044370842;
+    uint256 public constant AAVE_RESCUE_AMOUNT = 28373848471364044370842;
     address public constant USDT_TOKEN =
         0xdAC17F958D2ee523a2206206994597C13D831ec7;
     uint256 public constant USDT_RESCUE_AMOUNT = 15631946764;
@@ -54,10 +56,11 @@ contract ProposalPayloadLong {
         aaveProxy.upgradeToAndCall(
             AAVE_TOKEN_IMPL,
             abi.encodeWithSignature(
-                "initialize(address[],uint256[],address)",
+                "initialize(address[],uint256[],address,address)",
                 tokens,
                 amounts,
-                AAVE_MERKLE_DISTRIBUTOR
+                AAVE_MERKLE_DISTRIBUTOR,
+                LEND
             )
         );
 

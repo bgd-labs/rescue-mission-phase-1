@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
-index e316261..98022ce 100644
+index e316261..eda4ff1 100644
 --- a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol
 +++ b/./src/contracts/LendToAaveMigrator.sol
 @@ -1,10 +1,8 @@
@@ -72,7 +72,7 @@ index e316261..98022ce 100644
 +        emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 +
 +        // checks that the amount of AAVE not migrated is less or equal than the amount AAVE disposable for migration
-+        require((LEND.totalSupply() - LEND.balanceOf(address(this)) - LEND.balanceOf(address(LEND)) ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
++        require((LEND.totalSupply() - LEND.balanceOf(address(this)) - LEND.balanceOf(address(LEND)) - LEND.balanceOf(address(AAVE)) ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
 +            'INCORRECT_BALANCE_RESCUED'
 +        );
      }

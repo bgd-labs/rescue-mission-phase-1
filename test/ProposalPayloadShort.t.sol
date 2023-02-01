@@ -25,7 +25,7 @@ contract ProposalPayloadShortTest is Test {
         IERC20(0x80fB784B7eD66730e8b1DBd9820aFD29931aab03);
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("ethereum"), 15939210);
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 16491051);
 
         AaveMerkleDistributor aaveMerkleDistributor = new AaveMerkleDistributor();
 
@@ -129,7 +129,7 @@ contract ProposalPayloadShortTest is Test {
 
         uint256 totalLendAmountToRescue = proposalPayload
             .LEND_TO_MIGRATOR_RESCUE_AMOUNT() +
-            proposalPayload.LEND_TO_LEND_RESCUE_AMOUNT();
+            proposalPayload.LEND_TO_LEND_RESCUE_AMOUNT() + proposalPayload.LEND_TO_AAVE_RESCUE_AMOUNT();
 
         assertEq(
             AAVE.balanceOf(address(proposalPayload.AAVE_MERKLE_DISTRIBUTOR())),
