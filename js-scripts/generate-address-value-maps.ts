@@ -1,4 +1,4 @@
-import {BigNumber, Event, providers} from 'ethers';
+import { BigNumber, Event, providers } from 'ethers';
 import { IERC20__factory } from './typechain/IERC20__factory';
 import fs from 'fs';
 import { ChainId } from '@aave/contract-helpers';
@@ -129,9 +129,13 @@ async function fetchTxns(
   return addressValueMap;
 }
 
-async function retryTillSuccess(provider: providers.Provider,
+async function retryTillSuccess(
+  provider: providers.Provider,
   event: Event,
-  fn: (event: Event, provider: providers.Provider) => Promise<Event | undefined>,
+  fn: (
+    event: Event,
+    provider: providers.Provider,
+  ) => Promise<Event | undefined>,
 ): Promise<Event | undefined> {
   try {
     return fn(event, provider);
@@ -158,7 +162,9 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
     }
   }
 
-  const provider = new providers.StaticJsonRpcProvider(process.env.RPC_MAINNET);
+  const provider = new providers.StaticJsonRpcProvider(
+    process.env.TENDERLY_FORK_URL,
+  );
 
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
@@ -188,9 +194,11 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
     }
   }
 
-  const provider = new providers.StaticJsonRpcProvider(process.env.RPC_MAINNET);
+  const provider = new providers.StaticJsonRpcProvider(
+    process.env.TENDERLY_FORK_URL,
+  );
   const { results, errors } = await PromisePool.for(events)
-    .withConcurrency(10)
+    .withConcurrency(5)
     .process(async (event, ix) => {
       console.log(`validating ${ix}`);
       return retryTillSuccess(provider, event, validate);
