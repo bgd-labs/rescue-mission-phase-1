@@ -2,3 +2,7 @@ total amount for LEND-AAVE in wei: 19845132947543342156792 LEND latestBlock: 121
 total amount for LEND-LEND in wei: 841600717506653731350931 LEND latestBlock: 12636023
 total amount for AAVE-AAVE in wei: 28420317154904044370842 AAVE latestBlock: 16497705
 total amount for LEND-MIGRATOR in wei: 8007719287288096435418 LEND latestBlock: 12190088
+total amount for AAVE-STKAAVE in wei: 768271398516378775101 AAVE latestBlock: 15946380
+total amount for STKAAVE-STKAAVE in wei: 107412975567454603565 STKAAVE latestBlock: 14605743
+total amount for UNI-AAVE in wei: 110947986090000000000 UNI latestBlock: 13638377
+total amount for USDT-AAVE in wei: 15631946764 USDT latestBlock: 14434156
