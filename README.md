@@ -113,4 +113,4 @@ to your .env file. If you want to deploy to a test network you only need to chan
 
 ## Mentions
 
-In this project we based the AaveMerkleDistributor contract, and the merkleTree generation on Uniswap's [merkle-distributor](https://github.com/Uniswap/merkle-distributor) project.
+In this project we based the AaveMerkleDistributor contract, and the merkleTree generation on Uniswap's [merkle-distributor](https://github.com/Uniswap/merkle-distributor) project. Differences explained [here](./MerkleDistributionDiff.md).
