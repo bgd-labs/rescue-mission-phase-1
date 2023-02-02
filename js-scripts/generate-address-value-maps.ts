@@ -27,7 +27,7 @@ async function fetchTxns(
   network: keyof typeof JSON_RPC_PROVIDER,
   name: string,
   validateEvent?: (events: Event[]) => Promise<Event[]>,
-): Promise<Record<string, string>> {
+): Promise<Record<string, { amount: string; txHash: string[] }>> {
   const token = TOKENS[symbol];
   const provider = new providers.StaticJsonRpcProvider(
     JSON_RPC_PROVIDER[network],
@@ -90,7 +90,8 @@ async function fetchTxns(
   if (validateEvent) events = await validateEvent(events);
 
   // Write events map of address value to json
-  const addressValueMap: Record<string, string> = {};
+  const addressValueMap: Record<string, { amount: string; txHash: string[] }> =
+    {};
   let totalValue = BigNumber.from(0);
   let latestBlockNumber = 0;
   events.forEach((e: Event) => {
@@ -110,11 +111,15 @@ async function fetchTxns(
         }
         if (addressValueMap[e.args.from]) {
           const aggregatedValue = value
-            .add(addressValueMap[e.args.from])
+            .add(addressValueMap[e.args.from].amount)
             .toString();
-          addressValueMap[e.args.from] = aggregatedValue;
+          addressValueMap[e.args.from].amount = aggregatedValue;
+          addressValueMap[e.args.from].txHash.push(e.transactionHash);
         } else {
-          addressValueMap[e.args.from] = value.toString();
+          addressValueMap[e.args.from] = {
+            amount: value.toString(),
+            txHash: [e.transactionHash],
+          };
         }
       }
     }
@@ -163,7 +168,7 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
   }
 
   const provider = new providers.StaticJsonRpcProvider(
-    process.env.TENDERLY_FORK_URL,
+    process.env.RPC_TENDERLY_MAINNET,
   );
 
   const { results, errors } = await PromisePool.for(events)
@@ -195,10 +200,10 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
   }
 
   const provider = new providers.StaticJsonRpcProvider(
-    process.env.TENDERLY_FORK_URL,
+    process.env.RPC_TENDERLY_MAINNET,
   );
   const { results, errors } = await PromisePool.for(events)
-    .withConcurrency(5)
+    .withConcurrency(10)
     .process(async (event, ix) => {
       console.log(`validating ${ix}`);
       return retryTillSuccess(provider, event, validate);
@@ -210,28 +215,32 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
 }
 
 async function generateAndSaveMap(
-  mappedContracts: Record<string, string>[],
+  mappedContracts: Record<string, { amount: string; txHash: string[] }>[],
   name: string,
 ): Promise<void> {
   const aggregatedMapping: Record<
     string,
-    { amount: string; txns: number; label?: string }
+    { amount: string; txns: string[]; label?: string }
   > = {};
   const labels = require('./labels/labels.json');
   for (let mappedContract of mappedContracts) {
     for (let address of Object.keys(mappedContract)) {
       if (aggregatedMapping[address]) {
         const aggregatedValue = BigNumber.from(
-          mappedContract[address].toString(),
+          mappedContract[address].amount.toString(),
         )
           .add(aggregatedMapping[address].amount)
           .toString();
         aggregatedMapping[address].amount = aggregatedValue;
-        aggregatedMapping[address].txns += 1;
+        aggregatedMapping[address].txns = [
+          ...aggregatedMapping[address].txns,
+          ...mappedContract[address].txHash,
+        ];
       } else {
         aggregatedMapping[address] = {} as any;
-        aggregatedMapping[address].amount = mappedContract[address].toString();
-        aggregatedMapping[address].txns = 1;
+        aggregatedMapping[address].amount =
+          mappedContract[address].amount.toString();
+        aggregatedMapping[address].txns = [...mappedContract[address].txHash];
         const label = await fetchLabel(address, labels);
         if (label) {
           aggregatedMapping[address].label = label;
@@ -245,9 +254,12 @@ async function generateAndSaveMap(
 }
 
 async function generateAaveMap() {
-  // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
+  // don't use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
   // await fetchTxns('AAVE', migrator, ChainId.mainnet);
-  const mappedContracts: Record<string, string>[] = await Promise.all([
+  const mappedContracts: Record<
+    string,
+    { amount: string; txHash: string[] }
+  >[] = await Promise.all([
     fetchTxns(
       'LEND',
       migrator,
@@ -273,7 +285,10 @@ async function generateAaveMap() {
 }
 
 async function generateStkAaveMap() {
-  const mappedContracts: Record<string, string>[] = await Promise.all([
+  const mappedContracts: Record<
+    string,
+    { amount: string; txHash: string[] }
+  >[] = await Promise.all([
     fetchTxns('STKAAVE', TOKENS.STKAAVE, ChainId.mainnet, 'STKAAVE-STKAAVE'),
   ]);
 
@@ -281,21 +296,23 @@ async function generateStkAaveMap() {
 }
 
 async function generateUniMap() {
-  // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
+  // don't use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
   // await fetchTxns('AAVE', migrator, ChainId.mainnet);
-  const mapedContracts: Record<string, string>[] = await Promise.all([
-    fetchTxns('UNI', TOKENS.AAVE, ChainId.mainnet, 'UNI-AAVE'),
-  ]);
+  const mapedContracts: Record<string, { amount: string; txHash: string[] }>[] =
+    await Promise.all([
+      fetchTxns('UNI', TOKENS.AAVE, ChainId.mainnet, 'UNI-AAVE'),
+    ]);
 
   return generateAndSaveMap(mapedContracts, 'uni');
 }
 
 async function generateUsdtMap() {
-  // dont use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
+  // don't use this as it was the initial minting from aave to the migrator, so no need to rescue anything from here
   // await fetchTxns('AAVE', migrator, ChainId.mainnet);
-  const mapedContracts: Record<string, string>[] = await Promise.all([
-    fetchTxns('USDT', TOKENS.AAVE, ChainId.mainnet, 'USDT-AAVE'),
-  ]);
+  const mapedContracts: Record<string, { amount: string; txHash: string[] }>[] =
+    await Promise.all([
+      fetchTxns('USDT', TOKENS.AAVE, ChainId.mainnet, 'USDT-AAVE'),
+    ]);
 
   return generateAndSaveMap(mapedContracts, 'usdt');
 }
