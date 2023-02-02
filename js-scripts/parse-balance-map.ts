@@ -26,7 +26,7 @@ interface MerkleDistributorInfo {
 }
 
 type OldFormat = {
-  [account: string]: { amount: string; label?: string; txns: number };
+  [account: string]: { amount: string; label?: string; txns: string[] };
 };
 type NewFormat = { address: string; earnings: string; reasons: string };
 

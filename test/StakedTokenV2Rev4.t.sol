@@ -37,7 +37,7 @@ contract StakedTokenV2Rev4Test is Test {
     uint256 public oldRevision;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("ethereum"), 16491051);
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 16542275);
 
         proxyStake = IInitializableAdminUpgradeabilityProxy(STK_AAVE_TOKEN);
         oldRevision = proxyStake.REVISION();

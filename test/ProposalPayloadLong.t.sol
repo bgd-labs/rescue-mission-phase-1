@@ -48,7 +48,7 @@ contract ProposalPayloadLongTest is Test {
     IERC20 stkAaveToken = IERC20(STK_AAVE);
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("ethereum"), 16491051);
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 16542275);
 
         _prepareWhale();
 
