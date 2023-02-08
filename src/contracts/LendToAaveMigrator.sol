@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-
+import 'forge-std/console.sol';
 import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
 import {VersionedInitializable} from "./dependencies/upgradeability/VersionedInitializable.sol";
 
@@ -48,9 +48,13 @@ contract LendToAaveMigrator is VersionedInitializable {
     * by migrating them to AAVE and sending them to the AaveMerkleDistributor
     * and then burning the LEND tokens
     * @param aaveMerkleDistributor address of the AAVE rescue distributor
-    * @param lendAmount amount of lend that need to be rescued
+    * @param lendToMigratorAmount amount of lend sent to migrator that need to be rescued
+    * @param lendToLendAmount amount of lend sent to LEND that need to be rescued
+    * @param lendToAaveAmount amount of lend sent to AAVE that need to be rescued
     */
-    function initialize(address aaveMerkleDistributor, uint256 lendAmount) public initializer {
+    function initialize(address aaveMerkleDistributor, uint256 lendToMigratorAmount, uint256 lendToLendAmount, uint256 lendToAaveAmount) public initializer {
+        uint256 lendAmount = lendToMigratorAmount + lendToLendAmount + lendToAaveAmount;
+        uint256 migratorLendBalance = _totalLendMigrated + lendToMigratorAmount;
         // account for the LEND sent to the contract for the total migration
         _totalLendMigrated = _totalLendMigrated + lendAmount;
 
@@ -58,14 +62,16 @@ contract LendToAaveMigrator is VersionedInitializable {
         uint256 amountToRescue = lendAmount / LEND_AAVE_RATIO;
         AAVE.transfer(aaveMerkleDistributor, amountToRescue);
 
-        uint256 lendAmountToBurn = LEND.balanceOf(address(this));
-        LEND.transfer(address(LEND), lendAmountToBurn);
+        LEND.transfer(address(LEND), migratorLendBalance);
 
         emit LendMigrated(address(this), lendAmount);
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 
-        // checks that the amount of AAVE not migrated is less or equal than the amount AAVE disposable for migration
-        require((LEND.totalSupply() - LEND.balanceOf(address(this)) - LEND.balanceOf(address(LEND)) - LEND.balanceOf(address(AAVE)) ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
+        console.log('rescued',(LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO);
+        console.log('aave   ',AAVE.balanceOf(address(this)));
+
+        // checks that the amount of AAVE not migrated is equal as the amount of AAVE disposable for migration
+        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO == AAVE.balanceOf(address(this)),
             'INCORRECT_BALANCE_RESCUED'
         );
     }

@@ -82,15 +82,14 @@ contract ProposalPayloadShort {
         AAVE_MERKLE_DISTRIBUTOR.addDistributions(tokens, merkleRoots);
 
         // Deploy new LendToAaveMigrator implementation and rescue LEND
-        uint256 totalLendAmountToRescue = LEND_TO_MIGRATOR_RESCUE_AMOUNT +
-            LEND_TO_LEND_RESCUE_AMOUNT +
-            LEND_TO_AAVE_RESCUE_AMOUNT;
         MIGRATOR_PROXY_ADDRESS.upgradeToAndCall(
             LEND_TO_AAVE_MIGRATOR_IMPL,
             abi.encodeWithSignature(
-                "initialize(address,uint256)",
+                "initialize(address,uint256,uint256,uint256)",
                 address(AAVE_MERKLE_DISTRIBUTOR),
-                totalLendAmountToRescue
+                LEND_TO_MIGRATOR_RESCUE_AMOUNT,
+                LEND_TO_LEND_RESCUE_AMOUNT,
+                LEND_TO_AAVE_RESCUE_AMOUNT
             )
         );
     }
