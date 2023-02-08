@@ -55,6 +55,9 @@ contract LendToAaveMigrator is VersionedInitializable {
     function initialize(address aaveMerkleDistributor, uint256 lendToMigratorAmount, uint256 lendToLendAmount, uint256 lendToAaveAmount) public initializer {
         uint256 lendAmount = lendToMigratorAmount + lendToLendAmount + lendToAaveAmount;
         uint256 migratorLendBalance = _totalLendMigrated + lendToMigratorAmount;
+
+        console.log('migrator', _totalLendMigrated + lendToMigratorAmount);
+        console.log('balance ',LEND.balanceOf(address(this)));
         // account for the LEND sent to the contract for the total migration
         _totalLendMigrated = _totalLendMigrated + lendAmount;
 
@@ -67,7 +70,7 @@ contract LendToAaveMigrator is VersionedInitializable {
         emit LendMigrated(address(this), lendAmount);
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 
-        console.log('rescued',(LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO);
+        console.log('rescued',(LEND.totalSupply() - LEND.balanceOf(address(LEND))) / LEND_AAVE_RATIO);
         console.log('aave   ',AAVE.balanceOf(address(this)));
 
         // checks that the amount of AAVE not migrated is equal as the amount of AAVE disposable for migration
