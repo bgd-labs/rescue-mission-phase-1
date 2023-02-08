@@ -111,15 +111,15 @@ contract LendToAaveMigratorTest is Test {
             abi.encodeWithSignature(
                 "initialize(address,uint256,uint256,uint256)",
                 address(aaveMerkleDistributor),
-                LEND_TO_MIGRATOR_RESCUE_AMOUNT,
+                LEND_TO_MIGRATOR_RESCUE_AMOUNT + 100 ether,
                 LEND_TO_LEND_RESCUE_AMOUNT,
-                LEND_TO_AAVE_RESCUE_AMOUNT + 100 ether
+                LEND_TO_AAVE_RESCUE_AMOUNT
             )
         );
     }
 
     function testMigrateFromLEND() public {
-        vm.prank(MIGRATOR_PROXY_ADMIN);
+        hoax(MIGRATOR_PROXY_ADMIN);
         migratorProxy.upgradeToAndCall(
             address(migratorImpl),
             abi.encodeWithSignature(
@@ -136,10 +136,11 @@ contract LendToAaveMigratorTest is Test {
 
         uint256 lendAmount = 100 ether;
 
-        vm.expectEmit(true, true, false, true);
-        emit LendMigrated(migratorProxyAddress, lendAmount);
-
         deal(address(LEND), address(this), lendAmount);
+        LEND.approve(address(migrator), lendAmount);
+
+        vm.expectEmit(true, true, false, true);
+        emit LendMigrated(address(this), lendAmount);
         migrator.migrateFromLEND(lendAmount);
 
         assertEq(AAVE.balanceOf(address(this)), lendAmount / LEND_AAVE_RATIO);

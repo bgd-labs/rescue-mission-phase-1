@@ -1166,7 +1166,7 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
   /**
    * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy
    */
-  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor, address lendToken) external initializer {
+  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor, address lendToken, uint256 lendToAaveAmount) external initializer {
     // send tokens to distributor
     require(tokens.length == amounts.length, 'initialize(): amounts and tokens lengths inconsistent'); 
     for(uint i = 0; i < tokens.length; i++) {
@@ -1175,7 +1175,7 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
       emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
     }
 
-    IERC20(lendToken).safeTransfer(lendToken, IERC20(lendToken).balanceOf(address(this)));
+    IERC20(lendToken).safeTransfer(lendToken, lendToAaveAmount);
   }
 
   /**

@@ -27,6 +27,9 @@ contract ProposalPayloadLong {
         0x4da27a545c0c5B758a6BA100e3a049001de870f5;
     uint256 public constant STK_AAVE_RESCUE_AMOUNT = 107412975567454603565;
 
+    uint256 public constant LEND_TO_AAVE_RESCUE_AMOUNT =
+        19845132947543342156792;
+
     constructor(
         address aaveMerkleDistributor,
         address aaveTokenV2Impl,
@@ -56,11 +59,12 @@ contract ProposalPayloadLong {
         aaveProxy.upgradeToAndCall(
             AAVE_TOKEN_IMPL,
             abi.encodeWithSignature(
-                "initialize(address[],uint256[],address,address)",
+                "initialize(address[],uint256[],address,address,uint256)",
                 tokens,
                 amounts,
                 AAVE_MERKLE_DISTRIBUTOR,
-                LEND
+                LEND,
+                LEND_TO_AAVE_RESCUE_AMOUNT
             )
         );
 

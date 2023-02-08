@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-import 'forge-std/console.sol';
+
 import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
 import {VersionedInitializable} from "./dependencies/upgradeability/VersionedInitializable.sol";
 
@@ -56,10 +56,8 @@ contract LendToAaveMigrator is VersionedInitializable {
         uint256 lendAmount = lendToMigratorAmount + lendToLendAmount + lendToAaveAmount;
         uint256 migratorLendBalance = _totalLendMigrated + lendToMigratorAmount;
 
-        console.log('migrator', _totalLendMigrated + lendToMigratorAmount);
-        console.log('balance ',LEND.balanceOf(address(this)));
         // account for the LEND sent to the contract for the total migration
-        _totalLendMigrated = _totalLendMigrated + lendAmount;
+        _totalLendMigrated += lendAmount;
 
         // transfer AAVE + LEND sent to this contract
         uint256 amountToRescue = lendAmount / LEND_AAVE_RATIO;
@@ -70,11 +68,9 @@ contract LendToAaveMigrator is VersionedInitializable {
         emit LendMigrated(address(this), lendAmount);
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 
-        console.log('rescued',(LEND.totalSupply() - LEND.balanceOf(address(LEND))) / LEND_AAVE_RATIO);
-        console.log('aave   ',AAVE.balanceOf(address(this)));
-
-        // checks that the amount of AAVE not migrated is equal as the amount of AAVE disposable for migration
-        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO == AAVE.balanceOf(address(this)),
+        require(LEND.balanceOf(address(this)) == 0, 'SOME_LEND_REMAINING');
+        // checks that the amount of AAVE not migrated is less or equal as the amount of AAVE disposable for migration
+        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
             'INCORRECT_BALANCE_RESCUED'
         );
     }
