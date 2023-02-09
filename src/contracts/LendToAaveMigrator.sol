@@ -55,10 +55,7 @@ contract LendToAaveMigrator is VersionedInitializable {
     function initialize(address aaveMerkleDistributor, uint256 lendToMigratorAmount, uint256 lendToLendAmount, uint256 lendToAaveAmount) public initializer {
         uint256 lendAmount = lendToMigratorAmount + lendToLendAmount + lendToAaveAmount;
         uint256 migratorLendBalance = _totalLendMigrated + lendToMigratorAmount;
-
-        console.log('aave---', AAVE.balanceOf(address(this)));
-        console.log('lend---', (LEND.totalSupply() - _totalLendMigrated) / LEND_AAVE_RATIO);
-
+        
         // account for the LEND sent to the contract for the total migration
         _totalLendMigrated += lendAmount;
 
@@ -70,13 +67,12 @@ contract LendToAaveMigrator is VersionedInitializable {
 
         emit LendMigrated(address(this), lendAmount);
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
-        
-        console.log('aave after  :',AAVE.balanceOf(address(this)));
-        console.log('lend after  :', (LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO);
+
+        uint256 migrationDiffAfter = AAVE.balanceOf(address(this)) - ((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO);
 
         require(LEND.balanceOf(address(this)) == 0, 'SOME_LEND_REMAINING');
         // checks that the amount of AAVE not migrated is less or equal as the amount of AAVE disposable for migration
-        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
+        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO == AAVE.balanceOf(address(this)) - migrationDiffAfter,
             'INCORRECT_BALANCE_RESCUED'
         );
     }
