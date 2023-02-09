@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-import 'forge-std/console.sol';
+
 import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
 import {VersionedInitializable} from "./dependencies/upgradeability/VersionedInitializable.sol";
 
@@ -55,7 +55,7 @@ contract LendToAaveMigrator is VersionedInitializable {
     function initialize(address aaveMerkleDistributor, uint256 lendToMigratorAmount, uint256 lendToLendAmount, uint256 lendToAaveAmount) public initializer {
         uint256 lendAmount = lendToMigratorAmount + lendToLendAmount + lendToAaveAmount;
         uint256 migratorLendBalance = _totalLendMigrated + lendToMigratorAmount;
-        
+
         // account for the LEND sent to the contract for the total migration
         _totalLendMigrated += lendAmount;
 
@@ -68,11 +68,14 @@ contract LendToAaveMigrator is VersionedInitializable {
         emit LendMigrated(address(this), lendAmount);
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 
-        uint256 migrationDiffAfter = AAVE.balanceOf(address(this)) - ((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO);
+        uint256 lendAmountNotMigrated = (LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO;
+        uint256 migrationDiff = AAVE.balanceOf(address(this)) - lendAmountNotMigrated;
 
         require(LEND.balanceOf(address(this)) == 0, 'SOME_LEND_REMAINING');
-        // checks that the amount of AAVE not migrated is less or equal as the amount of AAVE disposable for migration
-        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO == AAVE.balanceOf(address(this)) - migrationDiffAfter,
+
+        // checks that the amount of AAVE not migrated is equal as the amount of AAVE disposable for migration
+        // accounting for a margin surplus on the AAVE token amount found on the LendToAaveMigrator contract previous to the rescue.
+        require(lendAmountNotMigrated + migrationDiff == AAVE.balanceOf(address(this)),
             'INCORRECT_BALANCE_RESCUED'
         );
     }
