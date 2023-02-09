@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
-index e316261..5afd4f2 100644
+index e316261..8e58c38 100644
 --- a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol
 +++ b/./src/contracts/LendToAaveMigrator.sol
 @@ -1,10 +1,8 @@
@@ -45,7 +45,7 @@ index e316261..5afd4f2 100644
      /**
      * @param aave the address of the AAVE token
      * @param lend the address of the LEND token
-@@ -40,9 +44,40 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -40,9 +44,38 @@ contract LendToAaveMigrator is VersionedInitializable {
      }
  
      /**
@@ -75,20 +75,18 @@ index e316261..5afd4f2 100644
 +        emit LendMigrated(address(this), lendAmount);
 +        emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 +
-+        uint256 lendAmountNotMigrated = (LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO;
-+        uint256 migrationDiff = AAVE.balanceOf(address(this)) - lendAmountNotMigrated;
-+
 +        require(LEND.balanceOf(address(this)) == 0, 'SOME_LEND_REMAINING');
 +
-+        // checks that the amount of AAVE not migrated is equal as the amount of AAVE disposable for migration
-+        // accounting for a margin surplus on the AAVE token amount found on the LendToAaveMigrator contract previous to the rescue.
-+        require(lendAmountNotMigrated + migrationDiff == AAVE.balanceOf(address(this)),
++        // checks that the amount of AAVE not migrated is less or equal as the amount of AAVE disposable for migration
++        // we have found that there was a previous small surplus on the AAVE token amount found on the LendToAaveMigrator
++        // contract previous to the rescue, that is why we need to use <= instead of == . This amount is 582968318731898974 (0,58 AAVE)
++        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
 +            'INCORRECT_BALANCE_RESCUED'
 +        );
      }
  
      /**
-@@ -52,18 +87,21 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -52,18 +85,21 @@ contract LendToAaveMigrator is VersionedInitializable {
          return lastInitializedRevision != 0;
      }
  
@@ -113,7 +111,7 @@ index e316261..5afd4f2 100644
          emit LendMigrated(msg.sender, amount);
      }
  
-@@ -74,5 +112,4 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -74,5 +110,4 @@ contract LendToAaveMigrator is VersionedInitializable {
      function getRevision() internal pure override returns (uint256) {
          return REVISION;
      }

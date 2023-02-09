@@ -68,14 +68,12 @@ contract LendToAaveMigrator is VersionedInitializable {
         emit LendMigrated(address(this), lendAmount);
         emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 
-        uint256 lendAmountNotMigrated = (LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO;
-        uint256 migrationDiff = AAVE.balanceOf(address(this)) - lendAmountNotMigrated;
-
         require(LEND.balanceOf(address(this)) == 0, 'SOME_LEND_REMAINING');
 
-        // checks that the amount of AAVE not migrated is equal as the amount of AAVE disposable for migration
-        // accounting for a margin surplus on the AAVE token amount found on the LendToAaveMigrator contract previous to the rescue.
-        require(lendAmountNotMigrated + migrationDiff == AAVE.balanceOf(address(this)),
+        // checks that the amount of AAVE not migrated is less or equal as the amount of AAVE disposable for migration
+        // we have found that there was a previous small surplus on the AAVE token amount found on the LendToAaveMigrator
+        // contract previous to the rescue, that is why we need to use <= instead of == . This amount is 582968318731898974 (0,58 AAVE)
+        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
             'INCORRECT_BALANCE_RESCUED'
         );
     }
