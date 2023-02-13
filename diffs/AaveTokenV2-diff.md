@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/AaveTokenV2/Contract.sol b/./src/contracts/AaveTokenV2.sol
-index 8ed94b6..9d70a5f 100644
+index 8ed94b6..88acbc5 100644
 --- a/./etherscan/AaveTokenV2/Contract.sol
 +++ b/./src/contracts/AaveTokenV2.sol
 @@ -1123,12 +1123,13 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
@@ -30,7 +30,7 @@ index 8ed94b6..9d70a5f 100644
     * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy
     */
 -  function initialize() external initializer {}
-+  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor, address lendToken) external initializer {
++  function initialize(address[] memory tokens, uint256[] memory amounts, address aaveMerkleDistributor, address lendToken, uint256 lendToAaveAmount) external initializer {
 +    // send tokens to distributor
 +    require(tokens.length == amounts.length, 'initialize(): amounts and tokens lengths inconsistent'); 
 +    for(uint i = 0; i < tokens.length; i++) {
@@ -39,7 +39,7 @@ index 8ed94b6..9d70a5f 100644
 +      emit TokensRescued(tokens[i], aaveMerkleDistributor, amounts[i]);
 +    }
 +
-+    IERC20(lendToken).safeTransfer(lendToken, IERC20(lendToken).balanceOf(address(this)));
++    IERC20(lendToken).safeTransfer(lendToken, lendToAaveAmount);
 +  }
  
    /**

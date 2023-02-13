@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
-index e316261..eda4ff1 100644
+index e316261..749e35c 100644
 --- a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol
 +++ b/./src/contracts/LendToAaveMigrator.sol
 @@ -1,10 +1,8 @@
@@ -45,7 +45,7 @@ index e316261..eda4ff1 100644
      /**
      * @param aave the address of the AAVE token
      * @param lend the address of the LEND token
-@@ -40,9 +44,30 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -40,9 +44,36 @@ contract LendToAaveMigrator is VersionedInitializable {
      }
  
      /**
@@ -54,31 +54,37 @@ index e316261..eda4ff1 100644
 +    * by migrating them to AAVE and sending them to the AaveMerkleDistributor
 +    * and then burning the LEND tokens
 +    * @param aaveMerkleDistributor address of the AAVE rescue distributor
-+    * @param lendAmount amount of lend that need to be rescued
++    * @param lendToMigratorAmount amount of lend sent to migrator that need to be rescued
++    * @param lendToLendAmount amount of lend sent to LEND that need to be rescued
++    * @param lendToAaveAmount amount of lend sent to AAVE that need to be rescued
      */
 -    function initialize() public initializer {
-+    function initialize(address aaveMerkleDistributor, uint256 lendAmount) public initializer {
++    function initialize(address aaveMerkleDistributor, uint256 lendToMigratorAmount, uint256 lendToLendAmount, uint256 lendToAaveAmount) public initializer {
++        uint256 lendAmount = lendToMigratorAmount + lendToLendAmount + lendToAaveAmount;
++        uint256 migratorLendBalance = _totalLendMigrated + lendToMigratorAmount;
++
 +        // account for the LEND sent to the contract for the total migration
-+        _totalLendMigrated = _totalLendMigrated + lendAmount;
++        _totalLendMigrated += lendAmount;
 +
 +        // transfer AAVE + LEND sent to this contract
 +        uint256 amountToRescue = lendAmount / LEND_AAVE_RATIO;
 +        AAVE.transfer(aaveMerkleDistributor, amountToRescue);
 +
-+        uint256 lendAmountToBurn = LEND.balanceOf(address(this));
-+        LEND.transfer(address(LEND), lendAmountToBurn);
++        LEND.transfer(address(LEND), migratorLendBalance);
 +
 +        emit LendMigrated(address(this), lendAmount);
 +        emit AaveTokensRescued(address(this), aaveMerkleDistributor, amountToRescue);
 +
-+        // checks that the amount of AAVE not migrated is less or equal than the amount AAVE disposable for migration
-+        require((LEND.totalSupply() - LEND.balanceOf(address(this)) - LEND.balanceOf(address(LEND)) - LEND.balanceOf(address(AAVE)) ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
++        // checks that the amount of AAVE not migrated is less or equal as the amount of AAVE disposable for migration
++        // we have found that there was a previous small surplus on the AAVE token amount found on the LendToAaveMigrator
++        // contract previous to the rescue, that is why we need to use <= instead of == . This amount is 582968318731898974 (0,58 AAVE)
++        require((LEND.totalSupply() - LEND.balanceOf(address(LEND)) - lendToAaveAmount ) / LEND_AAVE_RATIO <= AAVE.balanceOf(address(this)),
 +            'INCORRECT_BALANCE_RESCUED'
 +        );
      }
  
      /**
-@@ -52,18 +77,21 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -52,18 +83,21 @@ contract LendToAaveMigrator is VersionedInitializable {
          return lastInitializedRevision != 0;
      }
  
@@ -103,7 +109,7 @@ index e316261..eda4ff1 100644
          emit LendMigrated(msg.sender, amount);
      }
  
-@@ -74,5 +102,4 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -74,5 +108,4 @@ contract LendToAaveMigrator is VersionedInitializable {
      function getRevision() internal pure override returns (uint256) {
          return REVISION;
      }

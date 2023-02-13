@@ -22,6 +22,9 @@ contract AaveTokenV2Test is Test {
         0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
     uint256 public constant UNI_RESCUE_AMOUNT = 110947986090000000000;
 
+    uint256 public constant LEND_TO_AAVE_RESCUE_AMOUNT =
+        19845132947543342156792;
+
     IERC20 public constant AAVE = IERC20(AAVE_TOKEN);
     IInitializableAdminUpgradeabilityProxy public constant aaveProxy =
         IInitializableAdminUpgradeabilityProxy(AAVE_TOKEN);
@@ -64,11 +67,12 @@ contract AaveTokenV2Test is Test {
         aaveProxy.upgradeToAndCall(
             address(aaveTokenImpl),
             abi.encodeWithSignature(
-                "initialize(address[],uint256[],address,address)",
+                "initialize(address[],uint256[],address,address,uint256)",
                 tokens,
                 amounts,
                 AAVE_MERKLE_DISTRIBUTOR,
-                LEND
+                LEND,
+                LEND_TO_AAVE_RESCUE_AMOUNT
             )
         );
 
