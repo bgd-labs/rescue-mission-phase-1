@@ -98,7 +98,7 @@ FORK_URL= // rpc url pointing to mainnet
 
 ### Deploy
 
-To deploy the necessary contracts and proposal payloads, a [deploy.sol](/scripts/deploy.sol) solidity forge script has been created. There we make use of the [deployCode](https://book.getfoundry.sh/reference/forge-std/deployCode.html?highlight=deploycode#deploycode) forge std method to deploy the contracts that have the solidity version 0.7.5 (mainly the AaveTokenV2, StakedTokenV2Rev4 and ProposalPayloadLong) that are incompatible with the 0.8.0 version used everywhere else.
+To deploy the necessary contracts and proposal payloads, a [deploy.sol](/scripts/Deploy.s.sol) solidity forge script has been created. There we make use of the [deployCode](https://book.getfoundry.sh/reference/forge-std/deployCode.html?highlight=deploycode#deploycode) forge std method to deploy the contracts that have the solidity version 0.7.5 (mainly the AaveTokenV2, StakedTokenV2Rev4 and ProposalPayloadLong) that are incompatible with the 0.8.0 version used everywhere else.
 
 You can use the npm script:
 ```
