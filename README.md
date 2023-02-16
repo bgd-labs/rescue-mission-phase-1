@@ -1,7 +1,7 @@
 
 # Aave rescue mission. Phase 1 :ambulance: :ghost:
 <p align="center">
-  <img src="./aave_icon.png" />
+  <img src="./ghost_rescue.jpg" />
 </p>
 Repository containing all the code needed for the initial phase to rescue tokens sent directly to contracts of the Aave ecosystem.
 
