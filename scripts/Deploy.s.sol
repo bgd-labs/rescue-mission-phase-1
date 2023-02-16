@@ -27,7 +27,7 @@ interface IStkAaveTokenRev4Light {
         address[] memory tokens,
         uint256[] memory amounts,
         address aaveMerkleDistributor
-    );
+    ) external;
 }
 
 contract Deploy is Test {
