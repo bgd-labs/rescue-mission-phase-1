@@ -12,24 +12,6 @@ string constant aaveTokenV2Artifact = "out/AaveTokenV2.sol/AaveTokenV2.json";
 string constant stakedTokenV2Rev4Artifact = "out/StakedTokenV2Rev4.sol/StakedTokenV2Rev4.json";
 string constant proposalPayloadLongArtifact = "out/ProposalPayloadLong.sol/ProposalPayloadLong.json";
 
-interface IAaveTokenV2Light {
-    function initialize(
-        address[] memory tokens,
-        uint256[] memory amounts,
-        address aaveMerkleDistributor,
-        address lendToken,
-        uint256 lendToAaveAmount
-    ) external;
-}
-
-interface IStkAaveTokenRev4Light {
-    function initialize(
-        address[] memory tokens,
-        uint256[] memory amounts,
-        address aaveMerkleDistributor
-    ) external;
-}
-
 contract Deploy is Test {
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address public constant LEND = 0x80fB784B7eD66730e8b1DBd9820aFD29931aab03;
@@ -119,23 +101,6 @@ contract Deploy is Test {
             )
         );
         console.log("proposalPayloadLong:", proposalPayloadLong);
-
-        // call initializers
-        lendToAaveMigratorImpl.initialize(address(0), 0, 0, 0);
-
-        IAaveTokenV2Light(aaveTokenV2Impl).initialize(
-            new address[](0),
-            new uint256[](0),
-            address(0),
-            address(0),
-            0
-        );
-
-        IStkAaveTokenRev4Light(stakedTokenV2Rev4Impl).initialize(
-            new address[](0),
-            new uint256[](0),
-            address(0)
-        );
 
         vm.stopBroadcast();
     }

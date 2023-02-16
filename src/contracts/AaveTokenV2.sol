@@ -1161,7 +1161,9 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
 
   event TokensRescued(address indexed tokenRescued, address indexed aaveMerkleDistributor, uint256 amountRescued);
 
-  constructor() ERC20(NAME, SYMBOL) public {}
+  constructor() ERC20(NAME, SYMBOL) public {
+    lastInitializedRevision = REVISION;
+  }
 
   /**
    * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy
