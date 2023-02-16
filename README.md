@@ -1,6 +1,8 @@
-![rescue overview](./rescue-mission-phase-1.png)
-# Aave rescue mission. Phase 1 :ambulance: :ghost:
 
+# Aave rescue mission. Phase 1 :ambulance: :ghost:
+<p align="center">
+  <img src="./ghost_rescue.jpg" />
+</p>
 Repository containing all the code needed for the initial phase to rescue tokens sent directly to contracts of the Aave ecosystem.
 
 This initial phase will affect the following:
@@ -12,6 +14,7 @@ This initial phase will affect the following:
 
 The LEND sent to the specified contracts will be claimed already as AAVE tokens with the transformation LEND to AAVE already taken into account (1 AAVE = 100 LEND)
 
+![rescue overview](./rescue-mission-phase-1.png)
 ## About
 
 This repository is divided in two parts:
@@ -81,7 +84,17 @@ For the token rescue to be executed, there has been a need to create two Proposa
     - AAVE: 768271398516378775101 AAVE in WEI.
     - stkAAVE: 107412975567454603565 stkAAVE in WEI.
 
-### Tests
+## Security
+
+Audit report by Certora can be found [here](./certora) 
+Storage layouts diffs have also been generated for the contracts where the implementation is updated:
+- Aave Token storage layout [Diff](./diffs/AaveTokenV2_layout_diff.md)
+- StkAave Token storage layout [Diff](./diffs/StakedTokenV2Rev3_layout_diff.md)
+- LendToAaveMigrator storage layout [Diff](./diffs/rescue_LendToAaveMigrator_layout_diff.md)
+[Tests](./test) have also been added checking end to end executions
+
+
+## Tests
 
 We have used foundry to create this solidity project, so to run the tests you will need to run ```forge test```. But as we are using already deployed contracts, the tests need to be run in a fork environment. For this you will need to execute this command:
 
@@ -115,3 +128,7 @@ to your .env file. If you want to deploy to a test network you only need to chan
 ## Mentions
 
 In this project we based the AaveMerkleDistributor contract, and the merkleTree generation on Uniswap's [merkle-distributor](https://github.com/Uniswap/merkle-distributor) project. Differences explained [here](./MerkleDistributionDiff.md).
+
+
+## License
+Copyright © 2023, [BGD Labs](https://bgdlabs.com/). Released under the [MIT License](./LICENSE).

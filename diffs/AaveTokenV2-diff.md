@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/AaveTokenV2/Contract.sol b/./src/contracts/AaveTokenV2.sol
-index 8ed94b6..88acbc5 100644
+index 8ed94b6..cc5252c 100644
 --- a/./etherscan/AaveTokenV2/Contract.sol
 +++ b/./src/contracts/AaveTokenV2.sol
 @@ -1123,12 +1123,13 @@ abstract contract GovernancePowerDelegationERC20 is ERC20, IGovernancePowerDeleg
@@ -17,14 +17,16 @@ index 8ed94b6..88acbc5 100644
  
    /// @dev owner => next valid nonce to submit with permit()
    mapping(address => uint256) public _nonces;
-@@ -1158,12 +1159,24 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
+@@ -1158,12 +1159,26 @@ contract AaveTokenV2 is GovernancePowerDelegationERC20, VersionedInitializable {
  
    mapping(address => address) internal _propositionPowerDelegates;
  
 -  constructor() public ERC20(NAME, SYMBOL) {}
 +  event TokensRescued(address indexed tokenRescued, address indexed aaveMerkleDistributor, uint256 amountRescued);
 +
-+  constructor() ERC20(NAME, SYMBOL) public {}
++  constructor() ERC20(NAME, SYMBOL) public {
++    lastInitializedRevision = REVISION;
++  }
  
    /**
     * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy

@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/StakedTokenV2Rev3/Contract.sol b/./src/contracts/StakedTokenV2Rev4.sol
-index 893cc8c..32ce4e2 100644
+index 893cc8c..ba74924 100644
 --- a/./etherscan/StakedTokenV2Rev3/Contract.sol
 +++ b/./src/contracts/StakedTokenV2Rev4.sol
 @@ -1,7 +1,3 @@
@@ -36,7 +36,7 @@ index 893cc8c..32ce4e2 100644
  
    constructor(
      IERC20 stakedToken,
-@@ -1508,42 +1505,30 @@ contract StakedTokenV2Rev3 is
+@@ -1508,42 +1505,32 @@ contract StakedTokenV2Rev3 is
      uint128 distributionDuration,
      string memory name,
      string memory symbol,
@@ -52,6 +52,8 @@ index 893cc8c..32ce4e2 100644
 -    _aaveGovernance = ITransferHook(governance);
 +    _aaveGovernance = ITransferHook(address(0));
      ERC20._setupDecimals(decimals);
++
++    lastInitializedRevision = REVISION;
    }
  
    /**
