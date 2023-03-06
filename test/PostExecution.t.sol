@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 import { GovHelpers, IAaveGovernanceV2 } from "aave-helpers/GovHelpers.sol";
 import { IERC20 } from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
+import { IGovernanceStrategy } from 'aave-address-book/AaveGovernanceV2.sol';
 import "forge-std/Test.sol";
 
 contract TestPayload {
@@ -38,23 +39,42 @@ contract PostExecutionTest is Test {
         // small test to see that proposal passed (as in proposal we move LEND out of AAVE)
         assertEq(IERC20(LEND).balanceOf(GovHelpers.AAVE), 0);
 
-        _prepareWhale();
     }
 
     function testCreateAndPassShortProposal() public {
         uint256 proposalId = _createProposal(false);
 
+        vm.roll(GovHelpers.GOV.getProposalById(proposalId).startBlock + 1);
+
+        hoax(GovHelpers.AAVE_WHALE);
+        GovHelpers.GOV.submitVote(proposalId, true);
+        uint256 endBlock = GovHelpers.GOV.getProposalById(proposalId).endBlock;
+        vm.roll(endBlock + 1);
+        GovHelpers.GOV.queue(proposalId);
+        uint256 executionTime = GovHelpers.GOV.getProposalById(proposalId).executionTime;
+        vm.warp(executionTime + 1);
+
         vm.expectEmit(true, false, false, true);
         emit PayloadExecuted(true);
-        GovHelpers.passVoteAndExecute(vm, proposalId);
+        GovHelpers.GOV.execute(proposalId);
     }
 
     function testCreateAndPassLongProposal() public {
         uint256 proposalId = _createProposal(true);
 
+        vm.roll(GovHelpers.GOV.getProposalById(proposalId).startBlock + 1);
+
+        hoax(GovHelpers.AAVE_WHALE);
+        GovHelpers.GOV.submitVote(proposalId, true);
+        uint256 endBlock = GovHelpers.GOV.getProposalById(proposalId).endBlock;
+        vm.roll(endBlock + 1);
+        GovHelpers.GOV.queue(proposalId);
+        uint256 executionTime = GovHelpers.GOV.getProposalById(proposalId).executionTime;
+        vm.warp(executionTime + 1);
+
         vm.expectEmit(true, false, false, true);
         emit PayloadExecuted(true);
-        GovHelpers.passVoteAndExecute(vm, proposalId);
+        GovHelpers.GOV.execute(proposalId);
     }
 
     function testTransferAave() public {
@@ -70,6 +90,13 @@ contract PostExecutionTest is Test {
             IERC20(GovHelpers.AAVE).balanceOf(AAVE_HOLDER),
             beforeBalance - 100 ether
         );
+
+
+        IGovernanceStrategy strategy = IGovernanceStrategy(
+            GovHelpers.GOV.getGovernanceStrategy()
+        );
+        uint256 power = strategy.getVotingPowerAt(aaveReceiver, block.number);
+        assertEq(power, IERC20(GovHelpers.AAVE).balanceOf(aaveReceiver));
     }
 
     function testTransferStkAave() public {
@@ -85,12 +112,13 @@ contract PostExecutionTest is Test {
             IERC20(STK_AAVE).balanceOf(STK_AAVE_HOLDER),
             beforeBalance - 100 ether
         );
-    }
 
-    function _prepareWhale() internal {
-        deal(GovHelpers.AAVE, address(this), 5000000 ether);
-        deal(address(this), 1 ether);
-        IERC20(GovHelpers.AAVE).transfer(GovHelpers.AAVE_WHALE, 4000000 ether);
+
+        IGovernanceStrategy strategy = IGovernanceStrategy(
+            GovHelpers.GOV.getGovernanceStrategy()
+        );
+        uint256 power = strategy.getVotingPowerAt(aaveReceiver, block.number);
+        assertEq(power, IERC20(STK_AAVE).balanceOf(aaveReceiver));
     }
 
     function _createProposal(bool long) internal returns (uint256) {
