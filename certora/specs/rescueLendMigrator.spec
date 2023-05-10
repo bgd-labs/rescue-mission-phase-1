@@ -1,14 +1,14 @@
-using DummyERC20Impl as LEND1
-using DummyERC20Impl2 as AAVE1
-using AaveTokenV2 as AAVE_ORIG
+using DummyERC20Impl as LEND1;
+using DummyERC20Impl2 as AAVE1;
+using AaveTokenV2 as AAVE_ORIG;
 
 methods{
-    LEND1.balanceOf(address) returns (uint256) envfree
-    AAVE1.balanceOf(address) returns (uint256) envfree
-    LEND1.totalSupply() returns (uint256) envfree
-    LEND_AAVE_RATIO() returns (uint256) envfree
-    transfer(address, uint256) returns (bool) => DISPATCHER(true)
-    onTransfer(address, address, uint256) => NONDET
+    function LEND1.balanceOf(address) external returns (uint256) envfree;
+    function AAVE1.balanceOf(address) external returns (uint256) envfree;
+    function LEND1.totalSupply() external returns (uint256) envfree;
+    function LEND_AAVE_RATIO() external returns (uint256) envfree;
+    function _.transfer(address, uint256) external returns (bool) => DISPATCHER(true);
+    function _.onTransfer(address, address, uint256) => NONDET;
 }
 
 ghost uint256 lend_to_aave;
@@ -44,7 +44,7 @@ rule LendIsBackedByAaveIncInitialize(env e, method f){
     require e.msg.sender != AAVE1;
     require ( (LEND1.totalSupply() - LEND1.balanceOf(LEND1)) ) / LEND_AAVE_RATIO() <= AAVE1.balanceOf(currentContract);
     
-    if (f.selector == initialize(address, uint256, uint256, uint256).selector){
+    if (f.selector == sig:initialize(address, uint256, uint256, uint256).selector){
         address aaveMerkleDistributor; uint256 lendToMigratorAmount; uint256 lendToLendAmount; uint256 lendToAaveAmount;
         initialize(e, aaveMerkleDistributor, lendToMigratorAmount, lendToLendAmount, lendToAaveAmount);
         address lendToken = LEND1;
