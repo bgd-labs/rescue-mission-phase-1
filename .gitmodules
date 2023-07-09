@@ -8,3 +8,11 @@
 [submodule "lib/aave-autonomous-proposal"]
 	path = lib/aave-autonomous-proposal
 	url = https://github.com/bgd-labs/aave-autonomous-proposal
+[submodule "lib/aave-address-book"]
+	path = lib/aave-address-book
+	url = https://github.com/bgd-labs/aave-address-book
+	branch = v1.10.0
+[submodule "lib/aave-helpers"]
+	path = lib/aave-helpers
+	url = https://github.com/bgd-labs/aave-helpers
+	branch = v1.5.0

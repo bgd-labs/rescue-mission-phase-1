@@ -4,6 +4,7 @@ methods{
     function STAKED_TOKEN1.balanceOf(address) external returns(uint256) envfree;
     function StakedTokenV2Rev4.totalSupply() external returns(uint256) envfree;
     function _.onTransfer(address, address, uint256) internal => NONDET;
+    function _.onTransfer(address, address, uint256) external => NONDET;
 }
 
 // The holding token (stkAAVE) is always backed with a sufficient amount of the staked asset (AAVE)

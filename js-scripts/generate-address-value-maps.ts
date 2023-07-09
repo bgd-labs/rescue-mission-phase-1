@@ -167,9 +167,7 @@ async function validateMigrationEvents(events: Event[]): Promise<Event[]> {
     }
   }
 
-  const provider = new providers.StaticJsonRpcProvider(
-    process.env.RPC_TENDERLY_MAINNET,
-  );
+  const provider = new providers.StaticJsonRpcProvider(process.env.RPC_MAINNET);
 
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
@@ -199,9 +197,7 @@ async function validateStkAaveEvents(events: Event[]): Promise<Event[]> {
     }
   }
 
-  const provider = new providers.StaticJsonRpcProvider(
-    process.env.RPC_TENDERLY_MAINNET,
-  );
+  const provider = new providers.StaticJsonRpcProvider(process.env.RPC_MAINNET);
   const { results, errors } = await PromisePool.for(events)
     .withConcurrency(10)
     .process(async (event, ix) => {

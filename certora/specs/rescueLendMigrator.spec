@@ -7,8 +7,8 @@ methods{
     function AAVE1.balanceOf(address) external returns (uint256) envfree;
     function LEND1.totalSupply() external returns (uint256) envfree;
     function LEND_AAVE_RATIO() external returns (uint256) envfree;
-    function _.transfer(address, uint256) external returns (bool) => DISPATCHER(true);
-    function _.onTransfer(address, address, uint256) => NONDET;
+    function _.transfer(address, uint256) external => DISPATCHER(true);
+    function _.onTransfer(address, address, uint256) external => NONDET;
 }
 
 ghost uint256 lend_to_aave;
@@ -18,7 +18,7 @@ ghost uint256 lend_to_aave;
 
 // All the LEND that wasn’t sent for swap in the migrator must be fully collateralised with AAVE
 invariant LendIsBackedByAave()
-    ( (LEND1.totalSupply() - LEND1.balanceOf(LEND1)) ) / LEND_AAVE_RATIO() <= AAVE1.balanceOf(currentContract)
+    ( (LEND1.totalSupply() - LEND1.balanceOf(LEND1)) ) / LEND_AAVE_RATIO() <= to_mathint(AAVE1.balanceOf(currentContract))
     {
         preserved with (env e){
             require e.msg.sender != LEND1;
@@ -42,7 +42,8 @@ invariant LendIsBackedByAave()
 rule LendIsBackedByAaveIncInitialize(env e, method f){
     require e.msg.sender != LEND1;
     require e.msg.sender != AAVE1;
-    require ( (LEND1.totalSupply() - LEND1.balanceOf(LEND1)) ) / LEND_AAVE_RATIO() <= AAVE1.balanceOf(currentContract);
+    require LEND_AAVE_RATIO() !=0;
+    require ( (LEND1.totalSupply() - LEND1.balanceOf(LEND1)) ) / LEND_AAVE_RATIO() <= to_mathint(AAVE1.balanceOf(currentContract));
     
     if (f.selector == sig:initialize(address, uint256, uint256, uint256).selector){
         address aaveMerkleDistributor; uint256 lendToMigratorAmount; uint256 lendToLendAmount; uint256 lendToAaveAmount;
@@ -57,5 +58,5 @@ rule LendIsBackedByAaveIncInitialize(env e, method f){
         f(e, args);
     }
 
-    assert ( (LEND1.totalSupply() - LEND1.balanceOf(LEND1)) ) / LEND_AAVE_RATIO() <= AAVE1.balanceOf(currentContract);
+    assert ( (LEND1.totalSupply() - LEND1.balanceOf(LEND1)) ) / LEND_AAVE_RATIO() <= to_mathint(AAVE1.balanceOf(currentContract));
 }

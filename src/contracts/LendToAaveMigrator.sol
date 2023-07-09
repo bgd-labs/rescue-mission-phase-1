@@ -41,6 +41,8 @@ contract LendToAaveMigrator is VersionedInitializable {
         AAVE = aave;
         LEND = lend;
         LEND_AAVE_RATIO = lendAaveRatio;
+
+        lastInitializedRevision = REVISION;
     }
 
     /**

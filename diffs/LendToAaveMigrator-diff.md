@@ -1,5 +1,5 @@
 ```diff --git a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol b/./src/contracts/LendToAaveMigrator.sol
-index e316261..749e35c 100644
+index e316261..2b5a92c 100644
 --- a/./etherscan/LendToAaveMigrator/contracts/token/LendToAaveMigrator.sol
 +++ b/./src/contracts/LendToAaveMigrator.sol
 @@ -1,10 +1,8 @@
@@ -45,7 +45,12 @@ index e316261..749e35c 100644
      /**
      * @param aave the address of the AAVE token
      * @param lend the address of the LEND token
-@@ -40,9 +44,36 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -37,12 +41,41 @@ contract LendToAaveMigrator is VersionedInitializable {
+         AAVE = aave;
+         LEND = lend;
+         LEND_AAVE_RATIO = lendAaveRatio;
++
++        lastInitializedRevision = REVISION;
      }
  
      /**
@@ -84,7 +89,7 @@ index e316261..749e35c 100644
      }
  
      /**
-@@ -52,18 +83,21 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -52,18 +85,21 @@ contract LendToAaveMigrator is VersionedInitializable {
          return lastInitializedRevision != 0;
      }
  
@@ -109,7 +114,7 @@ index e316261..749e35c 100644
          emit LendMigrated(msg.sender, amount);
      }
  
-@@ -74,5 +108,4 @@ contract LendToAaveMigrator is VersionedInitializable {
+@@ -74,5 +110,4 @@ contract LendToAaveMigrator is VersionedInitializable {
      function getRevision() internal pure override returns (uint256) {
          return REVISION;
      }

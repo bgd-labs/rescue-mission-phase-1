@@ -1,6 +1,8 @@
-![rescue overview](./rescue-mission-phase-1.png)
-# Aave rescue mission. Phase 1 :ambulance: :ghost:
 
+# Aave rescue mission. Phase 1 :ambulance: :ghost:
+<p align="center">
+  <img src="./ghost_rescue.jpg" />
+</p>
 Repository containing all the code needed for the initial phase to rescue tokens sent directly to contracts of the Aave ecosystem.
 
 This initial phase will affect the following:
@@ -12,6 +14,7 @@ This initial phase will affect the following:
 
 The LEND sent to the specified contracts will be claimed already as AAVE tokens with the transformation LEND to AAVE already taken into account (1 AAVE = 100 LEND)
 
+![rescue overview](./rescue-mission-phase-1.png)
 ## About
 
 This repository is divided in two parts:
@@ -25,6 +28,12 @@ To install and execute the project locally, you need:
 
 - ```npm install``` : As the merkle trees are generated via Nodejs scripts, you need to install all dependencies necessary.
 - ```forge install``` : This project is made using [Foundry](https://book.getfoundry.sh/) so to run it you will need to install it, and then install its dependencies.
+
+To run the scripts to generate the Merkle trees:
+```
+npm run generate-json // generates json with address - amounts - txs
+npm run generate-tree // generates MerkleTree jsons for every resque token
+```
 
 ## Merkle Trees
 
@@ -81,7 +90,17 @@ For the token rescue to be executed, there has been a need to create two Proposa
     - AAVE: 768271398516378775101 AAVE in WEI.
     - stkAAVE: 107412975567454603565 stkAAVE in WEI.
 
-### Tests
+## Security
+
+Audit report by Certora can be found [here](./certora) 
+Storage layouts diffs have also been generated for the contracts where the implementation is updated:
+- Aave Token storage layout [Diff](./diffs/AaveTokenV2_layout_diff.md)
+- StkAave Token storage layout [Diff](./diffs/StakedTokenV2Rev3_layout_diff.md)
+- LendToAaveMigrator storage layout [Diff](./diffs/rescue_LendToAaveMigrator_layout_diff.md)
+[Tests](./test) have also been added checking end to end executions
+
+
+## Tests
 
 We have used foundry to create this solidity project, so to run the tests you will need to run ```forge test```. But as we are using already deployed contracts, the tests need to be run in a fork environment. For this you will need to execute this command:
 
@@ -98,7 +117,7 @@ FORK_URL= // rpc url pointing to mainnet
 
 ### Deploy
 
-To deploy the necessary contracts and proposal payloads, a [deploy.sol](/scripts/deploy.sol) solidity forge script has been created. There we make use of the [deployCode](https://book.getfoundry.sh/reference/forge-std/deployCode.html?highlight=deploycode#deploycode) forge std method to deploy the contracts that have the solidity version 0.7.5 (mainly the AaveTokenV2, StakedTokenV2Rev4 and ProposalPayloadLong) that are incompatible with the 0.8.0 version used everywhere else.
+To deploy the necessary contracts and proposal payloads, a [deploy.sol](/scripts/Deploy.s.sol) solidity forge script has been created. There we make use of the [deployCode](https://book.getfoundry.sh/reference/forge-std/deployCode.html?highlight=deploycode#deploycode) forge std method to deploy the contracts that have the solidity version 0.7.5 (mainly the AaveTokenV2, StakedTokenV2Rev4 and ProposalPayloadLong) that are incompatible with the 0.8.0 version used everywhere else.
 
 You can use the npm script:
 ```
@@ -115,3 +134,7 @@ to your .env file. If you want to deploy to a test network you only need to chan
 ## Mentions
 
 In this project we based the AaveMerkleDistributor contract, and the merkleTree generation on Uniswap's [merkle-distributor](https://github.com/Uniswap/merkle-distributor) project. Differences explained [here](./MerkleDistributionDiff.md).
+
+
+## License
+Copyright © 2023, [BGD Labs](https://bgdlabs.com/). Released under the [MIT License](./LICENSE).

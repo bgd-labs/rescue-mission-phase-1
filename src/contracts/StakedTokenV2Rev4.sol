@@ -1514,6 +1514,8 @@ contract StakedTokenV2Rev4 is
     REWARDS_VAULT = rewardsVault;
     _aaveGovernance = ITransferHook(address(0));
     ERC20._setupDecimals(decimals);
+
+    lastInitializedRevision = REVISION;
   }
 
   /**
