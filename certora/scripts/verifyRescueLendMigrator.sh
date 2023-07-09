@@ -8,6 +8,7 @@ certoraRun  src/contracts/LendToAaveMigrator.sol:LendToAaveMigrator \
             LendToAaveMigrator:AAVE=DummyERC20Impl2 \
     --solc_map LendToAaveMigrator=solc8.0,DummyERC20Impl=solc8.0,DummyERC20Impl2=solc8.0,AaveTokenV2=solc7.5 \
     --optimistic_loop \
+    --send_only \
     --cloud \
     --rule $1 \
     --msg "Rescue Lend Migrator $1"
